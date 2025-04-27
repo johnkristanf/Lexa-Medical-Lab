@@ -57,9 +57,9 @@ class User extends Authenticatable
         return $this->belongsTo(Roles::class, 'role_id');
     }
 
-    public function getIndexRoute()
+    public function getIndexRoute($authenticatedUserRoleID)
     {
-        return match($this->roles->id ?? null){
+        return match($authenticatedUserRoleID){
 
             // PURPOSE OF ABSOLUTE FALSE IS TO NOT RETURN A FULL URL (https://example.com/dashboard)
             // ONLY RELATIVE URL (/dashboard)
@@ -67,7 +67,7 @@ class User extends Authenticatable
             Roles::ADMIN => route('dashboard', absolute: false),
             Roles::MEDICAL => route('medical', absolute: false),
             Roles::INVENTORY => route('inventory', absolute: false),
-            default => route('dashboard', absolute: false),
+            default => route('unauthorized', absolute: false),
         };
     }
 }
