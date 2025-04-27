@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -45,4 +46,29 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    protected $with = [
+        'roles'
+    ];
+    
+    public function roles(): BelongsTo
+    {
+        return $this->belongsTo(Roles::class, 'role_id');
+    }
+
+    public function getIndexRoute()
+    {
+        return match($this->roles->id ?? null){
+
+            // PURPOSE OF ABSOLUTE FALSE IS TO NOT RETURN A FULL URL (https://example.com/dashboard)
+            // ONLY RELATIVE URL (/dashboard)
+
+            Roles::ADMIN => route('dashboard', absolute: false),
+            Roles::MEDICAL => route('medical', absolute: false),
+            Roles::INVENTORY => route('inventory', absolute: false),
+            default => route('dashboard', absolute: false),
+        };
+    }
 }
+

@@ -1,7 +1,11 @@
 {
+    "semi": false,
     "singleQuote": true,
-    "plugins": [
-        "prettier-plugin-organize-imports",
-        "prettier-plugin-tailwindcss"
-    ]
-}
+    "htmlWhitespaceSensitivity": "ignore",
+    "vueIndentScriptAndStyle": true,
+    "tabWidth": 4,
+    "useTabs": false,
+    "bracketSameLine": false,
+    "printWidth": 100
+  }
+  
