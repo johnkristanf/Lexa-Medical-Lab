@@ -65,8 +65,8 @@ class User extends Authenticatable
             // ONLY RELATIVE URL (/dashboard)
 
             Roles::ADMIN => route('dashboard', absolute: false),
-            Roles::MEDICAL => route('medical', absolute: false),
-            Roles::INVENTORY => route('inventory', absolute: false),
+            Roles::MEDICAL => route('medical.queue', absolute: false),
+            Roles::INVENTORY => route('medical.inventory', absolute: false),
             default => route('unauthorized', absolute: false),
         };
     }
