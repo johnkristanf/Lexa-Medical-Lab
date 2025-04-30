@@ -19,5 +19,13 @@ class StaffSeeder extends Seeder
             'password' => bcrypt('officer123'),
             'role_id' => 3,
         ]);
+
+
+        User::factory()->createOne([
+            'name' => 'Jake the Medicator',
+            'email' => 'medical@staff',
+            'password' => bcrypt('medical123'),
+            'role_id' => 2,
+        ]);
     }
 }

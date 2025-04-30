@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QueueController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,24 +16,16 @@ use Inertia\Inertia;
 // });
 
 
-Route::get('/', function () {
-    return redirect(route('login'));
-});
-
-
-Route::middleware(['auth', 'verified'])->group(function () {
-
-    // USER PROFILE MANAGEMENT ROUTE
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-
-    // ADMIN ROUTE
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+Route::middleware('guest')->group(function () {
+    // REDIRECT TO AUTH LOGIN PAGE IN FIRST RENDER
+    Route::get('/', function () {
+        return redirect(route('login'));
+    });
 
 });
+
 
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
+require __DIR__.'/queue.php';
+require __DIR__.'/medical-supply.php';
