@@ -105,6 +105,7 @@
                                                 v-model="form.participants"
                                                 type="text"
                                                 class="form-input"
+                                                required
                                             />
                                             <p
                                                 v-if="form.errors.participants"
@@ -126,6 +127,7 @@
                                                 v-model="form.brand_name"
                                                 type="text"
                                                 class="form-input"
+                                                required
                                             />
                                             <p
                                                 v-if="form.errors.brand_name"
@@ -147,6 +149,7 @@
                                                 v-model="form.unit"
                                                 type="text"
                                                 class="form-input"
+                                                required
                                             />
                                             <p
                                                 v-if="form.errors.unit"
@@ -168,6 +171,7 @@
                                                 v-model="form.quantity"
                                                 type="number"
                                                 class="form-input"
+                                                required
                                             />
                                             <p
                                                 v-if="form.errors.quantity"

@@ -28,7 +28,7 @@
         </div>
 
         <div
-            class="mt-6 w-full overflow-hidden px-6 py-4"
+            class="mt-6 w-full overflow-hidden px-6 py-4 rounded-md"
             :class="[dynamicBgColor, { 'sm:max-w-md': !noMaxWidth }]"
         >
             <slot />

@@ -1,4 +1,5 @@
 <script setup>
+    import { formatDate } from '@/helpers/formatter'
     import {
         TransitionRoot,
         TransitionChild,
@@ -58,10 +59,22 @@
                                 Request Details Below
                             </DialogDescription>
 
-                            <div class="flex flex-col gap-5 isolate px-6 lg:px-8 mt-5">
-                                <div v-for="supplies in props.supplies_requested">
-                                    <h1 class="text-2xl">Brand Name: {{ supplies.brand_name }}</h1>
-                                    <p class="text-md text-gray-400 ml-3">
+                            <div class="flex flex-col gap-5 isolate lg:px-8 mt-5">
+                                <div
+                                    v-for="supplies in props.supplies_requested"
+                                    class="border-2 border-gray-300 p-3 rounded-md"
+                                >
+                                    <div class="flex items-center justify-between text-md">
+                                        <h1 >
+                                            Brand Name: {{ supplies.brand_name }}
+                                        </h1>
+
+                                        <h1 class="text-gray-400">
+                                            {{ formatDate(supplies.pivot.created_at) }}
+                                        </h1>
+                                    </div>
+
+                                    <p class="text-sm text-gray-500">
                                         - {{ supplies.pivot.quantity }} {{ supplies.unit }}
                                     </p>
                                 </div>

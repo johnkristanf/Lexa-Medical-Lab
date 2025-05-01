@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class SupplyRequest extends Model
@@ -17,7 +18,13 @@ class SupplyRequest extends Model
             'request_id',            // foreign key on pivot table for this model
             'supply_id'              // foreign key on pivot table for related model
         )
-        ->withPivot('quantity');
+        ->withPivot('quantity')
+        ->withTimestamps();
+    }
+
+    public function users(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
     
 }
