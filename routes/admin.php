@@ -8,10 +8,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
-
+Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+    
 });
