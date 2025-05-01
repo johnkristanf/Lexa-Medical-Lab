@@ -38,6 +38,17 @@ class MedicalSupplyController extends Controller
     }
 
 
+
+    public function requests()
+    {
+        $suppliesInventory = MedicalSupplies::all();
+
+        return Inertia::render('Inventory/Request', [
+            'supplies' => $suppliesInventory
+        ]);
+    }
+
+
     public function medicalSupplyRequest()
     {
         $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'release_datetime')
