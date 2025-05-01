@@ -32,7 +32,19 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'roles' => $request->user()->roles,
+
+                    // Add permissions to be accessed on the frontend
+                    'permissions' => [
+                        'is_admin' => $request->user()->can('admin'),
+                        'can_manage_medical' => $request->user()->can('manage-medical'),
+                        'can_manage_inventory_supplies' => $request->user()->can('manage-inventory-supplies'),
+                    ],
+                ] : null,
             ],
         ];
     }
