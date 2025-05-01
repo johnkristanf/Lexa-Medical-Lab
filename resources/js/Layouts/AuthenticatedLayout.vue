@@ -1,13 +1,56 @@
 <script setup>
-    import { ref } from 'vue'
+    import { computed, ref } from 'vue'
     import BusinessLogo from '@/Components/BusinessLogo.vue'
     import Dropdown from '@/Components/Dropdown.vue'
     import DropdownLink from '@/Components/DropdownLink.vue'
     import NavLink from '@/Components/NavLink.vue'
     import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-    import { Link } from '@inertiajs/vue3'
+    import { Link, usePage } from '@inertiajs/vue3'
 
     const showingNavigationDropdown = ref(false)
+
+    const page = usePage()
+    const user = computed(() => page.props.auth?.user ?? {})
+    const permissions = computed(() => user.value?.permissions ?? {})
+
+    const navigationLinks = computed(() => [
+
+        // ADMIN ONLY ACCESS ROUTE
+        {
+            name: 'Dashboard',
+            route_name: 'admin.dashboard',
+            permitted: permissions.value?.is_admin,
+        },
+
+
+        // MEDICAL AND ADMIN ACCESS ROUTE
+        {
+            name: 'Patient Queue',
+            route_name: 'patient.queue',
+            permitted: permissions.value?.can_manage_medical,
+        },
+
+        {
+            name: 'Supply Request',
+            route_name: 'supply.request',
+            permitted: permissions.value?.can_manage_medical,
+        },
+
+
+        // INVENTORY AND ADMIN ACCESS ROUTE
+        {
+            name: 'Inventory',
+            route_name: 'inventory.supplies',
+            permitted: permissions.value?.can_manage_inventory_supplies,
+        },
+
+
+        {
+            name: 'Supply Requests',
+            route_name: 'inventory.supply.request',
+            permitted: permissions.value?.can_manage_inventory_supplies,
+        },
+    ])
 </script>
 
 <template>
@@ -20,7 +63,7 @@
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
+                                <Link :href="route('admin.dashboard')">
                                     <BusinessLogo
                                         class="block w-48 h-9 w-auto fill-current text-gray-800"
                                     />
@@ -30,10 +73,12 @@
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
+                                    v-for="link in navigationLinks.filter((link) => link.permitted)"
+                                    :key="link.route_name"
+                                    :href="route(link.route_name)"
+                                    :active="route().current(link.route_name)"
                                 >
-                                    Dashboard
+                                    {{ link.name }}
                                 </NavLink>
                             </div>
                         </div>
@@ -130,10 +175,12 @@
                 >
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
+                            v-for="link in navigationLinks.filter((link) => link.permitted)"
+                            :key="link.route_name"
+                            :href="route(link.route_name)"
+                            :active="route().current(link.route_name)"
                         >
-                            Dashboard
+                            {{ link.name }}
                         </ResponsiveNavLink>
                     </div>
 

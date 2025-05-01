@@ -25,7 +25,12 @@ Route::middleware('guest')->group(function () {
 });
 
 
+Route::get('/unauthorized', function () {
+    return Inertia::render('Unauthorized');
+})->name('unauthorized');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/queue.php';
-require __DIR__.'/medical-supply.php';
+require __DIR__.'/medical.php';
+require __DIR__.'/inventory.php';
