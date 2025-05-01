@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Logs;
+use App\MedicalRequestStatus;
+use App\Models\InventoryLogs;
 use App\Models\MedicalSupplies;
 use App\Models\SupplyRequest;
 use Illuminate\Http\Request;
@@ -9,14 +12,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
+use function Pest\Laravel\get;
+
 class MedicalSupplyController extends Controller
 {
+
+    // INVENTORY OFFICER SIDE METHODS
     public function inventory()
     {
         $suppliesInventory = MedicalSupplies::all();
+        $inventoryLogs = InventoryLogs::with([
+            'medical_supplies' => function ($query) {
+                $query->select('id', 'brand_name', 'quantity');
+            }
+        ])
+            ->get();
 
         return Inertia::render('Inventory/Index', [
-            'supplies' => $suppliesInventory
+            'supplies'       => $suppliesInventory,
+            'inventory_logs' => $inventoryLogs
         ]);
     }
 
@@ -32,7 +46,14 @@ class MedicalSupplyController extends Controller
             'lot_number' => 'nullable|string|max:255',
         ]);
 
-        MedicalSupplies::create($validated);
+        $createdSupply = MedicalSupplies::create($validated);
+
+        InventoryLogs::create([
+            'requester_name' => Auth::user()->name,
+            'operation_type' => Logs::ADDED,
+            'total_quantity' => $createdSupply->quantity,
+            'supply_id' => $createdSupply->id,
+        ]);
 
         return redirect()->back()->with('success', 'Supply added successfully.');
     }
@@ -41,17 +62,66 @@ class MedicalSupplyController extends Controller
 
     public function requests()
     {
-        $suppliesInventory = MedicalSupplies::all();
+        $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'remarks', 'release_datetime')
+            ->with([
+                'medical_supplies' => function ($query) {
+                    $query->select('medical_supplies.id', 'medical_supplies.participants', 'medical_supplies.brand_name', 'medical_supplies.unit')
+                        ->withPivot('quantity');
+                }
+            ])
+            ->get();
 
         return Inertia::render('Inventory/Request', [
-            'supplies' => $suppliesInventory
+            'medical_supply_requests' => $supplyRequest
         ]);
     }
 
 
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'release_datetime' => ['required', 'date'],
+            'remarks' => ['nullable', 'string'],
+            'request_id' => ['required', 'exists:supply_requests,id'],
+        ]);
+
+
+        $supplyRequest = SupplyRequest::with(['medical_supplies', 'users'])->find($validated['request_id']);
+
+        $supplyRequest->release_datetime = $validated['release_datetime'];
+        $supplyRequest->remarks = $validated['remarks'];
+        $supplyRequest->status = MedicalRequestStatus::RELEASE->value;
+        $supplyRequest->save();
+
+
+        // THE AUTOMATED DEDUCTION AFTER SAVING STATUS
+        foreach ($supplyRequest->medical_supplies as $medicalSupply) {
+            $quantity = $medicalSupply->pivot->quantity;
+
+            Log::info("Pivot quantity" . $quantity);
+
+            $medicalSupply->quantity -= $quantity;
+            $medicalSupply->save();
+
+
+            // LOG EACH OPERATION
+            InventoryLogs::create([
+                'requester_name' => $supplyRequest->users->name,
+                'operation_type' => Logs::DEDUCTED,
+                'total_quantity' => $quantity,
+                'supply_id' => $medicalSupply->id,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Supply updated successfully.');
+    }
+
+
+
+    // MEDICAL STAFF SIDE METHODS
     public function medicalSupplyRequest()
     {
-        $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'release_datetime')
+        $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'remarks', 'release_datetime')
             ->with([
                 'medical_supplies' => function ($query) {
                     $query->select('medical_supplies.id', 'medical_supplies.participants', 'medical_supplies.brand_name', 'medical_supplies.unit')
@@ -103,7 +173,7 @@ class MedicalSupplyController extends Controller
         $supplyRequest = SupplyRequest::create([
             'to'        => $to,
             'po_number' => $poNumber,
-            'status'    => 'pending',
+            'status'    => MedicalRequestStatus::PENDING->value,
             'user_id'      => Auth::user()->id
         ]);
 

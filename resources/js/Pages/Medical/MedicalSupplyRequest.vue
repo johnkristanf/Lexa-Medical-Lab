@@ -8,7 +8,8 @@
     import RequestSupplyModal from '@/Components/modal/RequestSupplyModal.vue'
     import { formatDate } from '@/helpers/formatter'
     import SearchInput from '@/Components/SearchInput.vue'
-import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModal.vue'
+    import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModal.vue'
+    import { REQUEST_STATUS } from '@/Enums/Inventory'
 
     const props = defineProps({
         medical_supply_requests: Array,
@@ -19,16 +20,15 @@ import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModa
 
     const modals = reactive({
         showRequestModal: false,
-        showSupplyRequestedModal: false
+        showSupplyRequestedModal: false,
     })
 
-    const selectedRequestMedicalSupply = ref({});
+    const selectedRequestMedicalSupply = ref({})
 
     const handleShowRequestedMedicalSupply = (data) => {
-        selectedRequestMedicalSupply.value = data;
+        selectedRequestMedicalSupply.value = data
         modals.showSupplyRequestedModal = true
     }
-
 </script>
 
 <template>
@@ -43,7 +43,6 @@ import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModa
         <div>
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="card p-8">
-                    
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-6">
                         <fwb-button color="green" @click="modals.showRequestModal = true">
@@ -61,7 +60,28 @@ import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModa
                     >
                         <Column field="po_number" header="PO #"></Column>
                         <Column field="to" header="To"></Column>
-                        <Column field="status" header="Status"></Column>
+
+                        <Column field="status" header="Status">
+                            <template #body="{ data }">
+                                <span
+                                    class="inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
+                                    :class="{
+                                        'bg-green-100 text-green-800':
+                                            data.status === REQUEST_STATUS.RELEASE,
+                                        'bg-yellow-100 text-yellow-800':
+                                            data.status === REQUEST_STATUS.PENDING,
+                                    }"
+                                >
+                                    {{ data.status }}
+                                </span>
+                            </template>
+                        </Column>
+
+                        <Column field="remarks" header="Remarks">
+                            <template #body="{ data }">
+                                {{ data.remarks ? data.remarks : 'N/A' }}
+                            </template>
+                        </Column>
 
                         <Column field="release_datetime" header="Release Date Time">
                             <template #body="{ data }">
@@ -75,7 +95,10 @@ import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModa
 
                         <Column header="Actions">
                             <template #body="{ data }">
-                                <fwb-button color="green" @click="handleShowRequestedMedicalSupply(data.medical_supplies)">
+                                <fwb-button
+                                    color="green"
+                                    @click="handleShowRequestedMedicalSupply(data.medical_supplies)"
+                                >
                                     View Requested Supply
                                 </fwb-button>
                             </template>
@@ -98,6 +121,5 @@ import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModa
             :supplies_requested="selectedRequestMedicalSupply"
             @close="modals.showSupplyRequestedModal = false"
         />
-
     </AuthenticatedLayout>
 </template>
