@@ -26,7 +26,9 @@ class MedicalStaffController extends Controller
             $query->select('id', 'name', 'code', 'priority_level');
         }])
             ->where('status_id', $statusID)
-            ->get();
+            ->get()
+            ->sortBy(fn($queue) => $queue->priority_types->priority_level)
+            ->values(); // Reset index
 
 
         return Inertia::render('Medical/Queue', [

@@ -25,7 +25,7 @@
 
         // Make sure we're passing a single ID
         if (newStatus && newStatus.id) {
-            router.visit(route('medical.queue'), {
+            router.visit(route('patient.queue'), {
                 method: 'get',
                 data: { status_id: newStatus.id },
                 preserveState: true,
@@ -38,7 +38,6 @@
 
     // POPOVER TOGGLE
     const toggle = (event, popoverInstance) => popoverInstance.toggle(event)
-
 
     const updateStatus = ({ queue_id, updated_status_id, popoverInstance }) => {
         console.log('queue_id: ', queue_id)
@@ -104,44 +103,56 @@
 
                 <Column header="Actions">
                     <template #body="{ data }">
-                        <!-- CHANGE STATUS BUTTON -->
-                        <h1
-                            @click="(event) => toggle(event, $refs['popover_' + data.id])"
-                            class="min-w-48 text-green-600 hover:cursor-pointer hover:underline"
-                        >
-                            Update Status
-                        </h1>
 
-                        <!-- POPOVER FOR CHANGING STATUS -->
-                        <Popover :ref="'popover_' + data.id">
-                            <div class="flex flex-col gap-4">
-                                <div>
-                                    <span class="font-medium block mb-2">Queue Status</span>
-                                    <ul class="list-none p-0 m-0 flex flex-col">
-                                        <li
-                                            v-for="queueStatus in props.queue_statuses.filter(
-                                                (s) => s.id !== data.status_id,
-                                            )"
-                                            :key="queueStatus.id"
-                                            class="flex items-center gap-2 px-2 py-3 hover:bg-emphasis cursor-pointer rounded-border"
-                                            @click="
-                                                updateStatus({
-                                                    queue_id: data.id,
-                                                    updated_status_id: queueStatus.id,
-                                                    popoverInstance: $refs['popover_' + data.id],
-                                                })
-                                            "
-                                        >
-                                            <div>
-                                                <span class="font-medium">
-                                                    {{ queueStatus.name }}
-                                                </span>
-                                            </div>
-                                        </li>
-                                    </ul>
+                        
+                        <div v-if="data.status_id < 3">
+                            <!-- CHANGE STATUS BUTTON -->
+                            <h1
+                                @click="(event) => toggle(event, $refs['popover_' + data.id])"
+                                class="min-w-48 text-green-600 hover:cursor-pointer hover:underline"
+                            >
+                                Update Status
+                            </h1>
+
+                            <!-- POPOVER FOR CHANGING STATUS -->
+                            <Popover :ref="'popover_' + data.id">
+                                <div class="flex flex-col gap-4">
+                                    <div>
+                                        <span class="font-medium block mb-2">Queue Status</span>
+                                        <ul class="list-none p-0 m-0 flex flex-col">
+                                            <li
+                                                v-for="queueStatus in props.queue_statuses.filter(
+                                                    (s) => s.id === data.status_id + 1,
+                                                )"
+                                                :key="queueStatus.id"
+                                                class="flex items-center gap-2 px-2 py-3 hover:bg-emphasis cursor-pointer rounded-border"
+                                                @click="
+                                                    updateStatus({
+                                                        queue_id: data.id,
+                                                        updated_status_id: queueStatus.id,
+                                                        popoverInstance:
+                                                            $refs['popover_' + data.id],
+                                                    })
+                                                "
+                                            >
+                                                <div>
+                                                    <span class="font-medium">
+                                                        {{ queueStatus.name }}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        </Popover>
+                            </Popover>
+                        </div>
+
+                        <span
+                            v-else
+                            class="inline-block px-2 py-1 text-sm font-bold rounded-md bg-green-100 text-green-800"
+                        >
+                           This Patient is already Served
+                        </span>
                     </template>
                 </Column>
             </DataTable>
