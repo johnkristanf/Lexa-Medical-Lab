@@ -10,20 +10,25 @@
         queues: Array,
     })
 
-    console.log('Dashboard Queue: ', props.queues)
-
-    const sortedQueues = computed(() => {
-        return [...props.queues].sort((a, b) => {
-            // First sort by priority_level (ascending)
-            if (a.priority_types.priority_level !== b.priority_types.priority_level) {
-                return a.priority_types.priority_level - b.priority_types.priority_level
-            }
-            // For patients with same priority level, sort by creation time (first come, first served)
-            return new Date(a.created_at) - new Date(b.created_at)
-        })
-    })
+    // // SORT PATIENT BY PRIORITY LEVEL
+    // const sortedQueues = computed(() => {
+    //     return [...props.queues].sort((a, b) => {
+    //         // First sort by priority_level (ascending)
+    //         if (a.priority_types.priority_level !== b.priority_types.priority_level) {
+    //             return a.priority_types.priority_level - b.priority_types.priority_level
+    //         }
+    //         // For patients with same priority level, sort by creation time (first come, first served)
+    //         return new Date(a.created_at) - new Date(b.created_at)
+    //     })
+    // })
 
     onMounted(() => {
+        // CHECK REVERB SERVER CONNECTION
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+            console.log('✅ Echo connected successfully to the server.')
+        })
+
+        // LISTEN TO QUEUE EVENT
         window.Echo.channel('queues').listen('.update.queue', (e) => {
             console.log('Update Queue ID:', e.updatedQueueID)
 
@@ -37,6 +42,11 @@
                         only: ['queues'],
                     },
                 )
+
+                const audio = new Audio('/sounds/new_queue.mp3')
+                audio.play().catch((error) => {
+                    console.error('Failed to play audio:', error)
+                })
             }
         })
     })
@@ -46,7 +56,7 @@
     <GuestLayout :noMaxWidth="true" dynamicBgColor="bg-transparent">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
             <Card
-                v-for="queue in sortedQueues"
+                v-for="queue in props.queues"
                 style="width: 20rem; overflow: hidden; height: 23rem"
             >
                 <!-- BUSSINESS LOGO IMAGE HEADER -->

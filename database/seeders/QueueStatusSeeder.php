@@ -26,10 +26,6 @@ class QueueStatusSeeder extends Seeder
                 'name' => 'Served',
                 'tag' => 'served',
             ],
-            [
-                'name' => 'No Show',
-                'tag' => 'no_show',
-            ],
         ];
 
         foreach ($statuses as $status) {

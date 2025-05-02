@@ -31,7 +31,9 @@ class QueueController extends Controller
 
             // If no ID is provided, use the first priority type as default
             $defaultPriorityType = $priorityTypes->first();
+
             if ($defaultPriorityType) {
+
                 $newQueueNumber = $this->getNewQueueNumber($defaultPriorityType->id);
                 Log::info("Default priority type ID: " . $defaultPriorityType->id);
                 Log::info("Default queue number: " . $newQueueNumber);
@@ -111,14 +113,26 @@ class QueueController extends Controller
         ]);
 
         Log::info("queue", [
-            'queue Data' => $queue
+            'queue Data bago ni' => $queue
         ]);
 
         if ($queue) {
             broadcast(new QueueUpdate($queue->id));
         }
 
-        return redirect(route('queue.create'))->with('success', 'Successful Queue Insertion, you may now proceed to the line');
+        $waitingCount = Queues::where('status_id', 1)->count();
+
+        Log::info("queue->queue_number" . $queue->queue_number);
+        Log::info("queue->created_at" . $queue->created_at);
+
+        return redirect()->route('queue.create')->with([
+            'success' => 'Successful Queue Insertion!',
+            'queueData' => [
+                'queue_number' => $queue->queue_number,
+                'created_at' => $queue->created_at,
+                'waiting_count' => $waitingCount
+            ]
+        ]);
     }
 
 
@@ -128,15 +142,16 @@ class QueueController extends Controller
             'priority_types' => function ($query) {
                 $query->select('id', 'name', 'priority_level', 'code');
             },
-
             'queue_status' => function ($query) {
                 $query->select('id', 'name', 'tag');
             },
         ])
             ->whereDate('created_at', now()->toDateString())
-            ->where('status_id', '!=', 3) // STATUS ID 3 IS FOR SERVED AND WILL NOT BE SHOWN IN THE DASHBOARD
-            ->orderBy('status_id', 'desc')
-            ->get();
+            ->where('status_id', '!=', 3)
+            ->get()
+            ->sortBy(fn($queue) => $queue->priority_types->priority_level)
+            ->values(); // Reset index
+
 
         return Inertia::render('Queue/DashboardQueue', [
             'queues' => $allQueues

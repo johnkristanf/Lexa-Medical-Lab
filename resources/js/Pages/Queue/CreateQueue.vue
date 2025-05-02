@@ -8,35 +8,32 @@
     import PrimaryButton from '@/Components/PrimaryButton.vue'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import { watch } from 'vue'
+    import { nextTick, ref, watch } from 'vue'
+    import { formatDate } from '@/helpers/formatter'
 
     // TOAST INITIALIZATION
     const toast = useToast()
 
-    const showSuccessQueueInsertion = () => {
+    const showSuccessQueueInsertion = (successMsg) => {
         toast.add({
             severity: 'success',
-            summary: 'Queue Insertion Successful',
+            summary: successMsg,
             detail: 'You may now proceed to the line',
             life: 3000,
         })
     }
 
+    // COMPONENT QUEUE PROPS DATA
     const props = defineProps({
         priority_types: Array,
         queue_number: Number,
     })
 
-    // console.log('Priority Types: ', props.priority_types)
-    // console.log('Queue number: ', props.queue_number)
-
-    // PRIORITY TYPE DATA
-    // const priorityTypes = [
-    //     { id: 1, name: 'Person with Disability (PWD)' },
-    //     { id: 2, name: 'Senior Citizen' },
-    //     { id: 3, name: 'Pregnant Woman' },
-    //     { id: 4, name: 'Regular Patient' },
-    // ]
+    const responseQueueData = ref({
+        queue_number: '',
+        waiting_count: '',
+        created_at: '',
+    })
 
     // FORM INITIALIZATION
     const form = useForm({
@@ -54,8 +51,8 @@
     watch(
         () => form.priority_type,
         (newPriorityType) => {
-            console.log("DOUBLE CHECK NATO HAA...");
-            
+            console.log('DOUBLE CHECK NATO HAA...')
+
             console.log('newPriorityType: ', newPriorityType)
 
             router.get(route('queue.create'), newPriorityType, {
@@ -63,29 +60,128 @@
                 preserveScroll: true,
                 only: ['queue_number'], // make sure 'queue' contains the updated queue number from backend
                 onSuccess: (page) => {
-                    const updatedQueueNumber = page.props.queue_number;
-                    console.log("updatedQueueNumber: ", updatedQueueNumber);
-                    
-                    form.queue_number = formatQueueNumber(
-                        newPriorityType.code,
-                        updatedQueueNumber,
-                    )
+                    const updatedQueueNumber = page.props.queue_number
+                    console.log('updatedQueueNumber: ', updatedQueueNumber)
+
+                    form.queue_number = formatQueueNumber(newPriorityType.code, updatedQueueNumber)
                 },
             })
         },
     )
 
+    // PRINT THE QUEUE TICKET
+    const printTicket = () => {
+        console.log('responseQueueData: ', responseQueueData)
+
+        const ticketContent = document.getElementById('ticket-to-print')
+
+        const printWindow = window.open('', '_blank', 'width=1000,height=1200')
+
+        if (!printWindow) {
+            console.error('Failed to open print window. Pop-up blocker enabled?')
+            toast.add({
+                severity: 'error',
+                summary: 'Print Error',
+                detail: 'Could not open print window. Please check if pop-up blocker is enabled.',
+                life: 5000,
+            })
+            return
+        }
+
+        // Add print-specific CSS
+        printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Queue Ticket</title>
+                        <style>
+                            @page {
+                                size: 80mm 150mm; /* Standard thermal receipt size */
+                                margin: 0;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 8px;
+                                width: 76mm; /* Slightly less than page size to account for printer margins */
+                                font-family: Arial, sans-serif;
+                            }
+                            .ticket {
+                                text-align: center;
+                                padding: 5px;
+                            }
+                            .header {
+                                font-size: 14px;
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                            }
+                            .queue-number {
+                                font-size: 32px;
+                                font-weight: bold;
+                                margin: 10px 0;
+                            }
+                            .info {
+                                font-size: 12px;
+                                margin-bottom: 5px;
+                            }
+                            .footer {
+                                font-size: 10px;
+                                margin-top: 10px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${ticketContent.innerHTML}
+                    </body>
+                    </html>
+                `)
+
+        // Wait for content to load then print
+        printWindow.document.close()
+        printWindow.onload = function () {
+            printWindow.focus()
+            printWindow.print()
+
+            // Close after printing (or on print cancel)
+            printWindow.onafterprint = function () {
+                printWindow.close()
+            }
+        }
+
+        // Auto-close if print dialog is canceled (timeout backup)
+        setTimeout(() => {
+            if (printWindow && !printWindow.closed) {
+                printWindow.close()
+            }
+        }, 5000)
+    }
+
     // HANDLE THE QUEUE CREATION SUBMISSION FORM
     const onSubmit = () => {
         form.post(route('queue.store'), {
-            onSuccess: () => {
-                showSuccessQueueInsertion()
+            onSuccess: async (response) => {
+
+                console.log('Full response:', response)
+
+                const queueData = response?.props?.flash?.queueData
+                const successMsg = response?.props?.flash?.success
+                
+                console.log('queueData: ', queueData)
+
+                showSuccessQueueInsertion(successMsg)
+
+                responseQueueData.value = {
+                    queue_number: queueData.queue_number,
+                    waiting_count: queueData.waiting_count.toString(),
+                    created_at: queueData.created_at,
+                }
+
+                // CALL THE PRINT TICKET FUNCTION
+                await nextTick()
+                printTicket()
+
 
                 // CLEAR FIELDS
                 form.patient_name = ''
                 form.queue_number = ''
-
-                console.log('Successfully created queue!')
             },
             onError: (errors) => {
                 console.log('Validation errors:', errors)
@@ -203,11 +299,27 @@
                 :class="{ 'opacity-25': form.processing }"
                 :disabled="form.processing"
             >
-                Print Queue Ticket
+                Get Queue Ticket
             </PrimaryButton>
         </form>
 
         <!-- SUCCESSFULL QUEUE INSERTION ALERT -->
         <Toast />
+
+        <!-- HIDDEN QUEUE TICKET LAYOUT -->
+        <div id="ticket-to-print" class="hidden">
+            <div class="ticket">
+                <div class="header">Welcome</div>
+                <div class="subheader">Your queuing number</div>
+                <div class="queue-number">{{ responseQueueData?.queue_number }}</div>
+                <div class="info">
+                    Currently waiting:
+                    <span class="waiting-count">{{ responseQueueData?.waiting_count }}</span>
+                </div>
+                <div class="info date-time">{{ formatDate(responseQueueData?.created_at) }}</div>
+                <div class="footer">Keep quiet and be patient please</div>
+                <div class="footer">Thanks for your support</div>
+            </div>
+        </div>
     </GuestLayout>
 </template>

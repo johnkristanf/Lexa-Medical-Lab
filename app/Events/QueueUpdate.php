@@ -9,15 +9,17 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class QueueUpdate implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-   public $updatedQueueID;
+    public $updatedQueueID;
 
     public function __construct($updatedQueueID)
     {
+        Log::info("updatedQueueID 123: " . $updatedQueueID);
         $this->updatedQueueID = $updatedQueueID;
     }
 
@@ -34,5 +36,13 @@ class QueueUpdate implements ShouldBroadcast
     public function broadcastAs(): string
     {
         return 'update.queue';
+    }
+
+    
+    public function broadcastWith(): array
+    {
+        return [
+            'updatedQueueID' => $this->updatedQueueID,
+        ];
     }
 }
