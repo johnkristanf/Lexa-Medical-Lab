@@ -9,6 +9,16 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use App\Models\TestCategory;
+use App\Models\TestType;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Test;
+use App\Models\TestPurpose;
+use App\Models\TestRequest;
+
+
+
 
 class MedicalStaffController extends Controller
 {
@@ -34,7 +44,7 @@ class MedicalStaffController extends Controller
         return Inertia::render('Medical/Queue', [
             'queue_statuses' => $queueStatuses,
             'queues' => $queues
-        ]); 
+        ]);
     }
 
 
@@ -44,12 +54,82 @@ class MedicalStaffController extends Controller
             'queue_id' => 'required|exists:queues,id',
             'status_id' => 'required|exists:queue_statuses,id',
         ]);
-    
+
         $queue = Queues::findOrFail($request->queue_id);
         $queue->status_id = $request->status_id;
         $queue->save();
 
         broadcast(new QueueUpdate($queue->id));
         return back();
+    }
+
+    public function testCategoryCreate(Request $request)
+    {
+        // dd($request->all());
+        $testCategory = TestCategory::with('testTypes')
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10);
+        return Inertia::render('TestCategory/TestCategory', [
+            'test_category' => $testCategory
+        ]);
+    }
+
+    public function testCategoryStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        TestCategory::create($validated);
+
+        return redirect()->back()->with('success', 'Test Category created successfully.');
+    }
+
+    public function testCategoryDelete($id)
+    {
+        $testCategory = TestCategory::findOrFail($id);
+        $testCategory->delete();
+
+        return redirect()->back()->with('success', 'Test Category deleted successfully.');
+    }
+
+    public function testTypeStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'reference_range' => 'required|string|max:255',
+            'unit' => 'nullable|string|max:255',
+            'price' => 'required|integer',
+            'test_category_id' => 'required|exists:test_category,id',
+        ]);
+
+        TestType::create($validated);
+
+        // dd($request->all());
+
+        // DB::table('test_types')->insert($request->all());
+
+        return redirect()->back()->with('success', 'Test Type created successfully.');
+    }
+
+    public function testStore(Request $request)
+    {
+        log::error($request);
+
+        $validated = $request->validate([
+            'referer_fullname' => 'required|string|max:255',
+            'doctor_license_no' => 'required|string|max:255',
+            'reason_for_test' => 'required|string|max:255',
+            'test_schedule' => 'required|date',
+            'total_price' => 'required|integer',
+            'request_id' => 'required|string|exists:request,id',
+            'purpose_id' => 'required|string|exists:purpose,id',
+            'patient_id' => 'required|string|exists:patient,id',
+            'category_id' => 'required|string|exists:category,id',
+        ]);
+
+        Test::create($validated);
     }
 }

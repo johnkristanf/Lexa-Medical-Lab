@@ -36,6 +36,20 @@
             permitted: permissions.value?.can_manage_medical,
         },
 
+        //Patient Details Page
+         {
+            name: 'Patient Details',
+            route_name: 'patient.details.create',
+            permitted: permissions.value?.can_manage_medical,
+        },
+
+        //Test Category Page
+        {
+            name: 'Test Category',
+            route_name: 'test.category.create',
+            permitted: permissions.value?.can_manage_medical,
+        },
+
 
         // INVENTORY AND ADMIN ACCESS ROUTE
         {
