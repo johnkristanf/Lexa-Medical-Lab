@@ -22,7 +22,7 @@
     })
 
     console.log("supplies_dropdown_select modal: ", props.supplies_dropdown_select);
-    
+
 
     // Track selected supplies and quantities
     const selectedSupplies = ref([])
@@ -170,7 +170,7 @@
                                                             placeholder="Qty"
                                                         />
                                                     </div>
-                                                    
+
                                                 </div>
                                             </div>
                                         </div>

@@ -31,6 +31,6 @@ Route::get('/unauthorized', function () {
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
-require __DIR__.'/queue.php';
+require __DIR__. '/queue.php';
 require __DIR__.'/medical.php';
 require __DIR__.'/inventory.php';

@@ -1,0 +1,349 @@
+<script setup>
+    import {
+        TransitionRoot,
+        TransitionChild,
+        Dialog,
+        DialogPanel,
+        DialogTitle,
+        DialogDescription,
+    } from '@headlessui/vue'
+
+
+    import { useForm } from '@inertiajs/vue3'
+    import Toast from 'primevue/toast'
+    import { useToast } from 'primevue/usetoast'
+
+    // TOAST INITIALIZATION
+    const toast = useToast()
+
+
+    // EMITS FOR MODAL HANDLING
+    const emit = defineEmits(['close'])
+    const closeModal = () => emit('close')
+
+    function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters[randomIndex];
+    }
+    return result;
+}
+
+
+    // INERTIA FORM INIATILIZATION
+    const form = useForm({
+        patient_id:generateRandomString(10),
+        first_name: '',
+        middle_name: '',
+        last_name: '',
+        gender: '',
+        date_of_birth: '',
+        address: '',
+        contact_number: '',
+        email: '',
+
+    })
+
+    // FORM SUBMISSION
+    function submitForm() {
+        form.post(route('patient.details.submit'), {
+            onSuccess: () => {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medical Supply Addition Successful',
+                    life: 3000,
+                })
+
+                closeModal();
+            },
+        }) // replace with your actual route
+    }
+
+
+</script>
+
+<template>
+    <TransitionRoot appear :show="true">
+        <Dialog as="div" @close="closeModal" class="relative z-10">
+            <TransitionChild
+                as="template"
+                enter="duration-300 ease-out"
+                enter-from="opacity-0"
+                enter-to="opacity-100"
+                leave="duration-200 ease-in"
+                leave-from="opacity-100"
+                leave-to="opacity-0"
+            >
+                <div class="fixed inset-0 bg-black/25" />
+            </TransitionChild>
+
+            <div class="fixed inset-0 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center">
+                    <TransitionChild
+                        as="template"
+                        enter="duration-300 ease-out"
+                        enter-from="opacity-0 scale-95"
+                        enter-to="opacity-100 scale-100"
+                        leave="duration-200 ease-in"
+                        leave-from="opacity-100 scale-100"
+                        leave-to="opacity-0 scale-95"
+                    >
+                        <DialogPanel
+                            class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                        >
+                            <DialogTitle
+                                as="h1"
+                                class="text-2xl font-medium leading-6 text-gray-900"
+                            >
+                                Add Patient Details
+                            </DialogTitle>
+
+                            <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
+                                Add Patient Details Description Here
+                            </DialogDescription>
+
+                            <div class="isolate px-6 lg:px-8 mt-10">
+                                <form @submit.prevent="submitForm" class="max-w-xl">
+                                    <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+                                        <div>
+                                            <label
+                                                for="patient_id"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Patient ID
+                                            </label>
+                                            <input
+                                            disabled
+                                                id="patient_id"
+                                                v-model="form.patient_id"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.patient_id"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.patient_id }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="first_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                First Name
+                                            </label>
+                                            <input
+                                                id="first_name"
+                                                v-model="form.first_name"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.first_name"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.first_name }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="middle_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Middle Name
+                                            </label>
+                                            <input
+                                                id="middle_name"
+                                                v-model="form.middle_name"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.middle_name"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.middle_name }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="last_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Last Name
+                                            </label>
+                                            <input
+                                                id="last_name"
+                                                v-model="form.last_name"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.last_name"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.last_name }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="gender"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Gender
+                                            </label>
+                                            <select
+                                                id="gender"
+                                                v-model="form.gender"
+                                                class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                            >
+                                                <option value="" disabled>Select gender</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                            <p
+                                                v-if="form.errors.gender"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.gender }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="date_of_birth"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Date of Birth
+                                            </label>
+                                            <input
+                                                id="date_of_birth"
+                                                v-model="form.date_of_birth"
+                                                type="date"
+                                                class="form-input"
+                                            />
+                                            <p
+                                                v-if="form.errors.date_of_birth"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.date_of_birth }}
+                                            </p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="address"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Address
+                                            </label>
+                                            <input
+                                                id="address"
+                                                v-model="form.address"
+                                                type="text"
+                                                class="form-input"
+                                            />
+                                            <p
+                                                v-if="form.errors.address"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.address }}
+                                            </p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="contact_number"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Contact Number
+                                            </label>
+                                            <input
+                                                id="contact_number"
+                                                v-model="form.contact_number"
+                                                type="text"
+                                                class="form-input"
+                                            />
+                                            <p
+                                                v-if="form.errors.contact_number"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.contact_number }}
+                                            </p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="contact_number"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Email
+                                            </label>
+                                            <input
+                                                id="email"
+                                                v-model="form.email"
+                                                type="text"
+                                                class="form-input"
+                                            />
+                                            <p
+                                                v-if="form.errors.email"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-10">
+                                        <button
+                                            type="submit"
+                                            :class="[
+                                                'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
+                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                            ]"
+                                            :disabled="form.processing"
+                                        >
+                                            Add Patient
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            @click="closeModal"
+                                            :class="[
+                                                'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
+                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                            ]"
+                                            :disabled="form.processing"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </DialogPanel>
+                    </TransitionChild>
+                </div>
+            </div>
+        </Dialog>
+    </TransitionRoot>
+
+    <!-- TOAST FOR RESPONSE ALERT -->
+    <Toast />
+</template>
+
+<style scoped>
+    .form-input {
+        @apply block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-green-600;
+    }
+</style>
