@@ -20,6 +20,12 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::post('/patient/Details/store', [MedicalSupplyController::class, 'patientDetailsStore'])
         ->name('patient.details.submit');
 
+    //TEST TABLE DETAILS
+    Route::get('/test/Details/create', [MedicalSupplyController::class, 'patientDetailscreate'])
+        ->name('test.details.create');
+
+
+
     //RENDER  TEST CATEGORY PAGE
     Route::prefix('test/Category')->group(function () {
 

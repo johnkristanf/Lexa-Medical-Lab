@@ -44,15 +44,19 @@ const props = defineProps({
         purpose_id:'',
         patient_id: props.patientID,
         category_id: '',
-        selected_test_types: props.testType,
+        selected_test_types: [], // ← must be an array, not a string or object
     })
 
 
     // filtered by category
          const filteredTestTypes = computed(() => {
-    const selectedId = Number(form.category_id)
+    const selectedId = form.category_id
+
+    console.log("selectedId: ", selectedId);
+    console.log("type of selectedId: ", typeof selectedId);
+
     if (!selectedId) return []
-    const selectedCategory = props.testCategory.find(category => category.id === selectedId)
+  const selectedCategory = props.testCategory.find(category => category.id === selectedId)
     return selectedCategory ? selectedCategory.test_types : []
 })
 

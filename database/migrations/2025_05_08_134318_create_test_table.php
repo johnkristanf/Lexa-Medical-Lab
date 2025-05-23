@@ -23,6 +23,8 @@ return new class extends Migration
             $table->foreignId('purpose_id')->constrained('test_purpose')->onDelete('cascade');
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('test_category')->onDelete('cascade');
+            $table->json('selected_test_types')->nullable();
+
             $table->timestamps();
         });
     }

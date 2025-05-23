@@ -11,10 +11,13 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
+    import { ref, nextTick } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
 
+    // Reference to the first input
+    const nameInput = ref(null)
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
@@ -47,7 +50,10 @@
                     summary: 'Test Types Addition Successful',
                     life: 3000,
                 })
-                closeModal();
+                 form.reset()
+                     nextTick(() => {
+                nameInput.value?.focus()
+            })
             },
         }) // replace with your actual route
     }
@@ -97,6 +103,9 @@
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
+                                <p class="text-sm text-green-600 mb-4" v-if="form.wasSuccessful">
+                                    Test type added successfully. You can submit another Test Type.
+                                </p>
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
 
@@ -109,6 +118,7 @@
                                             </label>
                                             <input
                                                 id="name"
+                                                ref="nameInput"
                                                 v-model="form.name"
                                                 type="text"
                                                 class="form-input"
@@ -134,6 +144,7 @@
                                                 id="reference_range"
                                                 v-model="form.reference_range"
                                                 type="text"
+                                                 ref="nameInput"
                                                 class="form-input"
                                                 required
                                             />
@@ -156,6 +167,7 @@
                                                 id="unit"
                                                 v-model="form.unit"
                                                 type="text"
+                                                 ref="nameInput"
                                                 class="form-input"
                                                 required
                                             />
@@ -178,6 +190,7 @@
                                                 id="price"
                                                 v-model="form.price"
                                                 type="number"
+                                                 ref="nameInput"
                                                 class="form-input"
                                                 required
                                             />
@@ -202,7 +215,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Test Type   
+                                            Add Test Type
                                         </button>
 
                                         <button

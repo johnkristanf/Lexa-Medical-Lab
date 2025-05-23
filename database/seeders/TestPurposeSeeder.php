@@ -15,11 +15,11 @@ class TestPurposeSeeder extends Seeder
     public function run(): void
     {
         TestPurpose::insert([
-            ['test_requestname' => 'Personal'],
-            ['test_requestname' => 'Work'],
-            ['test_requestname' => 'School'],
-            ['test_requestname' => 'Insurance'],
-            ['test_requestname' => 'Follow-up'],
+            ['test_purposename' => 'Personal'],
+            ['test_purposename' => 'Work'],
+            ['test_purposename' => 'School'],
+            ['test_purposename' => 'Insurance'],
+            ['test_purposename' => 'Follow-up'],
         ]);
 
         // foreach ($roles as $role) {

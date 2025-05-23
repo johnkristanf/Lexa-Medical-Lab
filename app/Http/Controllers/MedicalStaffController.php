@@ -116,7 +116,7 @@ class MedicalStaffController extends Controller
 
     public function testStore(Request $request)
     {
-        log::error($request);
+        // Log::error($request);
 
         $validated = $request->validate([
             'referer_fullname' => 'required|string|max:255',
@@ -124,12 +124,26 @@ class MedicalStaffController extends Controller
             'reason_for_test' => 'required|string|max:255',
             'test_schedule' => 'required|date',
             'total_price' => 'required|integer',
-            'request_id' => 'required|string|exists:request,id',
-            'purpose_id' => 'required|string|exists:purpose,id',
-            'patient_id' => 'required|string|exists:patient,id',
-            'category_id' => 'required|string|exists:category,id',
+            'request_id' => 'required|integer',
+            'purpose_id' => 'required|integer',
+            'patient_id' => 'required|integer',
+            'category_id' => 'required|integer',
+            'selected_test_types'   => 'required|array',
         ]);
 
-        Test::create($validated);
+        // dd($validated);
+
+        Test::create([
+            'referer_fullname'     => $validated['referer_fullname'],
+            'doctor_license_no'    => $validated['doctor_license_no'],
+            'reason_for_test'      => $validated['reason_for_test'],
+            'test_schedule'        => $validated['test_schedule'],
+            'total_price'          => $validated['total_price'],
+            'request_id'           => $validated['request_id'],
+            'purpose_id'           => $validated['purpose_id'],
+            'patient_id'           => $validated['patient_id'],
+            'category_id'          => $validated['category_id'],
+            'selected_test_types'  => json_encode($validated['selected_test_types']), // manual JSON conversion
+        ]);
     }
 }

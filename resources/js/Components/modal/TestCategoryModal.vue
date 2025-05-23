@@ -80,11 +80,11 @@
                                 as="h1"
                                 class="text-2xl font-medium leading-6 text-gray-900"
                             >
-                                Add Patient Details
+                                Add Test Category Name
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                Add Patient Details Description Here
+                                 Test Category Name
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
@@ -121,7 +121,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Supply
+                                            Add Category
                                         </button>
 
                                         <button

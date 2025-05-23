@@ -78,7 +78,7 @@ function test(categoryq) {
                     <div class="w-full flex justify-end gap-3 mb-4">
 
                         <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
-                            Add Test
+                            Add Category
                         </fwb-button>
 
                         <!-- SEARCH INPUT -->
@@ -141,7 +141,7 @@ function test(categoryq) {
                             @click="test(slotProps.data)"
                             style="background-color: green; color: white; border: none; padding: 0.3rem 0.5rem; border-radius: 4px;"
                         >
-                            Add Category
+                            Add Test Type
                         </button>
                         </div>
                     </template>
