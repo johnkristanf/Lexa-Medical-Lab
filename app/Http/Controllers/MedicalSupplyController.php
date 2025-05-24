@@ -16,6 +16,7 @@ use App\Models\Test;
 use App\Models\TestCategory;
 use App\Models\TestPurpose;
 use App\Models\TestRequest;
+use Illuminate\Validation\Rule;
 
 use function Pest\Laravel\get;
 
@@ -95,7 +96,7 @@ class MedicalSupplyController extends Controller
 
         $supplyRequest->release_datetime = $validated['release_datetime'];
         $supplyRequest->remarks = $validated['remarks'];
-        $supplyRequest->status = MedicalRequestStatus::RELEASE->value;
+        $supplyRequest->status = MedicalRequestStatus::RECEIVED->value;
         $supplyRequest->save();
 
 
@@ -124,33 +125,44 @@ class MedicalSupplyController extends Controller
 
 
     // MEDICAL STAFF SIDE METHODS
-    public function medicalSupplyRequest()
+    public function inventorySupplyRequest()
     {
-        $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'remarks', 'release_datetime')
+        $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status')
             ->with([
-                'medical_supplies' => function ($query) {
-                    $query->select('medical_supplies.id', 'medical_supplies.participants', 'medical_supplies.brand_name', 'medical_supplies.unit')
-                        ->withPivot('quantity');
+                'requested_supply' => function ($query) {
+                    $query->select('id', 'request_id', 'quantity', 'unit', 'item_description', 'unit_price', 'total_price');
                 }
             ])
             ->get();
+
 
         Log::info("supplyRequest", [
             'supplyRequest' => $supplyRequest
         ]);
 
 
-        $suppliesDropdownSelect = MedicalSupplies::select(
-            'id',
-            'brand_name',
-            'unit',
-            'quantity'
-        )->get();
 
         return Inertia::render('Medical/MedicalSupplyRequest', [
             'medical_supply_requests' => $supplyRequest,
-            'supplies_dropdown_select' => $suppliesDropdownSelect
         ]);
+    }
+
+
+    public function updateRequestStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'request_id' => 'required|integer|exists:supply_requests,id',
+            'status_tag' => ['required', 'string', Rule::in(['pending', 'received'])],
+        ]);
+
+        Log::info("Status: ", $validated);
+
+
+        $supplyRequest = SupplyRequest::findOrFail($validated['request_id']);
+        $supplyRequest->status = (string) $validated['status_tag'];
+        $supplyRequest->save();
+
+        return back()->with('success', 'Supply request status updated successfully.');
     }
 
 
@@ -159,20 +171,23 @@ class MedicalSupplyController extends Controller
         $validated = $request->validate([
             'po_number' => 'required|string|max:255',
             'to' => 'required|string|max:255',
-            'supplies' => 'required|array|min:1',
-            'supplies.*.id' => 'required|integer|exists:medical_supplies,id',
-            'supplies.*.quantity' => 'required|integer|min:1',
+            'items' => 'required|array|min:1',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.unit' => 'required|string|max:50',
+            'items.*.item_description' => 'required|string|max:255',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.total_price' => 'required|numeric|min:0',
         ]);
 
         $poNumber = $validated['po_number'];
         $to = $validated['to'];
-        $supplies = $validated['supplies'];
+        $items = $validated['items'];
 
 
         Log::info("Request Data", [
             'poNumber' => $poNumber,
             'to' => $to,
-            'supplies' => $supplies,
+            'items' => $items,
         ]);
 
         $supplyRequest = SupplyRequest::create([
@@ -182,13 +197,7 @@ class MedicalSupplyController extends Controller
             'user_id'      => Auth::user()->id
         ]);
 
-
-        // INSERT VALUE TO THE PIVOTED TABLE
-        foreach ($supplies as $supply) {
-            $supplyRequest->medical_supplies()->attach($supply['id'], [
-                'quantity' => $supply['quantity']
-            ]);
-        }
+        $supplyRequest->requested_supply()->createMany($validated['items']);
 
         return redirect()->back()->with('success', 'Supply Request Submitted');
     }

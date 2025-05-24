@@ -14,16 +14,16 @@ class StaffSeeder extends Seeder
     public function run(): void
     {
         User::factory()->createOne([
-            'name' => 'Ian Pal',
-            'email' => 'inventory@officer',
-            'password' => bcrypt('officer123'),
+            'name' => 'Ailine M. Torrentira',
+            'email' => 'laboratory@technician',
+            'password' => bcrypt('lab123'),
             'role_id' => 3,
         ]);
 
 
         User::factory()->createOne([
             'name' => 'Jake the Medicator',
-            'email' => 'medical@staff',
+            'email' => 'medical@technician',
             'password' => bcrypt('medical123'),
             'role_id' => 2,
         ]);

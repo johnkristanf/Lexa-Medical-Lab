@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('to');
             $table->string('po_number');
-            $table->string('remarks')->nullable();
-            $table->enum('status', ['pending', 'release'])->default('pending');
-            $table->dateTime('release_datetime')->nullable();
+            $table->string('status')->default('pending');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

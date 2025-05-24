@@ -57,7 +57,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
             <Card
                 v-for="queue in props.queues"
-                style="width: 20rem; overflow: hidden; height: 23rem"
+                style="width: 20rem; overflow: hidden; height: 19rem"
             >
                 <!-- BUSSINESS LOGO IMAGE HEADER -->
                 <template #header>
@@ -72,14 +72,14 @@
                         <h1>{{ queue.queue_number }}</h1>
 
                         <!-- PRIORITY LEVEL -->
-                        <h1>Priority Level: {{ queue.priority_types.priority_level }}</h1>
+                        <!-- <h1>Priority Level: {{ queue.priority_types.priority_level }}</h1> -->
                     </div>
                 </template>
 
                 <!-- PATIENT NAME -->
-                <template #subtitle>
+                <!-- <template #subtitle>
                     <h1 class="text-2xl">{{ queue.name }}</h1>
-                </template>
+                </template> -->
 
                 <template #content>
                     <!-- PRIORITY TYPE NAME AND CODE -->

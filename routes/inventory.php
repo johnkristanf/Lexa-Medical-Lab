@@ -9,9 +9,20 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::get('/inventory/supplies', [MedicalSupplyController::class, 'inventory'])
         ->name('inventory.supplies');
 
-    // RENDER INVETORY SUPPLIES REQUEST PAGE
-    Route::get('/inventory/supply/requests', [MedicalSupplyController::class, 'requests'])
+    
+    // INSERT SUPPLY REQUEST
+    Route::post('/medical/supply/request/create', [MedicalSupplyController::class, 'medicalSupplyRequestCreate'])
+        ->name('medical.request.create');
+
+
+    // RENDER SUPPLY REQUEST PAGE
+    Route::get('/medical/supply/request', [MedicalSupplyController::class, 'inventorySupplyRequest'])
         ->name('inventory.supply.request');
+
+
+    // UPDATE SUPPLY REQUEST STATUS
+    Route::post('/update/supply/request/status', [MedicalSupplyController::class, 'updateRequestStatus'])
+        ->name('update.request.status');
 
 
     // SUPPLY INVENTORY ADDITION ENDPOINT

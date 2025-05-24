@@ -39,12 +39,12 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <fwb-button
+                        <!-- <fwb-button
                             class="bg-gray-900 hover:bg-gray-500"
                             @click="toggles.showInventoryDrawer = true"
                         >
                             View Logs
-                        </fwb-button>
+                        </fwb-button> -->
 
                         <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
                             Add Supply

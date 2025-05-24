@@ -8,11 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function () {
 
-    Route::get('/medical/supply/request', [MedicalSupplyController::class, 'medicalSupplyRequest'])
-        ->name('supply.request');
+   
 
-    Route::post('/medical/supply/request/create', [MedicalSupplyController::class, 'medicalSupplyRequestCreate'])
-        ->name('medical.request.create');
+  
     //RENDER PATIENT DETAILS PAGE
     Route::get('/patient/Details/create', [MedicalSupplyController::class, 'patientDetailscreate'])
         ->name('patient.details.create');
