@@ -1,5 +1,4 @@
 <script setup>
-    import { formatDate } from '@/helpers/formatter'
     import {
         TransitionRoot,
         TransitionChild,
@@ -8,6 +7,8 @@
         DialogTitle,
         DialogDescription,
     } from '@headlessui/vue'
+
+    import { FwbButton } from 'flowbite-vue'
 
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
@@ -59,24 +60,31 @@
                                 Request Details Below
                             </DialogDescription>
 
+                            <!-- PRINT REQUEST BUTTON -->
+                            <fwb-button
+                                color="green"
+                                @click="handleShowRequestedMedicalSupply(data.requested_supply)"
+                                class="absolute top-5 right-6"
+                            >
+                                Print Request
+                            </fwb-button>
+
                             <div class="flex flex-col gap-5 isolate lg:px-8 mt-5">
                                 <div
                                     v-for="supplies in props.supplies_requested"
                                     class="border-2 border-gray-300 p-3 rounded-md"
                                 >
-                                    <div class="flex items-center justify-between text-md">
-                                        <h1 >
-                                            Brand Name: {{ supplies.brand_name }}
-                                        </h1>
+                                    <div class="flex flex-col justify-between text-md">
+                                        <h1>Quantity: {{ supplies.quantity }}</h1>
 
-                                        <h1 class="text-gray-400">
-                                            {{ formatDate(supplies.pivot.created_at) }}
-                                        </h1>
+                                        <h1>Unit: {{ supplies.unit }}</h1>
+
+                                        <h1>Item Description: {{ supplies.item_description }}</h1>
+
+                                        <h1>Unit Price: {{ supplies.unit_price }}</h1>
+
+                                        <h1>Total Price: {{ supplies.total_price }}</h1>
                                     </div>
-
-                                    <p class="text-sm text-gray-500">
-                                        - {{ supplies.pivot.quantity }} {{ supplies.unit }}
-                                    </p>
                                 </div>
                             </div>
                         </DialogPanel>

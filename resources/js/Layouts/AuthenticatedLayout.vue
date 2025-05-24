@@ -1,5 +1,5 @@
 <script setup>
-    import { computed, ref } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
     import BusinessLogo from '@/Components/BusinessLogo.vue'
     import Dropdown from '@/Components/Dropdown.vue'
     import DropdownLink from '@/Components/DropdownLink.vue'
@@ -30,11 +30,6 @@
             permitted: permissions.value?.can_manage_medical,
         },
 
-        {
-            name: 'Supply Request',
-            route_name: 'supply.request',
-            permitted: permissions.value?.can_manage_medical,
-        },
 
         //Patient Details Page
          {
@@ -71,6 +66,11 @@
         //     permitted: permissions.value?.can_manage_medical,
         // },
     ])
+
+    onMounted(() => {
+        console.log("User Data: ", page.props.auth?.user);
+        
+    })
 </script>
 
 <template>
