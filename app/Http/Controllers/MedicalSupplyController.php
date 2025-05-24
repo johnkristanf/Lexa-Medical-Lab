@@ -202,7 +202,7 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply Request Submitted');
     }
 
-    public function patientDetailscreate(Request $request)
+    public function patientDetailscreate()
     {
         $patientsDetails = Patient::all();
         $testTypesPurpose = TestPurpose::all();

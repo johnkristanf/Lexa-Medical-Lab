@@ -28,8 +28,6 @@
         category: Object,
     })
 
-
-
     // INERTIA FORM INIATILIZATION
 
     const form = useForm({
@@ -40,7 +38,6 @@
         test_category_id: props.category.id,
     })
 
-
     // FORM SUBMISSION
     function submitForm() {
         form.post(route('test.types.submit'), {
@@ -50,15 +47,13 @@
                     summary: 'Test Types Addition Successful',
                     life: 3000,
                 })
-                 form.reset()
-                     nextTick(() => {
-                nameInput.value?.focus()
-            })
+                form.reset()
+                nextTick(() => {
+                    nameInput.value?.focus()
+                })
             },
         }) // replace with your actual route
     }
-
-
 </script>
 
 <template>
@@ -75,7 +70,6 @@
             >
                 <div class="fixed inset-0 bg-black/25" />
             </TransitionChild>
-
 
             <div class="fixed inset-0 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center">
@@ -108,8 +102,7 @@
                                 </p>
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
-
-                                       <div>
+                                        <div>
                                             <label
                                                 for="patient_id"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -132,7 +125,6 @@
                                             </p>
                                         </div>
 
-
                                         <div>
                                             <label
                                                 for="first_name"
@@ -144,7 +136,7 @@
                                                 id="reference_range"
                                                 v-model="form.reference_range"
                                                 type="text"
-                                                 ref="nameInput"
+                                                ref="nameInput"
                                                 class="form-input"
                                                 required
                                             />
@@ -167,9 +159,8 @@
                                                 id="unit"
                                                 v-model="form.unit"
                                                 type="text"
-                                                 ref="nameInput"
+                                                ref="nameInput"
                                                 class="form-input"
-                                                required
                                             />
                                             <p
                                                 v-if="form.errors.unit"
@@ -190,7 +181,7 @@
                                                 id="price"
                                                 v-model="form.price"
                                                 type="number"
-                                                 ref="nameInput"
+                                                ref="nameInput"
                                                 class="form-input"
                                                 required
                                             />
@@ -201,9 +192,6 @@
                                                 {{ form.errors.price }}
                                             </p>
                                         </div>
-
-
-
                                     </div>
 
                                     <div class="mt-10">
@@ -211,7 +199,9 @@
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-green-600 hover:bg-green-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
@@ -223,7 +213,9 @@
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
