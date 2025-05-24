@@ -38,9 +38,9 @@
             permitted: permissions.value?.can_manage_medical,
         },
 
-        //Test Category Page
+        // Patient Test Page
         {
-            name: 'Test Category',
+            name: 'Patient Test',
             route_name: 'test.category.create',
             permitted: permissions.value?.can_manage_medical,
         },

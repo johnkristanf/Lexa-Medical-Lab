@@ -11,64 +11,54 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {onMounted, computed} from 'vue'
+    import { onMounted, computed } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
-
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-
-
-const props = defineProps({
+    const props = defineProps({
         testTypesPurpose: Array,
         testTypesRequest: Array,
         patientID: Number,
         testCategory: Array,
         testType: Array,
-
-
     })
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
-        referer_fullname:'',
+        referer_fullname: '',
         doctor_license_no: '',
         reason_for_test: '',
         test_schedule: '',
         total_price: '',
-        request_id:'',
-        purpose_id:'',
+        request_id: '',
+        purpose_id: '',
         patient_id: props.patientID,
         category_id: '',
         selected_test_types: [], // ← must be an array, not a string or object
     })
 
-
     // filtered by category
-         const filteredTestTypes = computed(() => {
-    const selectedId = form.category_id
+    const filteredTestTypes = computed(() => {
+        const selectedId = form.category_id
 
-    console.log("selectedId: ", selectedId);
-    console.log("type of selectedId: ", typeof selectedId);
+        console.log('selectedId: ', selectedId)
+        console.log('type of selectedId: ', typeof selectedId)
 
-    if (!selectedId) return []
-  const selectedCategory = props.testCategory.find(category => category.id === selectedId)
-    return selectedCategory ? selectedCategory.test_types : []
-})
-
-
-
+        if (!selectedId) return []
+        const selectedCategory = props.testCategory.find((category) => category.id === selectedId)
+        return selectedCategory ? selectedCategory.test_types : []
+    })
 
     // FORM SUBMISSION
     function submitForm() {
-        console.log('sa form ni:', form.data());
+        console.log('sa form ni:', form.data())
 
-        console.log("filteredTestTypes: ", filteredTestTypes);
-
+        console.log('filteredTestTypes: ', filteredTestTypes)
 
         form.post(route('test.submit'), {
             onSuccess: () => {
@@ -78,17 +68,15 @@ const props = defineProps({
                     life: 3000,
                 })
 
-                closeModal();
+                closeModal()
             },
         }) // replace with your actual route
     }
 
     onMounted(() => {
-        console.log("sa category ni: ", props.testCategory);
-        console.log("All Test Types:", props.testType)
+        console.log('sa category ni: ', props.testCategory)
+        console.log('All Test Types:', props.testType)
     })
-
-
 </script>
 
 <template>
@@ -222,7 +210,7 @@ const props = defineProps({
                                             </p>
                                         </div>
 
-                                          <div>
+                                        <div>
                                             <label
                                                 for="last_name"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -242,107 +230,137 @@ const props = defineProps({
                                             >
                                                 {{ form.errors.total_price }}
                                             </p>
-
                                         </div>
-                                            <div>
-                                                <label
-                                                    for="test_request"
-                                                    class="block text-sm font-semibold text-gray-900"
+                                        <div>
+                                            <label
+                                                for="test_request"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Test Request
+                                            </label>
+                                            <select
+                                                id="test_requestname"
+                                                v-model="form.request_id"
+                                                class="form-input"
+                                            >
+                                                <option value="" disabled>
+                                                    -- Select Request Type --
+                                                </option>
+                                                <option
+                                                    v-for="typeRequest in testTypesRequest"
+                                                    :key="typeRequest.id"
+                                                    :value="typeRequest.id"
                                                 >
-                                                    Test Request
-                                                </label>
-                                                <select
-                                                    id="test_requestname"
-                                                    v-model="form.request_id"
-                                                    class="form-input"
-
-                                                >
-                                                    <option value="" disabled>-- Select Request Type --</option>
-                                                    <option v-for="typeRequest in testTypesRequest" :key="typeRequest.id"  :value="typeRequest.id">
-                                                            {{typeRequest.test_requestname  }}
-                                                    </option>
-
-                                                </select>
-                                                <p
-                                                    v-if="form.errors.test_requestname"
-                                                    class="text-sm text-red-500 mt-1"
-                                                >
-                                                    {{ form.errors.test_requestname }}
-                                                </p>
-                                            </div>
+                                                    {{ typeRequest.test_requestname }}
+                                                </option>
+                                            </select>
+                                            <p
+                                                v-if="form.errors.test_requestname"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.test_requestname }}
+                                            </p>
+                                        </div>
 
                                         <div class="sm:col-span-2">
                                             <label
                                                 for="test_purpose"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                            Test Purpose
-                                        </label>
-                                        <select
-                                            id="test_purposename"
-                                            v-model="form.purpose_id"
-                                            class="form-input w-full"
-                                        >
-                                            <option value="" disabled class="text-center">-- Select Test Purpose --</option>
-                                            <option v-for="type in testTypesPurpose" :key="type.id" :value="type.id">
-                                                {{ type.test_purposename }}
-                                            </option>
-                                        </select>
-                                        <p
-                                            v-if="form.errors.test_purposename"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.test_purposename }}
-                                        </p>
-                                    </div>
+                                                Test Purpose
+                                            </label>
+                                            <select
+                                                id="test_purposename"
+                                                v-model="form.purpose_id"
+                                                class="form-input w-full"
+                                            >
+                                                <option value="" disabled class="text-center">
+                                                    -- Select Test Purpose --
+                                                </option>
+                                                <option
+                                                    v-for="type in testTypesPurpose"
+                                                    :key="type.id"
+                                                    :value="type.id"
+                                                >
+                                                    {{ type.test_purposename }}
+                                                </option>
+                                            </select>
+                                            <p
+                                                v-if="form.errors.test_purposename"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.test_purposename }}
+                                            </p>
+                                        </div>
 
-                                    <div class="sm:col-span-2">
+                                        <div class="sm:col-span-2">
                                             <label
                                                 for="test_purpose"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                            Test Category
-                                        </label>
-                                        <select
-                                            id="test_purposename"
-                                            v-model="form.category_id"
-                                            class="form-input w-full"
-                                        >
-                                            <option value="" disabled class="text-center">-- Select Test Category --</option>
-                                            <option v-for="type_category in testCategory" :key="type_category.id" :value="type_category.id">
-                                                {{ type_category.name }}
-                                            </option>
-                                        </select>
-                                        <p
-                                            v-if="form.errors.category_id"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.category_id }}
-                                        </p>
-                                    </div>
+                                                Test Category
+                                            </label>
+                                            <select
+                                                id="test_purposename"
+                                                v-model="form.category_id"
+                                                class="form-input w-full"
+                                            >
+                                                <option value="" disabled class="text-center">
+                                                    -- Select Test Category --
+                                                </option>
+                                                <option
+                                                    v-for="type_category in testCategory"
+                                                    :key="type_category.id"
+                                                    :value="type_category.id"
+                                                >
+                                                    {{ type_category.name }}
+                                                </option>
+                                            </select>
+                                            <p
+                                                v-if="form.errors.category_id"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.category_id }}
+                                            </p>
+                                        </div>
 
-                                            <!-- checkbox when selecting a category -->
-                                    <div class="sm:col-span-2" v-if="filteredTestTypes.length">
-                                    <div class="space-y-2 mt-2">
+                                        <!-- checkbox when selecting a category -->
                                         <div class="sm:col-span-2" v-if="filteredTestTypes.length">
-                                        <label class="block text-sm font-semibold text-gray-900">Select Test Type</label>
-                                        <div class="space-y-2 mt-2">
-                                            <div v-for="type in filteredTestTypes" :key="type.id">
-                                                <label class="inline-flex items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        :value="type.id"
-                                                        v-model="form.selected_test_types"
-                                                        class="form-checkbox"
-                                                    />
-                                                    <span class="ml-2 text-sm text-gray-700">{{ type.name }}</span>
-                                                </label>
+                                            <div class="space-y-2 mt-2">
+                                                <div
+                                                    class="sm:col-span-2"
+                                                    v-if="filteredTestTypes.length"
+                                                >
+                                                    <label
+                                                        class="block text-sm font-semibold text-gray-900"
+                                                    >
+                                                        Select Test Type
+                                                    </label>
+                                                    <div class="space-y-2 mt-2">
+                                                        <div
+                                                            v-for="type in filteredTestTypes"
+                                                            :key="type.id"
+                                                        >
+                                                            <label class="inline-flex items-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    :value="type.id"
+                                                                    v-model="
+                                                                        form.selected_test_types
+                                                                    "
+                                                                    class="form-checkbox"
+                                                                />
+                                                                <span
+                                                                    class="ml-2 text-sm text-gray-700"
+                                                                >
+                                                                    {{ type.name }}
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    </div>
-                                    </div>
                                     </div>
 
                                     <div class="mt-10">
@@ -350,7 +368,9 @@ const props = defineProps({
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-green-600 hover:bg-green-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
@@ -362,7 +382,9 @@ const props = defineProps({
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >

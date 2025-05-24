@@ -6,15 +6,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
-
 
 Route::middleware('guest')->group(function () {
     // REDIRECT TO AUTH LOGIN PAGE IN FIRST RENDER
@@ -23,7 +14,6 @@ Route::middleware('guest')->group(function () {
     });
 
 });
-
 
 Route::get('/unauthorized', function () {
     return Inertia::render('Unauthorized');
@@ -34,3 +24,4 @@ require __DIR__.'/admin.php';
 require __DIR__. '/queue.php';
 require __DIR__.'/medical.php';
 require __DIR__.'/inventory.php';
+require __DIR__.'/appointment.php';

@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function () {
 
-   
-
   
     //RENDER PATIENT DETAILS PAGE
     Route::get('/patient/Details/create', [MedicalSupplyController::class, 'patientDetailscreate'])

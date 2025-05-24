@@ -88,18 +88,12 @@
             </div>
             <DataTable :value="props.queues" tableStyle="min-width: 50rem" class="custom-datatable">
                 <Column field="queue_number" header="Queue Number"></Column>
-                <Column field="name" header="Name"></Column>
                 <Column header="Priority Label">
                     <template #body="{ data }">
                         {{ data.priority_types?.name }} ({{ data.priority_types?.code }})
                     </template>
                 </Column>
 
-                <Column header="Priority Level">
-                    <template #body="{ data }">
-                        {{ data.priority_types?.priority_level }}
-                    </template>
-                </Column>
 
                 <Column header="Actions">
                     <template #body="{ data }">
