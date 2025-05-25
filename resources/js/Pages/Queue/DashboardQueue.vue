@@ -62,7 +62,7 @@
                 <!-- BUSSINESS LOGO IMAGE HEADER -->
                 <template #header>
                     <div class="p-8">
-                        <img alt="user header" src="/img/lexa-logo-full.png" />
+                        <img alt="Company Logo" src="/img/lexa-logo-full.png" />
                     </div>
                 </template>
 

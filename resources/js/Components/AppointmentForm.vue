@@ -89,6 +89,7 @@
                         v-model="form.gender"
                         :options="genders"
                         optionLabel="name"
+                        optionValue="tag"
                         class="w-full"
                     />
                 </div>

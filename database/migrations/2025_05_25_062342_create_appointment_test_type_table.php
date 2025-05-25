@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('appointment_schedules', function (Blueprint $table) {
+        Schema::create('appointment_test_type', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('schedule');
-            $table->string('status')->default('available'); // available or unavailable
+            $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade');
+            $table->foreignId('type_id')->constrained('test_types')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('appointment_schedules');
+        Schema::dropIfExists('appointment_test_type');
     }
 };
