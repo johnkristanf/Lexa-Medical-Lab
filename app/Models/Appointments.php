@@ -6,23 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class TestType extends Model
+class Appointments extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'test_types';
 
-    public function test_category(): BelongsTo
-    {
-        return $this->belongsTo(TestCategory::class, 'test_category_id');
-    }
-
-    public function appointments(): BelongsToMany
+    public function test_types(): BelongsToMany
     {
         return $this->belongsToMany(
-            Appointments::class,
+            TestType::class,
             'appointment_test_type', // pivot table name
             'appointment_id',        // foreign key on pivot table for this model
             'type_id'           // foreign key on pivot table for related model
         );
+    }
+
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(AppointmentSchedule::class, 'schedule_id');
     }
 }

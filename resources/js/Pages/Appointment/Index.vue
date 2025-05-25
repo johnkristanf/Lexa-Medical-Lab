@@ -11,9 +11,18 @@
     import { onMounted, ref, watch } from 'vue'
     import TestTypeAndSchedule from '../../Components/TestTypeAndSchedule.vue'
 
+    import Toast from 'primevue/toast'
+    import { useToast } from 'primevue/usetoast'
+    import AppointmentDetailsModal from '@/Components/modal/AppointmentDetailsModal.vue'
+
     const props = defineProps({
         test_categories: Array,
+        appointment_schedules: Array,
     })
+
+    const toast = useToast()
+    const showAppointmentDetails = ref(false)
+    const selectedScheduleRef = ref('')
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
@@ -23,25 +32,40 @@
         email: '', // MAKE THIS NULLABLE IN THE BACKEND PARA SA MGA ARTE NA PANEL
         gender: '',
         birthdate: '',
-        selected_schedule: '',
-        selected_type_ids: []
+        selected_schedule: -1,
+        selected_type_ids: [],
     })
 
     // FORM SUBMISSION
     function submitForm() {
-        console.log('personal info data: ', form.data())
+        console.log('appointment data: ', form.data())
 
-        form.post(route('supply.add'), {
-            onSuccess: () => {
+        if (form.birthdate instanceof Date) {
+            form.birthdate = form.birthdate.toISOString().slice(0, 10)
+        } else if (typeof form.birthdate === 'string') {
+            // If already a string, try to convert it to Date first
+            const d = new Date(form.birthdate)
+            if (!isNaN(d.getTime())) {
+                form.birthdate = d.toISOString().slice(0, 10)
+            }
+        }
+
+        form.post(route('store.services.appointment'), {
+            onSuccess: (response) => {
+                const selectedSchedule = response?.props?.flash?.schedule
+
+                showAppointmentDetails.value = true
+                selectedScheduleRef.value = selectedSchedule
+
+                console.log('selectedSchedule: ', selectedSchedule)
+
                 toast.add({
                     severity: 'success',
-                    summary: 'Medical Supply Addition Successful',
+                    summary: 'Appointment Set Successfully',
                     life: 3000,
                 })
-
-                closeModal()
             },
-        }) // replace with your actual route
+        })
     }
 
     // CURRENT STEP OF THE STEPPER
@@ -53,7 +77,14 @@
 </script>
 
 <template>
-    <div class="h-screen flex justify-center bg-gradient-to-r from-green-400 to-gray-100">
+    <div
+        class="h-screen flex flex-col items-center justify-center bg-gradient-to-r from-green-400 to-gray-100"
+    >
+        <!-- COMPANY LOGO -->
+        <div class="p-8">
+            <img alt="Company Logo" src="/img/lexa-logo-removedbg.png" />
+        </div>
+
         <Stepper
             :value="currentStep"
             @update:value="(val) => (currentStep = val)"
@@ -122,7 +153,11 @@
                 <StepPanel v-slot="{ activateCallback }" value="3">
                     <div class="flex flex-col h-full">
                         <div class="flex-auto flex justify-center items-center font-medium">
-                            <TestTypeAndSchedule :test_categories="test_categories" :form="form" />
+                            <TestTypeAndSchedule
+                                :test_categories="test_categories"
+                                :appointment_schedules="appointment_schedules"
+                                :form="form"
+                            />
                         </div>
                     </div>
                     <div class="flex justify-between py-4 pr-3 mx-3">
@@ -153,5 +188,13 @@
                 </StepPanel>
             </StepPanels>
         </Stepper>
+
+        <Toast />
+
+        <AppointmentDetailsModal
+            v-if="showAppointmentDetails"
+            :selectedSchedule="selectedScheduleRef"
+            @close="showAppointmentDetails = false"
+        />
     </div>
 </template>

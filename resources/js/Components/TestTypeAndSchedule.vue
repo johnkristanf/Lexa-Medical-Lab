@@ -8,11 +8,21 @@
         FwbAccordionContent,
     } from 'flowbite-vue'
 
-    import { ref, computed, watch } from 'vue'
+    import { ref, computed, watch, onMounted } from 'vue'
+    import { formatDate } from '@/helpers/formatter'
 
     const props = defineProps({
         test_categories: Array,
+        appointment_schedules: Array,
         form: Object,
+    })
+
+    // Formated appointment schedules
+    const formattedSchedules = computed(() => {
+        return props.appointment_schedules.map((s) => ({
+            id: s.id,
+            schedule: formatDate(new Date(s.schedule), 'MMMM dd, yyyy hh:mm a'),
+        }))
     })
 
     // Store selected test type IDs
@@ -31,16 +41,13 @@
         }, 0)
     })
 
-    // Available schedules
-    const schedules = ref([
-        { id: 1, name: 'May 17, 2025 10:30 AM' },
-        { id: 2, name: 'May 19, 2025 9:00 AM' },
-    ])
-
-
     // Watch every new test types checked, to be inserted in form data
     watch(selectedTypeIds, (newVal) => {
         props.form.selected_type_ids = newVal
+    })
+
+    onMounted(() => {
+        console.log('appointment_schedules: ', props.appointment_schedules)
     })
 </script>
 
@@ -57,8 +64,9 @@
 
                 <Select
                     v-model="form.selected_schedule"
-                    :options="schedules"
-                    optionLabel="name"
+                    :options="formattedSchedules"
+                    optionLabel="schedule"
+                    optionValue="id"
                     class="w-full"
                 />
             </div>
