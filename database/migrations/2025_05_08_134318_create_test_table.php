@@ -18,13 +18,11 @@ return new class extends Migration
             $table->string('reason_for_test');
             $table->date('test_schedule');
             $table->integer('total_price');
-            $table->enum('status', [ 'paid', 'pending'])->default('pending');
-            $table->foreignId('request_id')->constrained('test_request')->onDelete('cascade');
+            $table->enum('status', ['paid', 'pending'])->default('pending');
             $table->foreignId('purpose_id')->constrained('test_purpose')->onDelete('cascade');
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('test_category')->onDelete('cascade');
             $table->json('selected_test_types')->nullable();
-
             $table->timestamps();
         });
     }

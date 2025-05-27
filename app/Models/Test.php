@@ -9,10 +9,6 @@ class Test extends Model
     protected $guarded = ['id'];
     protected $table = 'test';
 
-    public function test_request()
-    {
-        return $this->belongsTo(TestRequest::class, 'request_id');
-    }
 
     public function test_purpose()
     {

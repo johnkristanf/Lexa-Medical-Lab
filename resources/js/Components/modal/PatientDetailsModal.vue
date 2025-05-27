@@ -64,7 +64,7 @@
 
 </script>
 
-<template>
+<template >
     <TransitionRoot appear :show="true">
         <Dialog as="div" @close="closeModal" class="relative z-10">
             <TransitionChild
@@ -206,11 +206,11 @@
                                             <select
                                                 id="gender"
                                                 v-model="form.gender"
-                                                class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-black"
                                             >
-                                                <option value="" disabled>Select gender</option>
-                                                <option value="male">Male</option>
-                                                <option value="female">Female</option>
+                                                <option value="" disabled class="text-black">Select gender</option>
+                                                <option value="male" class="text-black">Male</option>
+                                                <option value="female" class="text-black">Female</option>
                                             </select>
                                             <p
                                                 v-if="form.errors.gender"

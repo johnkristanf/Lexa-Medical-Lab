@@ -8,7 +8,7 @@
         DialogDescription,
     } from '@headlessui/vue'
 
-    import { useForm } from '@inertiajs/vue3'
+    import { useForm,} from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
     import { onMounted, computed } from 'vue'
@@ -22,7 +22,7 @@
 
     const props = defineProps({
         testTypesPurpose: Array,
-        testTypesRequest: Array,
+        // testTypesRequest: Array,
         patientID: Number,
         testCategory: Array,
         testType: Array,
@@ -35,48 +35,89 @@
         reason_for_test: '',
         test_schedule: '',
         total_price: '',
-        request_id: '',
-        purpose_id: '',
+
+        purpose_id:'',
         patient_id: props.patientID,
         category_id: '',
-        selected_test_types: [], // ← must be an array, not a string or object
+        selected_test_types: [],
     })
 
     // filtered by category
     const filteredTestTypes = computed(() => {
-        const selectedId = form.category_id
+
+    const selectedId = form.category_id
+
+    console.log("selectedId: ", selectedId);
+    console.log("type of selectedId: ", typeof selectedId);
+
+
+            if (!selectedId) return []
+            const selectedCategory = props.testCategory.find(category => category.id === selectedId)
+            return selectedCategory ? selectedCategory.test_types : []
+        })
+
 
         console.log('selectedId: ', selectedId)
         console.log('type of selectedId: ', typeof selectedId)
 
-        if (!selectedId) return []
-        const selectedCategory = props.testCategory.find((category) => category.id === selectedId)
-        return selectedCategory ? selectedCategory.test_types : []
-    })
+<
+    // calculate total price of test types
+       const totalPrice = computed(() => {
+        return filteredTestTypes.value
+            .filter(type => form.selected_test_types.includes(type.id))
+            .reduce((sum, type) => sum + parseFloat(type.price || 0), 0)
+            .toFixed(2);
+    });
 
-    // FORM SUBMISSION
+
     function submitForm() {
-        console.log('sa form ni:', form.data())
 
-        console.log('filteredTestTypes: ', filteredTestTypes)
+    if (form.selected_test_types.length === 0) {
+        toast.add({
+            severity: 'warn',
+            summary: 'Please select at least one test type.',
+            life: 3000,
 
-        form.post(route('test.submit'), {
-            onSuccess: () => {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Medical Supply Addition Successful',
-                    life: 3000,
-                })
-
-                closeModal()
-            },
-        }) // replace with your actual route
+        });
+         closeModal();
     }
 
-    onMounted(() => {
-        console.log('sa category ni: ', props.testCategory)
-        console.log('All Test Types:', props.testType)
+
+    form.selected_test_types = form.selected_test_types.map(Number);
+    form.total_price = totalPrice.value;
+
+
+    const plainFormData = {
+        ...form.data(),
+        selected_test_types: [...form.selected_test_types],
+
+    }
+
+    console.log('Submitting plain form data:', plainFormData);
+
+    // Use Inertia to send cleaned data
+    form.post(route('test.submit'),plainFormData, {
+        onSuccess: () => {
+            toast.add({
+                severity: 'success',
+                summary: 'Medical Test Submitted Successfully',
+                life: 3000,
+            });
+            closeModal();
+        },
     })
+}
+
+    onMounted(() => {
+
+        console.log("sa category ni: ", props.testCategory);
+        console.log("Selected Test Types:", form.selected_test_types)
+        console.log("Total Price:", totalPrice.value)
+    })
+
+
+
+
 </script>
 
 <template>
@@ -210,172 +251,121 @@
                                             </p>
                                         </div>
 
-                                        <div>
-                                            <label
-                                                for="last_name"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Total Price
-                                            </label>
-                                            <input
-                                                id="total_price"
-                                                v-model="form.total_price"
-                                                type="number"
-                                                class="form-input"
-                                                required
-                                            />
-                                            <p
-                                                v-if="form.errors.total_price"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
-                                                {{ form.errors.total_price }}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <label
-                                                for="test_request"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Test Request
-                                            </label>
-                                            <select
-                                                id="test_requestname"
-                                                v-model="form.request_id"
-                                                class="form-input"
-                                            >
-                                                <option value="" disabled>
-                                                    -- Select Request Type --
-                                                </option>
-                                                <option
-                                                    v-for="typeRequest in testTypesRequest"
-                                                    :key="typeRequest.id"
-                                                    :value="typeRequest.id"
-                                                >
-                                                    {{ typeRequest.test_requestname }}
-                                                </option>
-                                            </select>
-                                            <p
-                                                v-if="form.errors.test_requestname"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
-                                                {{ form.errors.test_requestname }}
-                                            </p>
-                                        </div>
+
 
                                         <div class="sm:col-span-2">
                                             <label
                                                 for="test_purpose"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Test Purpose
-                                            </label>
-                                            <select
-                                                id="test_purposename"
-                                                v-model="form.purpose_id"
-                                                class="form-input w-full"
-                                            >
-                                                <option value="" disabled class="text-center">
-                                                    -- Select Test Purpose --
-                                                </option>
-                                                <option
-                                                    v-for="type in testTypesPurpose"
-                                                    :key="type.id"
-                                                    :value="type.id"
-                                                >
-                                                    {{ type.test_purposename }}
-                                                </option>
-                                            </select>
-                                            <p
-                                                v-if="form.errors.test_purposename"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
-                                                {{ form.errors.test_purposename }}
-                                            </p>
-                                        </div>
 
-                                        <div class="sm:col-span-2">
-                                            <label
-                                                for="test_purpose"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Test Category
-                                            </label>
-                                            <select
-                                                id="test_purposename"
-                                                v-model="form.category_id"
-                                                class="form-input w-full"
-                                            >
-                                                <option value="" disabled class="text-center">
-                                                    -- Select Test Category --
-                                                </option>
-                                                <option
-                                                    v-for="type_category in testCategory"
-                                                    :key="type_category.id"
-                                                    :value="type_category.id"
-                                                >
-                                                    {{ type_category.name }}
-                                                </option>
-                                            </select>
-                                            <p
-                                                v-if="form.errors.category_id"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
-                                                {{ form.errors.category_id }}
-                                            </p>
-                                        </div>
-
-                                        <!-- checkbox when selecting a category -->
-                                        <div class="sm:col-span-2" v-if="filteredTestTypes.length">
-                                            <div class="space-y-2 mt-2">
-                                                <div
-                                                    class="sm:col-span-2"
-                                                    v-if="filteredTestTypes.length"
-                                                >
-                                                    <label
-                                                        class="block text-sm font-semibold text-gray-900"
-                                                    >
-                                                        Select Test Type
-                                                    </label>
-                                                    <div class="space-y-2 mt-2">
-                                                        <div
-                                                            v-for="type in filteredTestTypes"
-                                                            :key="type.id"
-                                                        >
-                                                            <label class="inline-flex items-center">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    :value="type.id"
-                                                                    v-model="
-                                                                        form.selected_test_types
-                                                                    "
-                                                                    class="form-checkbox"
-                                                                />
-                                                                <span
-                                                                    class="ml-2 text-sm text-gray-700"
-                                                                >
-                                                                    {{ type.name }}
-                                                                </span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            Test Purpose
+                                        </label>
+                                        <select
+                                            id="test_purposename"
+                                            v-model="form.purpose_id"
+                                            class="form-input w-full"
+                                        >
+                                            <option value="" disabled class="text-center">-- Select Test Purpose --</option>
+                                            <option
+                                            v-for="type in testTypesPurpose"
+                                             :key="type.id"
+                                             :value="type.id">
+                                                {{ type.test_purposename }}
+                                            </option>
+                                        </select>
+                                        <p
+                                            v-if="form.errors.purpose_id"
+                                            class="text-sm text-red-500 mt-1"
+                                        >
+                                            {{ form.errors.purpose_id }}
+                                        </p>
                                     </div>
+
+
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="test_purpose"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+
+                                            Test Category
+                                        </label>
+                                        <select
+                                            id="category_id"
+                                            v-model.number="form.category_id"
+                                            class="form-input w-full"
+                                        >
+                                            <option value="" disabled class="text-center">-- Select Test Category --</option>
+                                            <option
+                                            v-for="type_category in testCategory"
+                                            :key="type_category.id"
+                                            :value="type_category.id">
+                                                {{ type_category.name }}
+                                            </option>
+                                        </select>
+                                        <p
+                                            v-if="form.errors.category_id"
+                                            class="text-sm text-red-500 mt-1"
+                                        >
+                                            {{ form.errors.category_id }}
+                                        </p>
+                                    </div>
+
+
+
+
+                                 <!-- checkbox when selecting a category -->
+                                <div class="sm:col-span-2" v-if="filteredTestTypes.length">
+                                <div class="space-y-2 mt-2">
+                                    <label class="block text-sm font-semibold text-gray-900">Select Test Type</label>
+
+                                    <!-- Header row for labels -->
+                                    <div class="flex justify-between text-base font-medium text-gray-700 px-1">
+                                    <span>Test Type</span>
+                                    <span>Price</span>
+                                    </div>
+
+                                    <div class="space-y-2 mt-2">
+                                    <div
+                                    v-for="type in filteredTestTypes"
+                                    :key="type.id"
+                                    :value="Number(type.id)"
+                                    class="flex justify-between items-center">
+                                        <label class="inline-flex items-center">
+                                        <input
+                                              type="checkbox"
+                                            :value="type.id"
+                                            v-model.number="form.selected_test_types"
+                                            class="form-checkbox"
+                                        />
+                                        <span class="ml-2 text-sm text-gray-700">{{ type.name }}</span>
+                                        </label>
+                                        <span class="text-sm text-gray-700">{{ type.price }}</span>
+                                    </div>
+                                    </div>
+                                <div class="mt-4 text-right text-sm font-semibold text-gray-900">
+                                    Total Price: {{ totalPrice }}
+                                    </div>
+                                </div>
+                                </div>
+
+                                </div>
+
 
                                     <div class="mt-10">
                                         <button
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing
-                                                    ? 'bg-gray-400'
-                                                    : 'bg-green-600 hover:bg-green-500',
+
+                                                form.processing? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+
                                             ]"
                                             :disabled="form.processing"
                                         >
                                             Add Test
-                                        </button>
+                                        </button>t
 
                                         <button
                                             type="button"
