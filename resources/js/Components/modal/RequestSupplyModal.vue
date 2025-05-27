@@ -1,4 +1,5 @@
 <script setup>
+    import { generateRandomNumberString } from '@/helpers/random_num'
     import {
         TransitionRoot,
         TransitionChild,
@@ -11,17 +12,11 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
 
     const toast = useToast()
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
-
-    const props = defineProps({
-        supplies_dropdown_select: Array,
-    })
-
-    console.log("supplies_dropdown_select modal: ", props.supplies_dropdown_select);
 
 
     // Track selected supplies and quantities
@@ -31,36 +26,67 @@
     const form = useForm({
         po_number: '',
         to: '',
-        supplies: [], // this will hold { id, quantity } items
+        items: [
+            // array for repeater items
+            {
+                quantity: 0,
+                unit: '',
+                item_description: '',
+                unit_price: 0,
+                total_price: 0,
+            },
+        ],
     })
 
-    // Toggle selection of each supply checkbox
-    function toggleSupplySelection(supplyId) {
-        const exists = selectedSupplies.value.find((s) => s.id === supplyId)
-
-        if (exists) {
-            selectedSupplies.value = selectedSupplies.value.filter((s) => s.id !== supplyId)
-        } else {
-            selectedSupplies.value.push({ id: supplyId, quantity: 1 })
-        }
+    const addItem = () => {
+        form.items.push({
+            quantity: 0,
+            unit: '',
+            item_description: '',
+            unit_price: 0,
+            total_price: 0,
+        })
     }
+
+    const removeItem = (index) => {
+        form.items.splice(index, 1)
+    }
+
+    // Toggle selection of each supply checkbox
+    // function toggleSupplySelection(supplyId) {
+    //     const exists = selectedSupplies.value.find((s) => s.id === supplyId)
+
+    //     if (exists) {
+    //         selectedSupplies.value = selectedSupplies.value.filter((s) => s.id !== supplyId)
+    //     } else {
+    //         selectedSupplies.value.push({ id: supplyId, quantity: 1 })
+    //     }
+    // }
 
     // Sync to form before submit
     function submitForm() {
-        form.supplies = selectedSupplies.value
-        console.log("form data: ", form.data());
+
+        form.items.forEach((item) => {
+            item.total_price = item.quantity * item.unit_price
+        })
+
+        console.log('form data: ', form.data())
 
         form.post(route('medical.request.create'), {
             onSuccess: () => {
                 toast.add({
                     severity: 'success',
-                    summary: 'Suppli Request Submitted!',
+                    summary: 'Supply Request Submitted!',
                     life: 3000,
                 })
                 closeModal()
             },
         })
     }
+
+    onMounted(() => {
+        form.po_number = generateRandomNumberString(12)
+    })
 </script>
 
 <template>
@@ -108,72 +134,6 @@
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
                                         <!-- MEDICAL SUPPLY CHECKBOX AND INPUT QUANTITY -->
-                                        <div class="sm:col-span-2">
-                                            <label
-                                                class="block text-sm font-semibold text-gray-900 mb-2"
-                                            >
-                                                Select Medical Supplies
-                                            </label>
-                                            <div
-                                                v-for="supply in props.supplies_dropdown_select"
-                                                :key="supply.id"
-                                                class="flex flex-col mb-4 border p-3 rounded-lg"
-                                            >
-                                                <div class="flex items-start space-x-4">
-                                                    <input
-                                                        type="checkbox"
-                                                        :id="'supply-' + supply.id"
-                                                        :value="supply.id"
-                                                        @change="toggleSupplySelection(supply.id)"
-                                                        :checked="
-                                                            selectedSupplies.some(
-                                                                (s) => s.id === supply.id,
-                                                            )
-                                                        "
-                                                        class="mt-1"
-                                                    />
-
-                                                    <label
-                                                        :for="'supply-' + supply.id"
-                                                        class="text-sm text-gray-800"
-                                                    >
-                                                        {{ supply.brand_name }} (Available:
-                                                        {{ supply.quantity }} {{ supply.unit }})
-                                                    </label>
-                                                </div>
-
-                                                <!-- Quantity and Unit Inputs -->
-                                                <div
-                                                    v-if="
-                                                        selectedSupplies.some(
-                                                            (s) => s.id === supply.id,
-                                                        )
-                                                    "
-                                                    class="mt-2 flex space-x-4 ml-6"
-                                                >
-                                                    <div class="w-full my-3">
-                                                        <label
-                                                            class="block text-xs font-medium text-gray-600"
-                                                        >
-                                                            Quantity
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            :max="supply.quantity"
-                                                            v-model.number="
-                                                                selectedSupplies.find(
-                                                                    (s) => s.id === supply.id,
-                                                                ).quantity
-                                                            "
-                                                            class="w-full form-input"
-                                                            placeholder="Qty"
-                                                        />
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <div class="sm:col-span-2">
                                             <label
@@ -187,6 +147,8 @@
                                                 v-model="form.po_number"
                                                 type="text"
                                                 class="form-input"
+                                                disabled
+                                                readonly
                                             />
                                             <p
                                                 v-if="form.errors.po_number"
@@ -215,6 +177,99 @@
                                             >
                                                 {{ form.errors.to }}
                                             </p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <h3 class="font-semibold text-gray-800 mb-2">
+                                                Supply Items
+                                            </h3>
+                                            <div
+                                                v-for="(item, index) in form.items"
+                                                :key="index"
+                                                class="mb-6 border p-4 rounded-lg space-y-2"
+                                            >
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label
+                                                            class="text-sm font-medium text-gray-700"
+                                                        >
+                                                            Quantity
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            v-model.number="item.quantity"
+                                                            class="form-input"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label
+                                                            class="text-sm font-medium text-gray-700"
+                                                        >
+                                                            Unit
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            v-model="item.unit"
+                                                            class="form-input"
+                                                        />
+                                                    </div>
+                                                    <div class="col-span-2">
+                                                        <label
+                                                            class="text-sm font-medium text-gray-700"
+                                                        >
+                                                            Item Description
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            v-model="item.item_description"
+                                                            class="form-input"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label
+                                                            class="text-sm font-medium text-gray-700"
+                                                        >
+                                                            Unit Price
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            v-model.number="item.unit_price"
+                                                            class="form-input"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label
+                                                            class="text-sm font-medium text-gray-700"
+                                                        >
+                                                            Total Price
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            class="form-input"
+                                                            :value="item.quantity * item.unit_price"
+                                                            readonly
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex justify-end">
+                                                    <button
+                                                        type="button"
+                                                        @click="removeItem(index)"
+                                                        class="text-sm text-red-600 hover:underline"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                @click="addItem"
+                                                class="text-sm text-blue-600 hover:underline mt-2"
+                                            >
+                                                + Add another item
+                                            </button>
                                         </div>
                                     </div>
 

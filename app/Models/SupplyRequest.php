@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupplyRequest extends Model
 {
@@ -20,6 +21,12 @@ class SupplyRequest extends Model
         )
         ->withPivot('quantity')
         ->withTimestamps();
+    }
+
+
+    public function requested_supply(): HasMany
+    {
+        return $this->hasMany(RequestedSupply::class, 'request_id');
     }
 
     public function users(): BelongsTo

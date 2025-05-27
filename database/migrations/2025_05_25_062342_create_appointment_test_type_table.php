@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('supply_requests', function (Blueprint $table) {
+        Schema::create('appointment_test_type', function (Blueprint $table) {
             $table->id();
-            $table->string('to');
-            $table->string('po_number');
-            $table->string('status')->default('pending');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade');
+            $table->foreignId('type_id')->constrained('test_types')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('supply_requests');
+        Schema::dropIfExists('appointment_test_type');
     }
 };

@@ -37,8 +37,8 @@
 
     // FORM INITIALIZATION
     const form = useForm({
-        patient_name: '',
-        priority_type: props.priority_types[0],
+        patient_name: 'Automatic Name Regular Patient',
+        priority_type: props.priority_types[3], // AUTOMATIC SET FOR REGULAR PATIENT
         queue_number: '',
     })
 
@@ -51,8 +51,6 @@
     watch(
         () => form.priority_type,
         (newPriorityType) => {
-            console.log('DOUBLE CHECK NATO HAA...')
-
             console.log('newPriorityType: ', newPriorityType)
 
             router.get(route('queue.create'), newPriorityType, {
@@ -156,35 +154,42 @@
 
     // HANDLE THE QUEUE CREATION SUBMISSION FORM
     const onSubmit = () => {
-        form.post(route('queue.store'), {
-            onSuccess: async (response) => {
+        // 1. Fetch the latest queue number based on priority_type
+        router.get(route('queue.create'), form.priority_type, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['queue_number'],
+            onSuccess: (page) => {
+                const updatedQueueNumber = page.props.queue_number
+                form.queue_number = formatQueueNumber(form.priority_type.code, updatedQueueNumber)
 
-                console.log('Full response:', response)
+                // 2. Once queue number is set, submit the form
+                form.post(route('queue.store'), {
+                    onSuccess: async (response) => {
+                        const queueData = response?.props?.flash?.queueData
+                        const successMsg = response?.props?.flash?.success
 
-                const queueData = response?.props?.flash?.queueData
-                const successMsg = response?.props?.flash?.success
-                
-                console.log('queueData: ', queueData)
+                        showSuccessQueueInsertion(successMsg)
 
-                showSuccessQueueInsertion(successMsg)
+                        responseQueueData.value = {
+                            queue_number: queueData.queue_number,
+                            waiting_count: queueData.waiting_count.toString(),
+                            created_at: queueData.created_at,
+                        }
 
-                responseQueueData.value = {
-                    queue_number: queueData.queue_number,
-                    waiting_count: queueData.waiting_count.toString(),
-                    created_at: queueData.created_at,
-                }
+                        await nextTick()
+                        printTicket()
 
-                // CALL THE PRINT TICKET FUNCTION
-                await nextTick()
-                printTicket()
-
-
-                // CLEAR FIELDS
-                form.patient_name = ''
-                form.queue_number = ''
+                        // Clear input
+                        form.queue_number = ''
+                    },
+                    onError: (errors) => {
+                        console.log('Validation errors:', errors)
+                    },
+                })
             },
-            onError: (errors) => {
-                console.log('Validation errors:', errors)
+            onError: (error) => {
+                console.error('Error fetching queue number:', error)
             },
         })
     }
@@ -194,9 +199,9 @@
     <GuestLayout>
         <Head title="Queue Create" />
 
-        <form @submit.prevent="onSubmit" class="flex flex-col justify-between gap-6 h-80 pt-5">
+        <form @submit.prevent="onSubmit" class="flex flex-col justify-between gap-6 h-36 pt-5">
             <!-- PATIENT NAME INPUT -->
-            <div>
+            <!-- <div>
                 <InputLabel for="patient_name" value="Patient Name" />
 
                 <TextInput
@@ -208,10 +213,10 @@
                     autofocus
                     autocomplete="username"
                 />
-            </div>
+            </div> -->
 
             <!-- LIST FOR PRIORITY TYPES -->
-            <div>
+            <!-- <div>
                 <InputLabel for="priority_type" value="Priority Type" />
 
                 <Listbox v-model="form.priority_type">
@@ -273,7 +278,7 @@
                         </transition>
                     </div>
                 </Listbox>
-            </div>
+            </div> -->
 
             <!-- AUTOMATIC QUEUE NUMBER -->
             <div>

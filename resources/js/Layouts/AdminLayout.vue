@@ -1,76 +1,13 @@
 <script setup>
-    import { computed, onMounted, ref } from 'vue'
+    import { ref } from 'vue'
     import BusinessLogo from '@/Components/BusinessLogo.vue'
     import Dropdown from '@/Components/Dropdown.vue'
     import DropdownLink from '@/Components/DropdownLink.vue'
-    import NavLink from '@/Components/NavLink.vue'
     import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-    import { Link, usePage } from '@inertiajs/vue3'
+    import { Link } from '@inertiajs/vue3'
+    import SideBar from '@/Components/SideBar.vue'
 
     const showingNavigationDropdown = ref(false)
-
-    const page = usePage()
-    const user = computed(() => page.props.auth?.user ?? {})
-    const permissions = computed(() => user.value?.permissions ?? {})
-
-    const navigationLinks = computed(() => [
-
-        // ADMIN ONLY ACCESS ROUTE
-        {
-            name: 'Dashboard',
-            route_name: 'admin.dashboard',
-            permitted: permissions.value?.is_admin,
-        },
-
-
-        // MEDICAL AND ADMIN ACCESS ROUTE
-        {
-            name: 'Patient Queue',
-            route_name: 'patient.queue',
-            permitted: permissions.value?.can_manage_medical,
-        },
-
-
-        //Patient Details Page
-         {
-            name: 'Patient Details',
-            route_name: 'patient.details.create',
-            permitted: permissions.value?.can_manage_medical,
-        },
-
-        // Patient Test Page
-        {
-            name: 'Patient Test',
-            route_name: 'test.category.create',
-            permitted: permissions.value?.can_manage_medical,
-        },
-
-
-        // INVENTORY AND ADMIN ACCESS ROUTE
-        {
-            name: 'Inventory',
-            route_name: 'inventory.supplies',
-            permitted: permissions.value?.can_manage_inventory_supplies,
-        },
-
-
-        {
-            name: 'Supply Requests',
-            route_name: 'inventory.supply.request',
-            permitted: permissions.value?.can_manage_inventory_supplies,
-        },
-            // Test table page
-         {
-            name: 'Test Details',
-            route_name: 'test.details.create',
-            permitted: permissions.value?.can_manage_medical,
-        },
-    ])
-
-    onMounted(() => {
-        console.log("User Data: ", page.props.auth?.user);
-        
-    })
 </script>
 
 <template>
@@ -89,18 +26,7 @@
                                     />
                                 </Link>
                             </div>
-
-                            <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    v-for="link in navigationLinks.filter((link) => link.permitted)"
-                                    :key="link.route_name"
-                                    :href="route(link.route_name)"
-                                    :active="route().current(link.route_name)"
-                                >
-                                    {{ link.name }}
-                                </NavLink>
-                            </div>
+                          
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
@@ -193,16 +119,7 @@
                     }"
                     class="sm:hidden"
                 >
-                    <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            v-for="link in navigationLinks.filter((link) => link.permitted)"
-                            :key="link.route_name"
-                            :href="route(link.route_name)"
-                            :active="route().current(link.route_name)"
-                        >
-                            {{ link.name }}
-                        </ResponsiveNavLink>
-                    </div>
+                  
 
                     <!-- Responsive Settings Options -->
                     <div class="border-t border-gray-200 pb-1 pt-4">
@@ -227,17 +144,17 @@
                 </div>
             </nav>
 
-            <!-- Page Heading -->
-            <header class="bg-white shadow" v-if="$slots.header">
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <slot name="header" />
-                </div>
-            </header>
+            <!-- ADMIN SIDEBAR -->
+            <SideBar />
 
             <!-- Page Content -->
-            <main>
-                <slot />
-            </main>
+            <div class="p-4 sm:ml-64">
+                <div class="p-4 rounded-lg dark:border-gray-700 ">
+                    <main>
+                        <slot />
+                    </main>
+                </div>
+            </div>
         </div>
     </div>
 </template>

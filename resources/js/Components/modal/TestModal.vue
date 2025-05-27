@@ -11,44 +11,40 @@
     import { useForm,} from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {onMounted, computed} from 'vue'
+    import { onMounted, computed } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
-
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-
-
-const props = defineProps({
+    const props = defineProps({
         testTypesPurpose: Array,
         // testTypesRequest: Array,
         patientID: Number,
         testCategory: Array,
         testType: Array,
-
-
     })
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
-        referer_fullname:'',
+        referer_fullname: '',
         doctor_license_no: '',
         reason_for_test: '',
         test_schedule: '',
         total_price: '',
+
         purpose_id:'',
         patient_id: props.patientID,
         category_id: '',
         selected_test_types: [],
     })
 
-
     // filtered by category
     const filteredTestTypes = computed(() => {
+
     const selectedId = form.category_id
 
     console.log("selectedId: ", selectedId);
@@ -61,6 +57,10 @@ const props = defineProps({
         })
 
 
+        console.log('selectedId: ', selectedId)
+        console.log('type of selectedId: ', typeof selectedId)
+
+<
     // calculate total price of test types
        const totalPrice = computed(() => {
         return filteredTestTypes.value
@@ -69,7 +69,9 @@ const props = defineProps({
             .toFixed(2);
     });
 
+
     function submitForm() {
+
     if (form.selected_test_types.length === 0) {
         toast.add({
             severity: 'warn',
@@ -80,12 +82,15 @@ const props = defineProps({
          closeModal();
     }
 
+
     form.selected_test_types = form.selected_test_types.map(Number);
     form.total_price = totalPrice.value;
+
 
     const plainFormData = {
         ...form.data(),
         selected_test_types: [...form.selected_test_types],
+
     }
 
     console.log('Submitting plain form data:', plainFormData);
@@ -104,10 +109,12 @@ const props = defineProps({
 }
 
     onMounted(() => {
+
         console.log("sa category ni: ", props.testCategory);
         console.log("Selected Test Types:", form.selected_test_types)
         console.log("Total Price:", totalPrice.value)
     })
+
 
 
 
@@ -251,6 +258,7 @@ const props = defineProps({
                                                 for="test_purpose"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
+
                                             Test Purpose
                                         </label>
                                         <select
@@ -274,11 +282,13 @@ const props = defineProps({
                                         </p>
                                     </div>
 
-                                    <div class="sm:col-span-2">
+
+                                        <div class="sm:col-span-2">
                                             <label
                                                 for="test_purpose"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
+
                                             Test Category
                                         </label>
                                         <select
@@ -342,12 +352,15 @@ const props = defineProps({
 
                                 </div>
 
+
                                     <div class="mt-10">
                                         <button
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
+
                                                 form.processing? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+
                                             ]"
                                             :disabled="form.processing"
                                         >
@@ -359,7 +372,9 @@ const props = defineProps({
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
