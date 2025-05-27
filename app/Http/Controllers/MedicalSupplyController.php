@@ -193,37 +193,5 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply Request Submitted');
     }
 
-    public function patientDetailscreate(Request $request)
-    {
-        $patientsDetails = Patient::all();
-        $testTypesPurpose = TestPurpose::all();
-        $testTypesRequest = TestRequest::all();
-        $testCategory = TestCategory::with('testTypes')->get();
-
-
-        return Inertia::render('Patient/PatientDetails', [
-            'patients' => $patientsDetails,
-            'testTypesPurpose' => $testTypesPurpose,
-            'testTypesRequest' => $testTypesRequest,
-            'testCategory' => $testCategory,
-        ]);
-    }
-
-    public function patientDetailsStore(Request $request)
-    {
-        $validated = $request->validate([
-            'patient_id' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'gender' => 'required|string|max:10',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:15',
-            'email' => 'required|email|max:255|unique:patients,email',
-        ]);
-        $patient = Patient::create($validated);
-
-        return redirect()->back()->with('success', 'Patient details added successfully.');
-    }
+   
 }

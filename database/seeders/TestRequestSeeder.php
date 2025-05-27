@@ -14,11 +14,11 @@ class TestRequestSeeder extends Seeder
      */
     public function run(): void
     {
-        TestRequest::insert([
-            ['test_requestname' => 'Internal Doctor'],
-            ['test_requestname' => 'External Referral'],
-            ['test_requestname' => 'Patient Request'],
-        ]);
+        // TestRequest::insert([
+        //     ['test_requestname' => 'Internal Doctor'],
+        //     ['test_requestname' => 'External Referral'],
+        //     ['test_requestname' => 'Patient Request'],
+        // ]);
 
         // foreach ($roles as $role) {
         //     TestRequest::firstOrCreate($role);

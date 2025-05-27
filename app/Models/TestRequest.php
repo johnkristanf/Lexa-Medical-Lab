@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Models;
+// namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\Model;
 
-class TestRequest extends Model
-{
-    protected $guarded = ['id'];
-    protected $table = 'test_request';
+// class TestRequest extends Model
+// {
+//     protected $guarded = ['id'];
+//     protected $table = 'test_request';
 
-    public function test()
-    {
+//     public function test()
+//     {
 
-        return $this->hasOne(Test::class, 'request_id');
-    }
-}
+//         return $this->hasOne(Test::class, 'request_id');
+//     }
+// }

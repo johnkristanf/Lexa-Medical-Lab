@@ -14,8 +14,9 @@ use App\Models\TestType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Test;
+use App\Models\Patient;
 use App\Models\TestPurpose;
-use App\Models\TestRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
@@ -61,6 +62,41 @@ class MedicalStaffController extends Controller
 
         broadcast(new QueueUpdate($queue->id));
         return back();
+    }
+
+    //Patient Details
+    public function patientDetailscreate(Request $request)
+    {
+        $patientsDetails = Patient::all();
+        $testTypesPurpose = TestPurpose::all();
+        // $testTypesRequest = TestRequest::all();
+        $testCategory = TestCategory::with('testTypes')->get();
+
+
+        return Inertia::render('Patient/PatientDetails', [
+            'patients' => $patientsDetails,
+            'testTypesPurpose' => $testTypesPurpose,
+            // 'testTypesRequest' => $testTypesRequest,
+            'testCategory' => $testCategory,
+        ]);
+    }
+
+    public function patientDetailsStore(Request $request)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|string|max:10',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:15',
+            'email' => 'required|email|max:255|unique:patients,email',
+        ]);
+        $patient = Patient::create($validated);
+
+        return redirect()->back()->with('success', 'Patient details added successfully.');
     }
 
     public function testCategoryCreate(Request $request)
@@ -116,22 +152,19 @@ class MedicalStaffController extends Controller
 
     public function testStore(Request $request)
     {
-        // Log::error($request);
 
         $validated = $request->validate([
             'referer_fullname' => 'required|string|max:255',
             'doctor_license_no' => 'required|string|max:255',
             'reason_for_test' => 'required|string|max:255',
             'test_schedule' => 'required|date',
-            'total_price' => 'required|integer',
-            'request_id' => 'required|integer',
+            'total_price' => 'required|string',
             'purpose_id' => 'required|integer',
             'patient_id' => 'required|integer',
             'category_id' => 'required|integer',
-            'selected_test_types'   => 'required|array',
+            'selected_test_types' => 'required|array',
         ]);
 
-        // dd($validated);
 
         Test::create([
             'referer_fullname'     => $validated['referer_fullname'],
@@ -139,11 +172,27 @@ class MedicalStaffController extends Controller
             'reason_for_test'      => $validated['reason_for_test'],
             'test_schedule'        => $validated['test_schedule'],
             'total_price'          => $validated['total_price'],
-            'request_id'           => $validated['request_id'],
             'purpose_id'           => $validated['purpose_id'],
             'patient_id'           => $validated['patient_id'],
             'category_id'          => $validated['category_id'],
             'selected_test_types'  => json_encode($validated['selected_test_types']), // manual JSON conversion
         ]);
+    }
+
+    public function testDetailsCreate(Request $request)
+    {
+        $testDetails = Test::all();
+        return Inertia::render('Test/TestDetails', [
+            'testDetails' => $testDetails
+        ]);
+    }
+
+    public function print($id)
+    {
+        $testDetail = Test::findOrFail($id);
+
+        return Pdf::loadView('pdf.test-detail', compact('testDetail'))
+            ->setOptions(['defaultFont' => 'DejaVu Sans'])
+            ->download('test-details.pdf');
     }
 }

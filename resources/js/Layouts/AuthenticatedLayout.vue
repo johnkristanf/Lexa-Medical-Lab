@@ -65,11 +65,11 @@
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
             // Test table page
-        //  {
-        //     name: 'Test Details',
-        //     route_name: 'test.details.create',
-        //     permitted: permissions.value?.can_manage_medical,
-        // },
+         {
+            name: 'Test Details',
+            route_name: 'test.details.create',
+            permitted: permissions.value?.can_manage_medical,
+        },
     ])
 </script>
 
