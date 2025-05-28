@@ -190,9 +190,22 @@ class MedicalStaffController extends Controller
     public function print($id)
     {
         $testDetail = Test::findOrFail($id);
+        $patientDetails = Patient::findOrFail($testDetail->patient_id);
+        $testTypesPurpose = TestPurpose::findOrFail($testDetail->purpose_id);
+        $testCategory = TestCategory::findOrFail($testDetail->category_id);
 
-        return Pdf::loadView('pdf.test-detail', compact('testDetail'))
+        // Fix: Decode JSON and fetch all test types
+        $testTypeIds = json_decode($testDetail->selected_test_types, true);
+        $testTypes = TestType::whereIn('id', $testTypeIds)->get();
+
+        return Pdf::loadView('pdf.test-detail', compact(
+            'patientDetails',
+            'testTypesPurpose',
+            'testCategory',
+            'testDetail',
+            'testTypes' // Use plural here
+        ))->setPaper('A4', 'portrait')
             ->setOptions(['defaultFont' => 'DejaVu Sans'])
-            ->download('test-details.pdf');
+            ->stream('combined-details.pdf');
     }
 }
