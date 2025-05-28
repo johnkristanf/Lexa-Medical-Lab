@@ -67,7 +67,7 @@
             <fwb-table-head class="bg-green-600 text-white">
                 <fwb-table-head-cell>Patient ID</fwb-table-head-cell>
                 <fwb-table-head-cell>Full Name</fwb-table-head-cell>
-                <fwb-table-head-cell>Gender</fwb-table-head-cell>
+                <fwb-table-head-cell>Sex</fwb-table-head-cell>
                 <fwb-table-head-cell>Birth Date</fwb-table-head-cell>
                 <fwb-table-head-cell>Address</fwb-table-head-cell>
                 <fwb-table-head-cell>Contact No.</fwb-table-head-cell>
@@ -82,7 +82,7 @@
                             {{ patient.last_name }}, {{ patient.first_name }}
                             <span v-if="patient.middle_name">{{ patient.middle_name }}</span>
                         </fwb-table-cell>
-                        <fwb-table-cell>{{ patient.gender }}</fwb-table-cell>
+                        <fwb-table-cell>{{ patient.gender.toUpperCase() }}</fwb-table-cell>
                         <fwb-table-cell>{{ formatDate(patient.date_of_birth) }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>

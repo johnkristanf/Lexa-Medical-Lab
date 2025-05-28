@@ -83,7 +83,7 @@
 
                 <!-- GENDER INPUT FORM -->
                 <div class="col-span-3">
-                    <label for="gender" class="block text-sm text-gray-900">Gender</label>
+                    <label for="gender" class="block text-sm text-gray-900">Sex</label>
 
                     <Select
                         v-model="form.gender"
