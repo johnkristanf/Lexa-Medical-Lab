@@ -123,12 +123,12 @@ function test(categoryq) {
                        <Column header="Actions">
                     <template #body="slotProps">
                         <div style="display: flex; gap: 0.5rem;">
-                        <button
+                        <!-- <button
                             @click="toggles.showAddSupplyModal = true, slotProps.data"
                             style="background-color: orange; color: white; border: none; padding: 0.3rem 0.5rem; border-radius: 4px;"
                         >
                             Edit
-                        </button>
+                        </button> -->
 
                          <button
                             @click="DeletedTestCategory(slotProps.data.id) "
@@ -295,3 +295,18 @@ function test(categoryq) {
         </Drawer>
     </AuthenticatedLayout>
 </template>
+<style scoped>
+
+
+.custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
+  background-color: #208b3a; /* blue header */
+  color: white;
+}
+
+.custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
+  background-color: #ffffff; /* white rows */
+  color: #374151; /* gray-700 text */
+}
+
+
+</style>

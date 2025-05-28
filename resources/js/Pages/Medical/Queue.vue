@@ -98,7 +98,7 @@
                 <Column header="Actions">
                     <template #body="{ data }">
 
-                        
+
                         <div v-if="data.status_id < 3">
                             <!-- CHANGE STATUS BUTTON -->
                             <h1
@@ -168,9 +168,12 @@
         opacity: 0.85;
     }
 
+
     .custom-select-button .p-selectbutton .p-button.p-highlight {
         background-color: #16a34a !important; /* Example: Tailwind green-600 */
         color: white !important;
         border-color: #15803d !important; /* Optional: dark green */
     }
+
+
 </style>

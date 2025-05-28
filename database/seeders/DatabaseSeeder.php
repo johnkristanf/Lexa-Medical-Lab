@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AppointmentSchedule;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,6 +22,7 @@ class DatabaseSeeder extends Seeder
             QueueStatusSeeder::class,
             TestRequestSeeder::class,
             TestPurposeSeeder::class,
+            AppointmentScheduleSeeder::class
         ]);
     }
 }

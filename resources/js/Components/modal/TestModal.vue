@@ -57,16 +57,15 @@
         })
 
 
-        console.log('selectedId: ', selectedId)
-        console.log('type of selectedId: ', typeof selectedId)
 
-<
+
     // calculate total price of test types
        const totalPrice = computed(() => {
         return filteredTestTypes.value
             .filter(type => form.selected_test_types.includes(type.id))
             .reduce((sum, type) => sum + parseFloat(type.price || 0), 0)
             .toFixed(2);
+
     });
 
 
@@ -365,7 +364,7 @@
                                             :disabled="form.processing"
                                         >
                                             Add Test
-                                        </button>t
+                                        </button>
 
                                         <button
                                             type="button"
