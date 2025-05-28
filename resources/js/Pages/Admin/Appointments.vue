@@ -142,7 +142,7 @@
 
                 <template v-else>
                     <fwb-table-row>
-                        <fwb-table-cell colspan="5" class="text-center text-gray-500">
+                        <fwb-table-cell colspan="3" class="text-center text-gray-500">
                             No appointments found.
                         </fwb-table-cell>
                     </fwb-table-row>

@@ -69,7 +69,7 @@
 
     onMounted(() => {
         console.log("User Data: ", page.props.auth?.user);
-        
+
     })
 </script>
 

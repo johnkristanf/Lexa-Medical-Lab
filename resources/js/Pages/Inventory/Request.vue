@@ -58,7 +58,7 @@
                     <DataTable
                         :value="props.medical_supply_requests"
                         tableStyle="min-width: 50rem"
-                        class="custom-datatable"
+                        class="custom-datatable bg-white"
                     >
                         <Column field="po_number" header="PO #"></Column>
                         <Column field="to" header="To"></Column>
@@ -143,3 +143,18 @@
         />
     </AuthenticatedLayout>
 </template>
+<style scoped>
+
+
+/* .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
+  background-color: #208b3a;
+  color: white;
+}
+
+.custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
+  background-color: #ffffff;
+  color: #374151;
+} */
+
+
+</style>

@@ -12,7 +12,7 @@
 
 <template>
     <div>
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-white">
             <nav class="border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -26,7 +26,7 @@
                                     />
                                 </Link>
                             </div>
-                          
+
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
@@ -119,7 +119,7 @@
                     }"
                     class="sm:hidden"
                 >
-                  
+
 
                     <!-- Responsive Settings Options -->
                     <div class="border-t border-gray-200 pb-1 pt-4">
