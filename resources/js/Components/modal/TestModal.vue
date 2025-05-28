@@ -22,7 +22,7 @@
 
     const props = defineProps({
         testTypesPurpose: Array,
-        // testTypesRequest: Array,
+     // testTypesRequest: Array,
         patientID: Number,
         testCategory: Array,
         testType: Array,
@@ -35,7 +35,6 @@
         reason_for_test: '',
         test_schedule: '',
         total_price: '',
-
         purpose_id:'',
         patient_id: props.patientID,
         category_id: '',
@@ -69,33 +68,23 @@
     });
 
 
-    function submitForm() {
-
+   function submitForm() {
     if (form.selected_test_types.length === 0) {
         toast.add({
             severity: 'warn',
             summary: 'Please select at least one test type.',
             life: 3000,
-
         });
-         closeModal();
+        closeModal();
+        return; // <- Don't proceed if no test types selected
     }
-
 
     form.selected_test_types = form.selected_test_types.map(Number);
     form.total_price = totalPrice.value;
 
+    console.log('Submitting form data:', form.data());
 
-    const plainFormData = {
-        ...form.data(),
-        selected_test_types: [...form.selected_test_types],
-
-    }
-
-    console.log('Submitting plain form data:', plainFormData);
-
-    // Use Inertia to send cleaned data
-    form.post(route('test.submit'),plainFormData, {
+    form.post(route('test.submit'), {
         onSuccess: () => {
             toast.add({
                 severity: 'success',
@@ -104,7 +93,7 @@
             });
             closeModal();
         },
-    })
+    });
 }
 
     onMounted(() => {
