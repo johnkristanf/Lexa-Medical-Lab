@@ -2,9 +2,9 @@
 
 <template>
     <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h1 class="text-3xl font-bold mb-4">Welcome to Outpatient Department</h1>
+        <h1 class="text-3xl font-bold mb-4">Welcome to Lexa Medical Laboratory</h1>
         <p class="mb-6">
-            By using our OPD appointment system, you agree to the following terms and conditions and
+            By using our Lexa appointment system, you agree to the following terms and conditions and
             provide your consent to the collection, use, and disclosure of your personal information
             as described below:
         </p>
@@ -86,7 +86,7 @@
                 <h2 class="font-bold">Privacy and Data Protection:</h2>
                 <ul class="list-disc list-inside ml-4">
                     <li>
-                        The OPD maintains the privacy and confidentiality of user information in
+                        The Lexa maintains the privacy and confidentiality of user information in
                         accordance with applicable laws and regulations of Republic Act 9470
                         otherwise known as Data Privacy Act of 2012.
                     </li>
@@ -95,7 +95,7 @@
                         solely for healthcare-related purposes.
                     </li>
                     <li>
-                        The OPD may share relevant information with authorized healthcare providers
+                        The Lexa may share relevant information with authorized healthcare providers
                         involved in the user's treatment.
                     </li>
                 </ul>
@@ -105,11 +105,11 @@
                 <h2 class="font-bold">Consent for Treatment:</h2>
                 <ul class="list-disc list-inside ml-4">
                     <li>
-                        By using the OPD appointment system, users consent to receive medical
-                        treatment or consultation from the OPD's healthcare providers.
+                        By using the Lexa appointment system, users consent to receive medical
+                        treatment or consultation from the Lexa's healthcare providers.
                     </li>
                     <li>
-                        Users understand that the OPD's healthcare providers will provide treatment
+                        Users understand that the Lexa's healthcare providers will provide treatment
                         based on their professional judgment and expertise.
                     </li>
                     <li>
@@ -122,7 +122,7 @@
             <div>
                 <h2 class="font-bold">Changes to Terms and Conditions:</h2>
                 <p>
-                    The OPD reserves the right to modify or update these terms and conditions at any
+                    The Lexa reserves the right to modify or update these terms and conditions at any
                     time without prior notice. Users are advised to review the terms and conditions
                     periodically to stay informed about any change.
                 </p>
@@ -131,7 +131,7 @@
             <div>
                 <h2 class="font-bold">Consent and Agreement:</h2>
                 <p>
-                    By using our OPD appointment system and our healthcare services, you confirm
+                    By using our Lexa appointment system and our healthcare services, you confirm
                     that you have read, understood, and agree to these terms and conditions,
                     including the collection, use, and disclosure of your personal data as described
                     herein.

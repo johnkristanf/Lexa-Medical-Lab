@@ -18,8 +18,18 @@
     import { ref } from 'vue'
     import { formatDate } from '@/helpers/formatter'
     import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
+    import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
 
     const showSchedulesModal = ref(false)
+
+    // EMAIL DETAILS MODAL REFS
+    const showEmailAppointmentModal = ref(false)
+    const selectedSchedule = ref()
+
+    const openEmailAppointmentDetails = (schedule) => {
+        showEmailAppointmentModal.value = true
+        selectedSchedule.value = schedule
+    }
 
     const props = defineProps({
         appointments: Array,
@@ -84,76 +94,94 @@
             </div>
         </div>
 
-        <fwb-table hoverable>
-            <fwb-table-head class="bg-green-600 text-white">
-                <fwb-table-head-cell>Full Name</fwb-table-head-cell>
-                <fwb-table-head-cell>Email</fwb-table-head-cell>
-                <fwb-table-head-cell>Status</fwb-table-head-cell>
-                <fwb-table-head-cell>Schedule</fwb-table-head-cell>
-                <fwb-table-head-cell>Actions</fwb-table-head-cell>
-            </fwb-table-head>
+        <div class="h-screen">
+            <fwb-table class="h-full" hoverable>
+                <fwb-table-head class="bg-green-600 text-white">
+                    <fwb-table-head-cell>Full Name</fwb-table-head-cell>
+                    <fwb-table-head-cell>Email</fwb-table-head-cell>
+                    <fwb-table-head-cell>Status</fwb-table-head-cell>
+                    <fwb-table-head-cell>Schedule</fwb-table-head-cell>
+                    <fwb-table-head-cell>Actions</fwb-table-head-cell>
+                </fwb-table-head>
 
-            <fwb-table-body>
-                <template v-if="appointments.length > 0">
-                    <fwb-table-row v-for="appointment in appointments" :key="appointment.id">
-                        <fwb-table-cell>
-                            {{ appointment.first_name }} {{ appointment.middle_name ?? '' }}
-                            {{ appointment.last_name }}
-                        </fwb-table-cell>
-                        <fwb-table-cell>{{ appointment.email ?? 'N/A' }}</fwb-table-cell>
-                        <fwb-table-cell>
-                            <fwb-badge
-                                :type="appointment.status === 'arrived' ? 'green' : 'yellow'"
-                            >
-                                {{ appointment.status.toUpperCase() }}
-                            </fwb-badge>
-                        </fwb-table-cell>
-                        <fwb-table-cell>
-                            {{
-                                appointment.schedule?.schedule
-                                    ? formatDate(appointment.schedule.schedule)
-                                    : 'Not scheduled'
-                            }}
-                        </fwb-table-cell>
-                        <fwb-table-cell class="flex items-center">
-                            <div
-                                v-if="appointment.status == 'pending'"
-                                class="flex gap-2 items-center"
-                            >
-                                <fwb-button color="light">Send Email</fwb-button>
-
-                                <fwb-dropdown text="Status" color="green">
-                                    <fwb-list-group
-                                        class="text-sm text-gray-700 dark:text-gray-200"
+                <fwb-table-body>
+                    <template v-if="appointments.length > 0">
+                        <fwb-table-row v-for="appointment in appointments" :key="appointment.id">
+                            <fwb-table-cell>
+                                {{ appointment.first_name }} {{ appointment.middle_name ?? '' }}
+                                {{ appointment.last_name }}
+                            </fwb-table-cell>
+                            <fwb-table-cell>{{ appointment.email ?? 'N/A' }}</fwb-table-cell>
+                            <fwb-table-cell>
+                                <fwb-badge
+                                    :type="appointment.status === 'arrived' ? 'green' : 'yellow'"
+                                >
+                                    {{ appointment.status.toUpperCase() }}
+                                </fwb-badge>
+                            </fwb-table-cell>
+                            <fwb-table-cell>
+                                {{
+                                    appointment.schedule?.schedule
+                                        ? formatDate(appointment.schedule.schedule)
+                                        : 'Not scheduled'
+                                }}
+                            </fwb-table-cell>
+                            <fwb-table-cell class="flex items-center">
+                                <div
+                                    v-if="appointment.status == 'pending'"
+                                    class="flex gap-2 items-center"
+                                >
+                                    <fwb-button
+                                        color="light"
+                                        @click="
+                                            openEmailAppointmentDetails(
+                                                appointment.schedule.schedule,
+                                            )
+                                        "
                                     >
-                                        <fwb-list-group-item
-                                            class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                            @click="updateStatus(appointment.id, 'arrived')"
-                                        >
-                                            Arrived
-                                        </fwb-list-group-item>
-                                    </fwb-list-group>
-                                </fwb-dropdown>
-                            </div>
-                            <h1 class="text-green-600 text-center" v-else>Patient Arrived</h1>
-                        </fwb-table-cell>
-                    </fwb-table-row>
-                </template>
+                                        Send Email
+                                    </fwb-button>
 
-                <template v-else>
-                    <fwb-table-row>
-                        <fwb-table-cell colspan="3" class="text-center text-gray-500">
-                            No appointments found.
-                        </fwb-table-cell>
-                    </fwb-table-row>
-                </template>
-            </fwb-table-body>
-        </fwb-table>
+                                    <fwb-dropdown text="Status" color="green">
+                                        <fwb-list-group
+                                            class="w-32 text-sm text-gray-700  dark:text-gray-200"
+                                        >
+                                            <fwb-list-group-item
+                                                class="flex justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                                @click="updateStatus(appointment.id, 'arrived')"
+                                            >
+                                                Arrived
+                                            </fwb-list-group-item>
+                                        </fwb-list-group>
+                                    </fwb-dropdown>
+                                </div>
+                                <h1 class="text-green-600 text-center" v-else>Patient Arrived</h1>
+                            </fwb-table-cell>
+                        </fwb-table-row>
+                    </template>
+
+                    <!-- NO APPOINTMENTS -->
+                    <template v-else>
+                        <fwb-table-row>
+                            <fwb-table-cell colspan="3" class="text-center text-gray-500">
+                                No appointments found.
+                            </fwb-table-cell>
+                        </fwb-table-row>
+                    </template>
+                </fwb-table-body>
+            </fwb-table>
+        </div>
 
         <SchedulesModal
             v-if="showSchedulesModal"
             :schedules="schedules"
             @close="showSchedulesModal = false"
+        />
+
+        <EmailAppointmentDetails
+            v-if="showEmailAppointmentModal"
+            :selectedSchedule="selectedSchedule"
+            @close="showEmailAppointmentModal = false"
         />
     </AdminLayout>
 </template>

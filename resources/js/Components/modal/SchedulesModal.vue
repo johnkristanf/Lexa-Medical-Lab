@@ -48,8 +48,8 @@
                 onSuccess: () => {
                     toast.add({
                         severity: 'success',
-                        summary: 'Success',
-                        detail: `Status set to ${status.toUpperCase()}`,
+                        summary: 'Schedule Status Updated Successfully',
+                        detail: `Schedule status set to ${status.toUpperCase()}`,
                     })
                 },
                 onError: (error) => {

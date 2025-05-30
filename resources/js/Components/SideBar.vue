@@ -102,12 +102,12 @@
                     Please ensure all patient records are up to date. Accurate data is critical for
                     effective diagnosis and treatment.
                 </p>
-                <a
+                <Link
                     class="text-sm text-green-800 underline font-medium hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                    href="#"
+                    :href="route('admin.patients')"
                 >
                     Review patient records
-                </a>
+                </Link>
             </div>
         </div>
     </aside>

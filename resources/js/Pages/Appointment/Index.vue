@@ -54,16 +54,22 @@
             onSuccess: (response) => {
                 const selectedSchedule = response?.props?.flash?.schedule
 
-                showAppointmentDetails.value = true
-                selectedScheduleRef.value = selectedSchedule
+                // showAppointmentDetails.value = true
+                // selectedScheduleRef.value = selectedSchedule
 
                 console.log('selectedSchedule: ', selectedSchedule)
 
                 toast.add({
                     severity: 'success',
-                    summary: 'Appointment Set Successfully',
-                    life: 3000,
+                    summary: 'Appointment Request Submitted',
+                    detail: 'Your appointment request has been received. Please monitor your email for confirmation and the appointment reference code from our administrator.',
+                    life: 5000,
+                    closable: true,
                 })
+
+                setTimeout(() => {
+                    window.location.href = '/services/appointment';
+                }, 5500)
             },
         })
     }

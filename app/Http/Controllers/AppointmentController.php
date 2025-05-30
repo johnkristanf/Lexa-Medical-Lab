@@ -14,7 +14,9 @@ class AppointmentController extends Controller
     public function index()
     {
         $testCategories = TestCategory::with('testTypes')->get();
-        $schedules = AppointmentSchedule::select('id', 'schedule')->get();
+        $schedules = AppointmentSchedule::select('id', 'schedule')
+            ->where('status', '=', 'available')
+            ->get();
 
         return Inertia::render('Appointment/Index', [
             'test_categories' => $testCategories,
@@ -61,8 +63,13 @@ class AppointmentController extends Controller
 
     public function renderAdminAppointments()
     {
-        $appointments = Appointments::with(['schedule', 'test_types'])->get();
-        $schedules = AppointmentSchedule::select('id', 'schedule', 'status')->get();
+        $appointments = Appointments::with(['schedule', 'test_types'])
+            ->latest()
+            ->get();
+
+        $schedules = AppointmentSchedule::select('id', 'schedule', 'status')
+            ->latest()
+            ->get();
 
         return Inertia::render('Admin/Appointments', [
             'appointments' => $appointments,
@@ -90,7 +97,7 @@ class AppointmentController extends Controller
             'status' => 'required|string|in:available,unavailable',
         ]);
 
-        Log::info("status: ". $request->status);
+        Log::info("status: " . $request->status);
 
         $schedule->update([
             'status' => $request->status,
