@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class MedicalSupplies extends Model
@@ -22,4 +23,9 @@ class MedicalSupplies extends Model
             ->withPivot('quantity')
             ->withTimestamps();
     }
+
+    // public function batch(): BelongsTo
+    // {
+    //     return $this->belongsTo(Batch::class, 'batch_id');
+    // }
 }

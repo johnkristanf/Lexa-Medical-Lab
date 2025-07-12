@@ -9,11 +9,18 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::get('/inventory/supplies', [MedicalSupplyController::class, 'inventory'])
         ->name('inventory.supplies');
 
-    
+
     // INSERT SUPPLY REQUEST
     Route::post('/medical/supply/request/create', [MedicalSupplyController::class, 'medicalSupplyRequestCreate'])
         ->name('medical.request.create');
 
+    // RENDER BATCH NUMBER PAGE
+    Route::get('/medical/supply/batches', [MedicalSupplyController::class, 'batchNumbercreate'])
+        ->name('inventory.supply.batches');
+
+    // STORED DATA BATCH NUMBER
+    // Route::post('/medical/supply/batch/store', [MedicalSupplyController::class, 'storeBatchNumber'])
+    //     ->name('add.batch');
 
     // RENDER SUPPLY REQUEST PAGE
     Route::get('/medical/supply/request', [MedicalSupplyController::class, 'inventorySupplyRequest'])
@@ -33,4 +40,7 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     // UPDATE REQUEST ENDPOINT
     Route::put('/update/supply/request', [MedicalSupplyController::class, 'update'])
         ->name('update.supply.request');
+    //RENDER TO DASHBOARD PAGE
+    Route::get('/medical/supply/dashboard/create', [MedicalSupplyController::class, 'dashboardSupplyCreate'])
+        ->name('dashboard.supply.create');
 });

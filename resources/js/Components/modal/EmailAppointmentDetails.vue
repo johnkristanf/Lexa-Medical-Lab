@@ -12,28 +12,39 @@
     import { FwbCard } from 'flowbite-vue'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
+    import { router } from '@inertiajs/vue3'
 
-    const props = defineProps({
-        selectedSchedule: String,
-    })
-
-    const emit = defineEmits(['close'])
-    const closeModal = () => emit('close')
-    const toast = useToast()
-
-    const sendEmail = () => {
-        toast.add({
-            severity: 'success',
-            summary: 'Appointment Confirmation Sent',
-            detail: 'The confirmation email has been successfully sent to the patient. Please monitor their arrival and ensure the appointment status is updated accordingly.',
-            life: 4000,
-            closable: true,
+        const props = defineProps({
+        selectedSchedule: String
         })
 
-        setTimeout(() => {
-            closeModal()
-        }, 4500)
-    }
+        const emit = defineEmits(['close'])
+        const closeModal = () => emit('close')
+        const toast = useToast()
+
+        const schedule = props.selectedSchedule ?? new Date()
+
+        const sendEmail = () => {
+        const appointmentNumber = generateRandomNumberString(7)
+        const scheduleFormatted = formatDate(schedule)
+
+        router.post(route('appointment.send'), {
+            appointment_number: appointmentNumber,
+            schedule: scheduleFormatted,
+            message: 'Your appointment has been booked. Please bring your ID and vaccination card.'
+        }, {
+            onSuccess: () => {
+            toast.add({
+                severity: 'success',
+                summary: 'Email Sent',
+                detail: 'Appointment Schedule confirmatioon has been sent to Email succesfully.',
+                life: 3000
+            })
+            }
+        })
+        }
+
+
 </script>
 
 <template>
@@ -147,7 +158,7 @@
                                 <button
                                     type="button"
                                     class="w-full inline-flex justify-center rounded-md border border-transparent bg-green-200 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-                                    @click="sendEmail()"
+                                    @click="sendEmail(  )"
                                 >
                                     Send
                                 </button>

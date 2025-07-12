@@ -45,6 +45,13 @@
             permitted: permissions.value?.can_manage_medical,
         },
 
+     //MEDICAL SUPPY DASHBOARD
+         {
+            name: 'Dashboard',
+            route_name: 'dashboard.supply.create',
+            permitted: permissions.value?.can_manage_inventory_supplies,
+        },
+
 
         // INVENTORY AND ADMIN ACCESS ROUTE
         {
@@ -59,6 +66,7 @@
             route_name: 'inventory.supply.request',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
+
             // Test table page
          {
             name: 'Test Details',
@@ -105,6 +113,9 @@
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
                             <!-- Settings Dropdown -->
+                              <button title="Add Batch" @click="toggles.showBatchModal= true">
+                           <i class="pi pi-bell text-white-600 text-2xl text-black"></i>
+                             </button>
                             <div class="relative ms-3">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>

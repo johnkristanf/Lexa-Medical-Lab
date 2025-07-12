@@ -4,21 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Logs;
 use App\MedicalRequestStatus;
+use App\Models\Batch;
 use App\Models\InventoryLogs;
 use App\Models\MedicalSupplies;
-use App\Models\SupplyRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
 use App\Models\Patient;
+use App\Models\SupplyRequest;
 use App\Models\Test;
 use App\Models\TestCategory;
 use App\Models\TestPurpose;
 use App\Models\TestRequest;
-use Illuminate\Validation\Rule;
-
 use function Pest\Laravel\get;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class MedicalSupplyController extends Controller
 {
@@ -40,6 +41,15 @@ class MedicalSupplyController extends Controller
         ]);
     }
 
+    public function batchNumbercreate(Request $request)
+    {
+        $supplies = MedicalSupplies::all();
+        return Inertia::render('Inventory/Batches', [
+            'supplies' => $supplies
+
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -50,6 +60,7 @@ class MedicalSupplyController extends Controller
             'manufacture_date' => 'required|date',
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
             'lot_number' => 'nullable|string|max:255',
+            'batch_number' => 'nullable|string|max:255',
         ]);
 
         $createdSupply = MedicalSupplies::create($validated);
@@ -202,6 +213,8 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply Request Submitted');
     }
 
-
-
+    public function dashboardSupplyCreate(Request $request)
+    {
+        return Inertia::render('Inventory/Dashboard', []);
+    }
 }

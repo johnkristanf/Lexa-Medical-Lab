@@ -73,7 +73,20 @@
                         <Column field="referer_fullname" header="Referrer Full Name"></Column>
                         <Column field="doctor_license_no" header="Doctor License No#"></Column>
                         <Column field="reason_for_test" header="Reason for Test"></Column>
-                        <Column field="test_schedule" header="Test Schedule"></Column>
+                        <Column field="test_schedule" header="Test Schedule">
+                        <template #body="slotProps">
+                            {{
+                            new Intl.DateTimeFormat('en-PH', {
+                                timeZone: 'Asia/Manila',
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                 hour: '2-digit',
+                                 minute: '2-digit',
+                                 hour12: true
+                            }).format(new Date(slotProps.data.test_schedule))
+                            }}
+                        </template></Column>
                         <Column field="total_price" header="Total Price"></Column>
                         <Column field="created_at" header="Created At">
                         <template #body="slotProps">
