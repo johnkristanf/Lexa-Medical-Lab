@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Clinical Chemistry Report</title>
+    <title>Result Test</title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -101,7 +101,7 @@
 
     <table class="info-table">
         <tr>
-            <td><strong>Name:</strong> {{ $testDetail->referer_fullname }}</td>
+            <td><strong>Name:</strong> {{ $patientDetails->first_name}}&nbsp;{{  $patientDetails->middle_name}}&nbsp;{{$patientDetails->last_name}}</td>
             <td><strong>Date:</strong> {{ \Carbon\Carbon::parse($testDetail->test_schedule)->format('m/d/Y') }}</td>
         </tr>
         <tr>

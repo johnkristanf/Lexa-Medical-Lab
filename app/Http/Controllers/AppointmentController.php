@@ -8,6 +8,9 @@ use App\Models\TestCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use App\Mail\AppointmentConfirmationMail;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
@@ -49,6 +52,9 @@ class AppointmentController extends Controller
             'status'         => 'pending',
             'schedule_id'    => $validated['selected_schedule'],
         ]);
+
+        Mail::to($appointment->email)->queue(new AppointmentConfirmationMail($appointment));
+        return back()->with('success', 'Confirmation email sent.');
 
         $appointment->test_types()->attach($validated['selected_type_ids']);
         $selectedSchedule = AppointmentSchedule::where('id', $appointment->schedule_id)->value('schedule');
@@ -104,5 +110,17 @@ class AppointmentController extends Controller
         ]);
 
         return back()->with('success', 'Schedule status updated successfully.');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $data = $request->only(['appointment_number', 'schedule', 'message']);
+
+        // Replace with actual recipient email
+        $recipient = 'example@domain.com';
+
+        Mail::to($recipient)->send(new AppointmentConfirmationMail($data));
+
+        return back()->with('success', 'Email sent.');
     }
 }

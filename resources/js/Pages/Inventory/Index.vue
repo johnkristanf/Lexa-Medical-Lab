@@ -54,19 +54,26 @@
                         <SearchInput />
                     </div>
 
-                    <DataTable
-                        :value="props.supplies"
-                        tableStyle="min-width: 50rem"
-                        class="custom-datatable"
-                    >
-                        <Column field="participants" header="Participants"></Column>
-                        <Column field="brand_name" header="Brand Name"></Column>
-                        <Column field="unit" header="Unit"></Column>
-                        <Column field="quantity" header="Supplies Left"></Column>
-                        <Column field="manufacture_date" header="Manufacturing Date"></Column>
-                        <Column field="expiration_date" header="Expiration Date"></Column>
-                        <Column field="lot_number" header="Lot #"></Column>
-                    </DataTable>
+                   <DataTable
+                    :value="props.supplies"
+                    tableStyle="min-width: 50rem"
+                    class="custom-datatable"
+                >
+                    <Column field="participants" header="Participants"></Column>
+                    <Column field="brand_name" header="Brand Name"></Column>
+                    <Column field="unit" header="Unit"></Column>
+                    <Column field="quantity" header="Supplies Left"></Column>
+                    <Column field="manufacture_date" header="Manufacturing Date"></Column>
+                    <Column field="expiration_date" header="Expiration Date"></Column>
+                    <Column field="lot_number" header="Lot #"></Column>
+                    <Column header="Action">
+                        <template #body>
+                           <a :href="route('inventory.supply.batches')" title="View Batch">
+                           <i class="pi pi-eye text-white-600 text-lg"></i>
+                             </a>
+                        </template>
+                    </Column>
+                </DataTable>
                 </div>
             </div>
         </div>

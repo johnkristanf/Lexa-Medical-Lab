@@ -11,6 +11,7 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
+    import {generateBatchNumber} from '@/helpers/batch_random_num'
 
     // TOAST INITIALIZATION
     const toast = useToast()
@@ -30,24 +31,25 @@
         manufacture_date: '',
         expiration_date: '',
         lot_number: '',
+        batch_number:generateBatchNumber(),
     })
 
     // FORM SUBMISSION
-    function submitForm() {
-        form.post(route('supply.add'), {
-            onSuccess: () => {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Medical Supply Addition Successful',
-                    life: 3000,
-                })
+   function submitForm() {
+    form.post(route('supply.add'), {
+        onSuccess: () => {
+            toast.add({
+                severity: 'success',
+                summary: 'Medical Supply Addition Successful',
+                life: 3000,
+            })
 
-                closeModal();
-            },
-        }) // replace with your actual route
-    }
+            closeModal();
+        },
+    })
+}
 
-    
+
 </script>
 
 <template>
@@ -241,6 +243,28 @@
                                                 class="text-sm text-red-500 mt-1"
                                             >
                                                 {{ form.errors.lot_number }}
+                                            </p>
+                                        </div>
+
+                                         <div class="sm:col-span-2">
+                                            <label
+                                                for="lot_number"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Batch Number
+                                            </label>
+                                            <input
+                                                id="batch_number"
+                                                v-model="form.batch_number"
+                                                type="text"
+                                                class="form-input"
+                                                readonly
+                                            />
+                                            <p
+                                                v-if="form.errors.batch_number"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.batch_number }}
                                             </p>
                                         </div>
                                     </div>
