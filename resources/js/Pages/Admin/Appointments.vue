@@ -18,8 +18,11 @@
     import { ref } from 'vue'
     import { formatDate } from '@/helpers/formatter'
     import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
+    import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
 
+    // MODAL REFS
+    const showAddScheduleModal = ref(false)
     const showSchedulesModal = ref(false)
 
     // EMAIL DETAILS MODAL REFS
@@ -47,6 +50,12 @@
                 },
             },
         )
+    }
+
+    const handleShowAddSchedule = () => {
+        console.log('Opening Add Schedule Modal')
+        showAddScheduleModal.value = true;
+        showSchedulesModal.value = false;
     }
 </script>
 
@@ -176,6 +185,12 @@
             v-if="showSchedulesModal"
             :schedules="schedules"
             @close="showSchedulesModal = false"
+            @addSchedule="handleShowAddSchedule"
+        />
+
+        <AddScheduleModal
+            v-if="showAddScheduleModal"
+            @close="showAddScheduleModal = false"
         />
 
         <EmailAppointmentDetails

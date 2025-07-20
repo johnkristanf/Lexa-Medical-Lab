@@ -35,8 +35,9 @@
     const toast = useToast()
 
     // EMITS FOR MODAL HANDLING
-    const emit = defineEmits(['close'])
+    const emit = defineEmits(['close', 'addSchedule'])
     const closeModal = () => emit('close')
+    const openAddScheduleModal = () => emit('addSchedule')
 
     // SCHEDULE STATUS UPDATE
     function updateStatus(scheduleId, status) {
@@ -107,66 +108,68 @@
                             </DialogDescription>
 
                             <div class="flex justify-end">
-                                <fwb-button color="light" @click="showSchedulesModal = true">
+                                <fwb-button color="light" @click="openAddScheduleModal">
                                     <span>Add Schedule</span>
                                 </fwb-button>
                             </div>
 
                             <!-- TABLE LIST OF SCHEDULES -->
-                            <fwb-table class="mt-5" hoverable>
-                                <fwb-table-head class="bg-green-600 text-white">
-                                    <fwb-table-head-cell>Schedule</fwb-table-head-cell>
-                                    <fwb-table-head-cell>Status</fwb-table-head-cell>
-                                    <fwb-table-head-cell>Actions</fwb-table-head-cell>
-                                </fwb-table-head>
+                            <div class="overflow-x-auto overflow-y-auto max-h-96 border border-gray-200 rounded-lg">
+                                <fwb-table hoverable class="min-w-full">
+                                    <fwb-table-head class="bg-green-600 text-white sticky top-0 z-10">
+                                        <fwb-table-head-cell>Schedule</fwb-table-head-cell>
+                                        <fwb-table-head-cell>Status</fwb-table-head-cell>
+                                        <fwb-table-head-cell>Actions</fwb-table-head-cell>
+                                    </fwb-table-head>
 
-                                <fwb-table-body>
-                                    <fwb-table-row v-for="schedule in schedules" :key="schedule.id">
-                                        <fwb-table-cell>
-                                            {{ formatDate(schedule.schedule) }}
-                                        </fwb-table-cell>
-                                        <fwb-table-cell>
-                                            <fwb-badge
-                                                :type="
-                                                    schedule.status === 'available'
-                                                        ? 'green'
-                                                        : 'red'
-                                                "
-                                            >
-                                                {{ schedule.status.toUpperCase() }}
-                                            </fwb-badge>
-                                        </fwb-table-cell>
-
-                                        <fwb-table-cell>
-                                            <fwb-dropdown text="Change Status" color="green">
-                                                <fwb-list-group
-                                                    class="text-sm text-gray-700 dark:text-gray-200"
+                                    <fwb-table-body>
+                                        <fwb-table-row v-for="schedule in schedules" :key="schedule.id">
+                                            <fwb-table-cell class="whitespace-nowrap">
+                                                {{ formatDate(schedule.schedule) }}
+                                            </fwb-table-cell>
+                                            <fwb-table-cell>
+                                                <fwb-badge
+                                                    :type="
+                                                        schedule.status === 'available'
+                                                            ? 'green'
+                                                            : 'red'
+                                                    "
                                                 >
-                                                    <fwb-list-group-item
-                                                        v-if="schedule.status === 'available'"
-                                                        class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        @click="
-                                                            updateStatus(schedule.id, 'unavailable')
-                                                        "
-                                                    >
-                                                        UNAVAILABLE
-                                                    </fwb-list-group-item>
+                                                    {{ schedule.status.toUpperCase() }}
+                                                </fwb-badge>
+                                            </fwb-table-cell>
 
-                                                    <fwb-list-group-item
-                                                        v-else
-                                                        class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        @click="
-                                                            updateStatus(schedule.id, 'available')
-                                                        "
+                                            <fwb-table-cell>
+                                                <fwb-dropdown text="Change Status" color="green">
+                                                    <fwb-list-group
+                                                        class="text-sm text-gray-700 dark:text-gray-200"
                                                     >
-                                                        AVAILABLE
-                                                    </fwb-list-group-item>
-                                                </fwb-list-group>
-                                            </fwb-dropdown>
-                                        </fwb-table-cell>
-                                    </fwb-table-row>
-                                </fwb-table-body>
-                            </fwb-table>
+                                                        <fwb-list-group-item
+                                                            v-if="schedule.status === 'available'"
+                                                            class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                                            @click="
+                                                                updateStatus(schedule.id, 'unavailable')
+                                                            "
+                                                        >
+                                                            UNAVAILABLE
+                                                        </fwb-list-group-item>
+
+                                                        <fwb-list-group-item
+                                                            v-else
+                                                            class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                                            @click="
+                                                                updateStatus(schedule.id, 'available')
+                                                            "
+                                                        >
+                                                            AVAILABLE
+                                                        </fwb-list-group-item>
+                                                    </fwb-list-group>
+                                                </fwb-dropdown>
+                                            </fwb-table-cell>
+                                        </fwb-table-row>
+                                    </fwb-table-body>
+                                </fwb-table>
+                            </div>
                         </DialogPanel>
                     </TransitionChild>
                 </div>

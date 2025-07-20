@@ -1,30 +1,46 @@
 <script setup>
-    import { formatDate } from '@/helpers/formatter'
-    import { generateRandomNumberString } from '@/helpers/random_num'
-    import {
-        TransitionRoot,
-        TransitionChild,
-        Dialog,
-        DialogPanel,
-        DialogTitle,
-    } from '@headlessui/vue'
+import { formatDate } from '@/helpers/formatter'
+import { generateRandomNumberString } from '@/helpers/random_num'
+import { router } from '@inertiajs/vue3'
+import { useToast } from 'primevue/usetoast'
 
-    import { FwbCard } from 'flowbite-vue'
+const props = defineProps({
+  selectedSchedule: String
+})
 
-    const props = defineProps({
-        selectedSchedule: String,
-    })
+const emit = defineEmits(['close'])
+const closeModal = () => emit('close')
+const toast = useToast()
 
-    const emit = defineEmits(['close'])
-    const closeModal = () => emit('close')
+const schedule = props.selectedSchedule ?? new Date()
 
-    const appointmentDone = () => window.location.href = '/services/appointment';
+const sendEmail = () => {
+  const appointmentNumber = generateRandomNumberString(7)
+  const scheduleFormatted = formatDate(schedule)
 
+  router.post(route('appointment.send'), {
+    appointment_number: appointmentNumber,
+    schedule: scheduleFormatted,
+    message: 'Your appointment has been booked. Please bring your ID and vaccination card.'
+  }, {
+    onSuccess: () => {
+      toast.add({
+        severity: 'success',
+        summary: 'Email Sent',
+        detail: 'Static data email sent successfully.',
+        life: 3000
+      })
+    }
+  })
+}
 </script>
+
+
+
 
 <template>
     <TransitionRoot appear :show="true" as="template">
-        <Dialog as="div" @close="closeModal" class="relative z-10">
+        <Dialog as="div" @close="closeModal" class="relative z-[999]">
             <TransitionChild
                 as="template"
                 enter="duration-300 ease-out"
@@ -53,11 +69,17 @@
                         >
                             <DialogTitle
                                 as="h1"
-                                class="text-xl font-medium leading-6 text-gray-900"
+                                class="text-2xl font-medium leading-6 text-gray-900"
                             >
                                 Appointment Details
+
+                                <p class="text-gray-500 text-sm">
+                                    Email confirmation for the appointed patient
+                                </p>
                             </DialogTitle>
-                            <div class="flex justify-between">
+
+                           <div class="flex justify-between">
+
                                 <div class="flex flex-col gap-6 mt-10">
                                     <h1 class="text-lg flex flex-col">
                                         Appointment Number:
@@ -83,8 +105,7 @@
 
                                         <p class="text-sm text-gray-700">
                                             Please take note of the
-                                            <strong>Appointment Number</strong>
-                                            .
+                                            <strong>Appointment Number</strong>.
                                             <br />
                                             You may take a picture or screenshot of the appointment
                                             code.
@@ -92,48 +113,36 @@
                                             Please bring a valid
                                             <strong>Government-issued ID</strong>
                                             and your
-                                            <strong>VACCINATION CARD</strong>
-                                            .
+                                            <strong>VACCINATION CARD</strong>.
                                         </p>
 
                                         <h6 class="font-semibold text-gray-800">
                                             Important Reminders:
                                         </h6>
-                                        <ul
-                                            class="list-disc list-inside text-sm text-gray-700 space-y-1"
-                                        >
+                                        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
                                             <li>Prepare your Appointment Code upon arrival.</li>
                                             <li>Do not share your appointment code with anyone.</li>
-                                            <li>
-                                                Only the security guard or in-charge DRMC personnel
-                                                will ask for your code.
-                                            </li>
+                                            <li>Only the security guard or in-charge DRMC personnel will ask for your code.</li>
                                             <li><strong>No face mask, NO ENTRY.</strong></li>
-                                            <li>
-                                                Arrive at the entry point at least
-                                                <strong>30 minutes before</strong>
-                                                your scheduled appointment.
-                                            </li>
-                                            <li>
-                                                Observe social distancing and always wear your face
-                                                mask.
-                                            </li>
+                                            <li>Arrive at the entry point at least <strong>30 minutes before</strong> your scheduled appointment.</li>
+                                            <li>Observe social distancing and always wear your face mask.</li>
                                         </ul>
 
                                         <p class="text-sm text-gray-700">Thank you.</p>
                                     </div>
                                 </fwb-card>
-                            </div>
 
-                            <div class="mt-8 flex justify-end">
-                                <button
-                                    type="button"
-                                    class="w-full inline-flex justify-center rounded-md border border-transparent bg-green-200 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-                                    @click="appointmentDone"
-                                >
-                                    Done
-                                </button>
-                            </div>
+                                <div class="mt-8 flex justify-end">
+                                    <button
+                                        type="submit"
+                                        class="w-full inline-flex justify-center rounded-md border border-transparent bg-green-200 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                                        @click="sendEmail()"
+                                    >
+                                        Send
+                                    </button>
+                                </div>
+
+                        </div>
                         </DialogPanel>
                     </TransitionChild>
                 </div>

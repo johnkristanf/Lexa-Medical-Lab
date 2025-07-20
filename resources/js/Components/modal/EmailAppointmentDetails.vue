@@ -13,6 +13,7 @@
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
     import { router } from '@inertiajs/vue3'
+    import { ref } from 'vue'
 
         const props = defineProps({
         selectedSchedule: String
@@ -21,28 +22,31 @@
         const emit = defineEmits(['close'])
         const closeModal = () => emit('close')
         const toast = useToast()
-
         const schedule = props.selectedSchedule ?? new Date()
+        const appointmentNumber = ref (generateRandomNumberString(7))
 
-        const sendEmail = () => {
-        const appointmentNumber = generateRandomNumberString(7)
+
+       const sendEmail = () => {
         const scheduleFormatted = formatDate(schedule)
 
-        router.post(route('appointment.send'), {
-            appointment_number: appointmentNumber,
-            schedule: scheduleFormatted,
-            message: 'Your appointment has been booked. Please bring your ID and vaccination card.'
-        }, {
-            onSuccess: () => {
-            toast.add({
-                severity: 'success',
-                summary: 'Email Sent',
-                detail: 'Appointment Schedule confirmatioon has been sent to Email succesfully.',
-                life: 3000
-            })
-            }
+    router.post(route('appointment.send'), {
+        appointment_number: appointmentNumber.value,
+        schedule: scheduleFormatted,
+        message: 'Your appointment has been booked. Please bring your ID and vaccination card.'
+    }, {
+        onSuccess: () => {
+        toast.add({
+            severity: 'success',
+            summary: 'Email Sent',
+            detail: 'Appointment Schedule confirmation has been sent to email successfully.',
+            life: 3000
         })
+        },
+        onError: (errors) => {
+        console.error('Validation or response error:', errors)
         }
+    })
+    }
 
 
 </script>
@@ -91,7 +95,7 @@
                                     <h1 class="text-lg flex flex-col">
                                         Appointment Number:
                                         <span class="text-2xl">
-                                            - {{ generateRandomNumberString(7) }}
+                                            - {{ appointmentNumber }}
                                         </span>
                                     </h1>
 
@@ -158,7 +162,7 @@
                                 <button
                                     type="button"
                                     class="w-full inline-flex justify-center rounded-md border border-transparent bg-green-200 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-                                    @click="sendEmail(  )"
+                                    @click="sendEmail()"
                                 >
                                     Send
                                 </button>

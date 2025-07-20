@@ -8,10 +8,19 @@
     const permissions = computed(() => user.value?.permissions ?? {})
 
     const isActive = (routeName) => {
-        return route().current(routeName) 
+        return route().current(routeName)
     }
 
     const adminNavLinks = computed(() => [
+
+         {
+            name: 'Dashboard',
+            route_name: 'admin.dashboard',
+            page_url: '/admin/dashboard',
+            permitted: permissions.value?.is_admin,
+            icon: UserIcon,
+        },
+
         {
             name: 'Patients',
             route_name: 'admin.patients',

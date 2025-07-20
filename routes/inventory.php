@@ -22,6 +22,14 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     // Route::post('/medical/supply/batch/store', [MedicalSupplyController::class, 'storeBatchNumber'])
     //     ->name('add.batch');
 
+    // RENDER SUPPLY ARCHIVED SUPPLIES PAGE
+    Route::get('/archive/supplies/data/create', [MedicalSupplyController::class, 'archiveSuppliescreate'])
+        ->name('archive.supplies.create');
+
+    //ARCHIVING SUPPLIES STORED DATA
+    Route::post('/archive/supplies/{id}/store', [MedicalSupplyController::class, 'archiveSuppliesData'])
+        ->name('archive.supplies.data');
+
     // RENDER SUPPLY REQUEST PAGE
     Route::get('/medical/supply/request', [MedicalSupplyController::class, 'inventorySupplyRequest'])
         ->name('inventory.supply.request');

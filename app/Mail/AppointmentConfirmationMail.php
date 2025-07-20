@@ -21,11 +21,14 @@ class AppointmentConfirmationMail extends Mailable
         $this->data = $data;
     }
 
+
     public function build()
     {
+        // Dump here for debugging
+
         return $this->subject('Appointment Confirmation')
-            ->view('emails.appointment_confirmation')
-            ->with(['data' => $this->data]);
+            ->view('mail.appointment_confirmation') // your view path
+            ->with(['data' => $this->data]); // <== Make sure you're passing it like this
     }
 
     /**

@@ -7,10 +7,10 @@
     import BatchModal from '@/Components/modal/BatchModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
-    import { router } from '@inertiajs/vue3'
 
     const props = defineProps({
         supplies: Array,
+        inventory_logs: Array,
     })
 
     const toggles = reactive({
@@ -22,23 +22,15 @@
     console.log('inventory_logs: ', props.inventory_logs)
 
     const sampleOperationType = 'added'
-
-    function archive(id) {
-    if (confirm('Are you sure you want to archive this supply?')) {
-        router.post(`/archive/supplies/${id}/store`, {
-            preserveScroll: true,
-        })
-    }
-}
 </script>
 
 <template>
-    <Head title="Inventory" />
+    <Head title="Dashboard" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Medical Supply Inventory
+                Medical Archived Supplies
             </h2>
         </template>
 
@@ -75,22 +67,10 @@
                     {{ data.batches[0]?.batch_number ?? 'N/A' }}
                 </template>
                 </Column>
-                    <Column header="Action">
-                    <template #body="{ data }">
-                        <button
-                            title="Archive Data"
-                            @click="archive(data.id)"
-                            class="bg-yellow-500 px-3 py-1 rounded text-white hover:bg-yellow-600"
-                        >
-                            <i class="pi pi-folder-plus text-white text-lg"></i>
-                        </button>
-                    </template>
-                </Column>
                 </DataTable>
                 </div>
             </div>
         </div>
-
         <!-- ADD SUPPLY MODAL -->
         <!-- <BatchModal
             v-if="toggles.showBatchModal"
