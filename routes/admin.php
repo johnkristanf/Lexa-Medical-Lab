@@ -4,6 +4,8 @@
 // ADMIN ROUTE
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\MedicalStaffController;
+use App\Http\Controllers\MedicalSupplyController;
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,6 +23,9 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
     // PATIENTS PROTECTED ROUTES
     Route::get('/patients', [PatientController::class, 'renderAdminPatients'])
         ->name('admin.patients');
+
+    Route::get('/admin/dashboard', [MedicalSupplyController::class, 'renderAdminDashboard'])
+        ->name('admin.dashboard');
 
 
     // APPOINTMENTS PROTECTED ROUTES

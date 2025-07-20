@@ -3,6 +3,46 @@
 @tailwind utilities;
 
 
+:root {
+    color-scheme: light !important;
+}
+
+html,
+body {
+    color-scheme: light !important;
+    background-color: white !important;
+    color: #1f2937 !important;
+}
+
+/* Override any dark mode attempts */
+.dark,
+[data-theme="dark"],
+[class*="dark"] {
+    color-scheme: light !important;
+    background-color: white !important;
+    color: #1f2937 !important;
+}
+
+/* Override system preference in CSS */
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: light !important;
+    }
+
+    html,
+    body {
+        background-color: white !important;
+        color: #1f2937 !important;
+    }
+}
+
+/* If using Tailwind - force light variables */
+@media (prefers-color-scheme: dark) {
+    * {
+        color-scheme: light !important;
+    }
+}
+
 .form-input {
     @apply block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-green-600;
 }

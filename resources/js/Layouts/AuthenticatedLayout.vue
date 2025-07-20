@@ -6,12 +6,14 @@
     import NavLink from '@/Components/NavLink.vue'
     import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
     import { Link, usePage } from '@inertiajs/vue3'
+    import Drawer from 'primevue/drawer';
 
     const showingNavigationDropdown = ref(false)
 
     const page = usePage()
     const user = computed(() => page.props.auth?.user ?? {})
     const permissions = computed(() => user.value?.permissions ?? {})
+    const visibleRight = ref(false)
 
     const navigationLinks = computed(() => [
 
@@ -53,6 +55,8 @@
         },
 
 
+
+
         // INVENTORY AND ADMIN ACCESS ROUTE
         {
             name: 'Inventory',
@@ -66,6 +70,15 @@
             route_name: 'inventory.supply.request',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
+
+        // ARCHIVED SUPPLIES PAGE
+         {
+            name: 'Archived Supplies',
+            route_name: 'archive.supplies.create',
+            permitted: permissions.value?.can_manage_inventory_supplies,
+        },
+
+
 
             // Test table page
          {
@@ -113,9 +126,13 @@
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
                             <!-- Settings Dropdown -->
-                              <button title="Add Batch" @click="toggles.showBatchModal= true">
-                           <i class="pi pi-bell text-white-600 text-2xl text-black"></i>
+                              <button @click="visibleRight = true">
+                                <i class="pi pi-bell text-white-600 text-2xl text-black"></i>
                              </button>
+
+                            <Drawer v-model:visible="visibleRight" header="Right Drawer" position="right">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            </Drawer>
                             <div class="relative ms-3">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>

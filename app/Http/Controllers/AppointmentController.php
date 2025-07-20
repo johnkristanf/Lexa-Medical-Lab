@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use App\Mail\AppointmentConfirmationMail;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use Illuminate\Contracts\Validation\Rule;
 
 class AppointmentController extends Controller
 {
@@ -98,7 +99,6 @@ class AppointmentController extends Controller
 
     public function updateScheduleStatus(AppointmentSchedule $schedule, Request $request)
     {
-        Log::info("sdfdsf");
         $request->validate([
             'status' => 'required|string|in:available,unavailable',
         ]);
@@ -112,15 +112,40 @@ class AppointmentController extends Controller
         return back()->with('success', 'Schedule status updated successfully.');
     }
 
-    public function sendEmail(Request $request)
+    public function sendEmailDetails(Request $request)
     {
         $data = $request->only(['appointment_number', 'schedule', 'message']);
 
-        // Replace with actual recipient email
-        $recipient = 'example@domain.com';
+        $recipient = 'camarote757@gmail.com';
 
         Mail::to($recipient)->send(new AppointmentConfirmationMail($data));
+    }
 
-        return back()->with('success', 'Email sent.');
+    public function addAppointmentSchedule(Request $request)
+    {
+        Log::info("this is pancitt");
+        $validated = $request->validate([
+            'date' => [
+                'required',
+                'date',
+            ],
+            'status' => [
+                'required',
+                'in:available,unavailable'
+            ]
+        ], [
+            'date.after_or_equal' => 'The date must be today or a future date.',
+            'date.unique' => 'A schedule already exists for this date and time.'
+        ]);
+
+
+        AppointmentSchedule::create([
+            'schedule' => Carbon::parse($validated['date']),
+            'status' => $validated['status'],
+        ]);
+
+        return redirect()
+            ->route('admin.appointments')
+            ->with('success', 'Schedule created successfully!');
     }
 }

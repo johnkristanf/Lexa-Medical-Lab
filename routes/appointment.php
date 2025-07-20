@@ -10,7 +10,10 @@ Route::middleware(['guest'])->group(function () {
 
     Route::post('/store/services/appointment', [AppointmentController::class, 'store'])
         ->name('store.services.appointment');
-
-    Route::post('/appointment/send', [AppointmentController::class, 'sendEmail'])
-        ->name('appointment.send');
 });
+
+Route::post('/appointment/send', [AppointmentController::class, 'sendEmailDetails'])
+    ->name('appointment.send');
+
+Route::post('/add/appointment', [AppointmentController::class, 'addAppointmentSchedule'])
+    ->name('appointment.add');

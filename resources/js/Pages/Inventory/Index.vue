@@ -68,7 +68,8 @@
                     <Column field="lot_number" header="Lot #"></Column>
                     <Column header="Action">
                         <template #body>
-                           <a :href="route('inventory.supply.batches')" title="View Batch">
+                           <a :href="route('inventory.supply.batches')" title="View Batch"
+                            class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#80ed99]">
                            <i class="pi pi-eye text-white-600 text-lg"></i>
                              </a>
                         </template>

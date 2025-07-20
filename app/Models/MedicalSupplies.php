@@ -5,27 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MedicalSupplies extends Model
 {
     protected $guarded = [
         'id'
     ];
-
     public function supply_request(): BelongsToMany
     {
         return $this->belongsToMany(
-            SupplyRequest::class,  // related model
-            'medical_supply_request',      // pivot table name
-            'request_id',            // foreign key on pivot table for this model
-            'supply_id'              // foreign key on pivot table for related model
+            SupplyRequest::class,
+            'medical_supply_request',
+            'request_id',
+            'supply_id'
         )
             ->withPivot('quantity')
             ->withTimestamps();
     }
 
-    // public function batch(): BelongsTo
-    // {
-    //     return $this->belongsTo(Batch::class, 'batch_id');
-    // }
+    public function batches()
+    {
+        return $this->hasMany(Batch::class, 'medical_supply_id');
+    }
 }

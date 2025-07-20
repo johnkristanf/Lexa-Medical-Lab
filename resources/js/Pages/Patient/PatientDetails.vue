@@ -130,7 +130,7 @@
         >
             <div class="flex flex-col gap-3">
 
-                <div v-for="log in props.inventory_logs" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
+                <div v-for="log in props.inventory_logs" v-bind:key="log.id" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
                     <h1>
                         Brand Name:
                         <br />
