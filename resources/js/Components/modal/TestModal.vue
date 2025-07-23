@@ -152,25 +152,28 @@
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
                                         <div>
-                                            <label
-                                                for="patient_id"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Referer Full Name
-                                            </label>
-                                            <input
-                                                id="referer_full_name"
-                                                v-model="form.referer_fullname"
-                                                type="text"
-                                                class="form-input"
-                                                required
-                                            />
-                                            <p
-                                                v-if="form.errors.referer_fullname"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
-                                                {{ form.errors.referer_fullname }}
-                                            </p>
+                                       <label for="referer_full_name" class="block text-sm font-semibold text-gray-900">
+                                            Referer Full Name
+                                        </label>
+
+                                        <select
+                                            id="referer_full_name"
+                                            v-model="form.referer_fullname"
+                                            class="form-input w-full"
+                                            required
+                                        >
+                                            <option value="" disabled class="text-black">Select Referer</option>
+                                            <option value="Sharmlane Faith Patches,RMT" class="text-black">Sharmlane Faith Patches,RMT</option>
+                                            <option value="Jane R. Moldez, RMT" class="text-black">Jane R. Moldez, RMT</option>
+                                            <option value="Jill R. Albino, RMT" class="text-black">Jill R. Albino, RMT</option>
+                                        </select>
+
+                                        <p
+                                            v-if="form.errors.referer_fullname"
+                                            class="text-sm text-red-500 mt-1"
+                                        >
+                                            {{ form.errors.referer_fullname }}
+                                        </p>
                                         </div>
 
                                         <div>

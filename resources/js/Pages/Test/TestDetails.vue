@@ -3,7 +3,7 @@
     import { Head } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
+    import { onMounted, reactive, ref } from 'vue'
     import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
@@ -12,7 +12,6 @@
     const props = defineProps({
         testDetails: Array,
         testType: Array,
-
     })
 
     const patientID = ref(null);
@@ -36,8 +35,21 @@
 
     // }
 
+    const showTestDetailsDialog = ref(false)
+    const selectedTest = ref(null)
+
+    const openTestDialog = (test) => {
+        console.log('test', test);
+        selectedTest.value = test
+        showTestDetailsDialog.value = true
+    }
 
 
+
+    onMounted(() => {
+        // Initialize any data or perform actions when the component is mounted
+        console.log('props.testDetails', props.testDetails);
+    })
 
 
     const sampleOperationType = 'added'
@@ -48,7 +60,7 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
+            <h2 class="text-xl font-semibold text-gray-800 leading-tight">
                Test Details
             </h2>
         </template>
@@ -112,6 +124,10 @@
                             >
                                 Print
                             </a>
+
+                            <fwb-button size="xs" @click="openTestDialog(slotProps.data)">
+                                View
+                            </fwb-button>
                         </template>
                     </Column>
                     </DataTable>

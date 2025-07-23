@@ -23,6 +23,12 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
         ->name('patient.details.submit');
 
 
+    //RENDER MEDICAL APPOINTMENTS PAGE
+    Route::get('/medical/appointments', [MedicalStaffController::class, 'medicalAppointmentPage'])
+        ->name('medical.appointments');
+    //SEND EMAIL REMINDER FOR RESULTS
+    Route::post('/medical/result/send-email', [MedicalStaffController::class, 'sendEmailResultReminder'])
+        ->name('result.send');
 
     //RENDER  TEST CATEGORY PAGE
     Route::prefix('test/Category')->group(function () {

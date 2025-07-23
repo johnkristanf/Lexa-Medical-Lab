@@ -87,12 +87,11 @@ class AppointmentController extends Controller
     public function updateStatus(Appointments $appointment, Request $request)
     {
         $request->validate([
-            'status' => 'required|string|in:pending,arrived,cancelled',
+            'status' => 'required|in:pending,arrived',
         ]);
 
-        $appointment->update([
-            'status' => $request->status,
-        ]);
+        $appointment->status = $request->status;
+        $appointment->save();
 
         return back()->with('success', 'Status updated successfully.');
     }

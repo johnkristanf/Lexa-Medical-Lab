@@ -40,17 +40,21 @@
     })
 
     function updateStatus(id, status) {
-        router.put(
-            `/admin/appointments/${id}/status`,
-            { status },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    console.log(`Updated appointment ${id} to ${status}`)
-                },
+    router.put(
+        `/admin/appointments/${id}/status`,
+        { status },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Immediately update the status locally so UI changes
+                const appointment = props.appointments.find((a) => a.id === id)
+                if (appointment) {
+                    appointment.status = status
+                }
             },
-        )
-    }
+        }
+    )
+}
 
     const handleShowAddSchedule = () => {
         console.log('Opening Add Schedule Modal')
@@ -164,7 +168,6 @@
                                         </fwb-list-group>
                                     </fwb-dropdown>
                                 </div>
-                                <h1 class="text-green-600 text-center" v-else>Patient Arrived</h1>
                             </fwb-table-cell>
                         </fwb-table-row>
                     </template>
