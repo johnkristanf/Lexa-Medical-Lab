@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             QueueStatusSeeder::class,
             TestRequestSeeder::class,
             TestPurposeSeeder::class,
-            AppointmentScheduleSeeder::class
+            AppointmentScheduleSeeder::class,
+            RefererNameSeeder::class
         ]);
     }
 }

@@ -9,6 +9,11 @@
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import PatientDetailsModal from '@/Components/modal/PatientDetailsModal.vue'
     import TestModal from '@/Components/modal/TestModal.vue'
+    import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
+    import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
+    import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
+    import EmailResultReminder from '@/Components/modal/EmailResultReminder.vue'
+
 
 
     const props = defineProps({
@@ -20,6 +25,24 @@
         testType: Array,
 
     })
+
+      const handleShowAddSchedule = () => {
+        console.log('Opening Add Schedule Modal')
+        showAddScheduleModal.value = true;
+        showSchedulesModal.value = false;
+    }
+
+     const showAddScheduleModal = ref(false)
+    const showSchedulesModal = ref(false)
+
+    // EMAIL DETAILS MODAL REFS
+    const showEmailAppointmentModal = ref(false)
+    const selectedSchedule = ref()
+
+    const openEmailAppointmentDetails = (schedule) => {
+        showEmailAppointmentModal.value = true
+        selectedSchedule.value = schedule
+    }
 
     const patientID = ref(null);
 
@@ -41,7 +64,6 @@
         console.log('sa patient ni',patientID.value);
 
     }
-
 
 
 
@@ -74,32 +96,40 @@
                         <SearchInput />
                     </div>
 
-                    <DataTable
-                        :value="props.patients"
-                        tableStyle="min-width: 50rem"
-                        class="custom-datatable"
-                    >
-                        <Column field="patient_id" header="Patient ID"></Column>
-                        <Column field="first_name" header="First Name"></Column>
-                        <Column field="middle_name" header="Middle Name"></Column>
-                        <Column field="last_name" header="Last Name"></Column>
-                        <Column field="gender" header="Gender"></Column>
-                        <Column field="date_of_birth" header="Birth Date"></Column>
-                        <Column field="address" header="Address"></Column>
-                        <Column field="contact_number" header="Phone Number#"></Column>
-                        <Column field="email" header="Email"></Column>
-                          <Column header="Actions">
-                        <template #body="slotProps">
-                            <button
-                            @click="showTestModal(slotProps.data.id)"
-                            style="background-color: green; color: white; border: none; padding: 0.2rem 0.8rem; border-radius: 4px;"
-                          >
-                            Test
-                        </button>
-                        </template>
-                    </Column>
-                    </DataTable>
+               <DataTable
+                :value="props.patients"
+                class="w-full custom-datatable"
+                >
+                <Column field="patient_id" header="Patient ID" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="first_name" header="First Name" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="middle_name" header="Middle Name" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="last_name" header="Last Name" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="gender" header="Gender" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="date_of_birth" header="Birth Date" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="address" header="Address" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="contact_number" header="Phone Number#" headerClass="text-sm font-semibold whitespace-nowrap" />
+                <Column field="email" header="Email" headerClass="text-sm font-semibold whitespace-nowrap" />
 
+                <Column header="Actions" headerClass="text-sm font-semibold whitespace-nowrap">
+                    <template #body="slotProps">
+                    <div class="flex items-center gap-2">
+                        <button
+                        @click="showTestModal(slotProps.data.id)"
+                        class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:bg-green-700"
+                        >
+                        Test
+                        </button>
+
+                        <button
+                        @click="openEmailAppointmentDetails()"
+                        class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:bg-green-700"
+                        >
+                        Send Email
+                        </button>
+                    </div>
+                    </template>
+                </Column>
+                </DataTable>
                 </div>
             </div>
         </div>
@@ -118,6 +148,11 @@
             :testCategory="testCategory"
             @close="togglesTestModal.showTestModal = false"
             :testType="testType"
+        />
+         <EmailResultReminder
+            v-if="showEmailAppointmentModal"
+            :selectedSchedule="selectedSchedule"
+            @close="showEmailAppointmentModal = false"
         />
 
 

@@ -118,7 +118,7 @@
 
                         <Column header="Actions">
                             <template #body="{ data }">
-                                <div v-if="data.status != REQUEST_STATUS.RECEIVED"class="flex items-center gap-3">
+                                <div v-if="data.status != REQUEST_STATUS.RECEIVED" class="flex items-center gap-3">
                                     <!-- MENU DROPDOWN FOR STATUS UPDATE -->
                                     <Menu as="div" class="relative inline-block text-left">
                                         <div>
@@ -188,7 +188,7 @@
                                 </div>
 
                                 <div v-else>
-                                    <h1 class="text-green-600">Request Already Received</h1>
+                                    <h1 class="text-green-600"></h1>
                                 </div>
                             </template>
                         </Column>

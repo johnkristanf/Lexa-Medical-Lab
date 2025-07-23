@@ -3,22 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Events\QueueUpdate;
+use App\Models\Appointments;
+use App\Models\AppointmentSchedule;
+use App\Models\Batch;
+use App\Models\InventoryLogs;
+use App\Models\MedicalSupplies;
+use App\Models\Patient;
 use App\Models\Queues;
 use App\Models\QueueStatus;
+use App\Models\Test;
+use App\Models\TestCategory;
+use App\Models\TestPurpose;
+use App\Models\TestType;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
-use App\Models\TestCategory;
-use App\Models\TestType;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use App\Models\Test;
-use App\Models\Patient;
-use App\Models\TestPurpose;
-use Barryvdh\DomPDF\Facade\Pdf;
-
-
+use LDAP\Result;
+use App\Mail\ResultEmailReminder;
+use Illuminate\Support\Facades\Mail;
 
 
 class MedicalStaffController extends Controller
@@ -62,6 +68,24 @@ class MedicalStaffController extends Controller
 
         broadcast(new QueueUpdate($queue->id));
         return back();
+    }
+
+    //Dashboard Data items For Medical staff
+
+    public function medicalAppointmentPage(Request $request)
+    {
+        $appointments = Appointments::with(['schedule', 'test_types'])
+            ->latest()
+            ->get();
+
+        $schedules = AppointmentSchedule::select('id', 'schedule', 'status')
+            ->latest()
+            ->get();
+
+        return Inertia::render('Patient/Appointments', [
+            'appointments' => $appointments,
+            'schedules' => $schedules,
+        ]);
     }
 
     //Patient Details
@@ -191,21 +215,26 @@ class MedicalStaffController extends Controller
     {
         $testDetail = Test::findOrFail($id);
         $patientDetails = Patient::findOrFail($testDetail->patient_id);
-        $testTypesPurpose = TestPurpose::findOrFail($testDetail->purpose_id);
         $testCategory = TestCategory::findOrFail($testDetail->category_id);
 
-        // Fix: Decode JSON and fetch all test types
         $testTypeIds = json_decode($testDetail->selected_test_types, true);
         $testTypes = TestType::whereIn('id', $testTypeIds)->get();
 
         return Pdf::loadView('pdf.test-detail', compact(
             'patientDetails',
-            'testTypesPurpose',
             'testCategory',
             'testDetail',
             'testTypes' // Use plural here
         ))->setPaper('A4', 'portrait')
             ->setOptions(['defaultFont' => 'DejaVu Sans'])
             ->stream('combined-details.pdf');
+    }
+
+    public function sendEmailResultReminder(Request $request)
+    {
+
+        Mail::to('patient@gmail.com')->send(new ResultEmailReminder());
+
+        return back()->with('success', 'Reminder email sent.');
     }
 }

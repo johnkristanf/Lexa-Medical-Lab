@@ -24,6 +24,14 @@
             permitted: permissions.value?.is_admin,
         },
 
+          // MEDICAL STAFF DASHBOARD
+
+         {
+            name: 'Appointments',
+            route_name: 'medical.appointments',
+            permitted: permissions.value?.can_manage_medical,
+        },
+
 
         // MEDICAL AND ADMIN ACCESS ROUTE
         {
@@ -31,6 +39,7 @@
             route_name: 'patient.queue',
             permitted: permissions.value?.can_manage_medical,
         },
+
 
 
         //Patient Details Page
