@@ -45,14 +45,20 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
         Route::post('/test/types/store', [MedicalStaffController::class, 'testTypeStore'])
             ->name('test.types.submit');
 
-        Route::post('/test/tore', [MedicalStaffController::class, 'testStore'])
+        Route::post('/test/store', [MedicalStaffController::class, 'testStore'])
             ->name('test.submit');
 
         Route::get('/test-details/create', [MedicalStaffController::class, 'testDetailsCreate'])
             ->name('test.details.create');
 
-        Route::get('/test-details/{id}/print', [MedicalStaffController::class, 'print'])
+        Route::get('/test-details/{testID}/print', [MedicalStaffController::class, 'print'])
             ->name('print.test.details');
+
+        Route::get('/test/details/{patientID}/{testID}', [MedicalStaffController::class, 'testDetailsByID'])
+            ->name('test.details');
+
+        Route::patch('/test/update/{patientID}/{testID}', [MedicalStaffController::class, 'updateTestResults'])
+            ->name('test.update');
     });
 
 

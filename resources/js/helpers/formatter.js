@@ -1,4 +1,3 @@
-
 // DATE FORMATTER: 04/29/25 10:30AM
 export const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -33,4 +32,17 @@ export const getStatusClasses = (status) => {
         default:
             return 'bg-gray-100 text-gray-800'
     }
+}
+
+export function calculateAge(dob) {
+    const birthDate = new Date(dob)
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const m = today.getMonth() - birthDate.getMonth()
+
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--
+    }
+
+    return age
 }

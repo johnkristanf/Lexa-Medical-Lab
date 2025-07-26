@@ -25,4 +25,12 @@ class TestType extends Model
             'type_id'           // foreign key on pivot table for related model
         );
     }
+
+
+    public function patients()
+    {
+        return $this->belongsToMany(Patient::class, 'patient_test_type')
+            ->withPivot(['test_id', 'results'])
+            ->withTimestamps();
+    }
 }
