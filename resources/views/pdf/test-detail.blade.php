@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Result Test</title>
+    <title>Test Results </title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -17,7 +18,8 @@
             margin: 0;
         }
 
-        .info-table, .result-table {
+        .info-table,
+        .result-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 15px;
@@ -28,47 +30,50 @@
         }
 
         .result-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 15px;
-        font-size: 11px; /* Slightly smaller */
-    }
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11px;
+            /* Slightly smaller */
+        }
 
-    .result-table th, .result-table td {
-        border: 1px solid #000;
-        padding: 4px 5px; /* Slightly compressed */
-        text-align: center;
-    }
+        .result-table th,
+        .result-table td {
+            border: 1px solid #000;
+            padding: 4px 5px;
+            /* Slightly compressed */
+            text-align: center;
+        }
 
-    .result-table th {
-        background-color: #74c69d;
-    }
+        .result-table th {
+            background-color: #74c69d;
+        }
 
-    /* Optional: Force specific column widths */
-    .result-table th:nth-child(1),
-    .result-table td:nth-child(1) {
-        width: 20%;
-    }
+        /* Optional: Force specific column widths */
+        .result-table th:nth-child(1),
+        .result-table td:nth-child(1) {
+            width: 20%;
+        }
 
-    .result-table th:nth-child(2),
-    .result-table td:nth-child(2) {
-        width: 20%;
-    }
+        .result-table th:nth-child(2),
+        .result-table td:nth-child(2) {
+            width: 20%;
+        }
 
-    .result-table th:nth-child(3),
-    .result-table td:nth-child(3) {
-        width: 20%;
-    }
+        .result-table th:nth-child(3),
+        .result-table td:nth-child(3) {
+            width: 20%;
+        }
 
-    .result-table th:nth-child(4),
-    .result-table td:nth-child(4) {
-        width: 20%;
-    }
+        .result-table th:nth-child(4),
+        .result-table td:nth-child(4) {
+            width: 20%;
+        }
 
         .footer {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
         }
 
         .footer .sig {
@@ -91,6 +96,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="header">
@@ -101,16 +107,14 @@
 
     <table class="info-table">
         <tr>
-            <td><strong>Name:</strong> {{ $patientDetails->first_name}}&nbsp;{{  $patientDetails->middle_name}}&nbsp;{{$patientDetails->last_name}}</td>
+            <td><strong>Name:</strong> {{ $patientDetails->first_name}}&nbsp;{{ $patientDetails->middle_name}}&nbsp;{{$patientDetails->last_name}}</td>
             <td><strong>Date:</strong> {{ \Carbon\Carbon::parse($testDetail->test_schedule)->format('m/d/Y') }}</td>
         </tr>
+
         <tr>
-            <td><strong>Age:</strong> {{ $testDetail->patient_age ?? 'N/A'  }}</td>
-            <td><strong>OR #:</strong> {{ $testDetail->doctor_license_no ?? 'N/A' }}</td>
-        </tr>
-        <tr>
+            <td><strong>Age:</strong> {{ $age  }}</td>
             <td><strong>Gender:</strong> {{ $patientDetails->gender }}</td>
-            <td></td>
+            <td><strong>OR Number:</strong> {{ $testDetail->or_number }}</td>
         </tr>
     </table>
 
@@ -125,13 +129,13 @@
         </thead>
         <tbody>
             @foreach ($testTypes as $testType)
-                <tr>
-                    <td>{{ $testType->name  }}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                @endforeach
+            <tr>
+                <td>{{ $testType->name ?? 'N/A' }}</td>
+                <td>{{ $testType->pivot->results ?? 'N/A' }}</td>
+                <td>{{ $testType->reference_range ?? 'N/A' }}</td>
+                <td>{{ $testType->unit ?? 'N/A' }}</td>
+            </tr>
+            @endforeach
         </tbody>
     </table>
 
@@ -157,4 +161,5 @@
 
 
 </body>
+
 </html>

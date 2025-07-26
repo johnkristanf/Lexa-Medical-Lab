@@ -25,4 +25,18 @@ class Test extends Model
     {
         return $this->belongsTo(Patient::class, 'category_id');
     }
+
+    public function testTypes()
+    {
+        return $this->belongsToMany(TestType::class, 'patient_test_type')
+            ->withPivot(['patient_id', 'results'])
+            ->withTimestamps();
+    }
+
+    public function patient_test()
+    {
+        return $this->belongsToMany(Patient::class, 'patient_test_type')
+            ->withPivot(['test_type_id', 'results'])
+            ->withTimestamps();
+    }
 }

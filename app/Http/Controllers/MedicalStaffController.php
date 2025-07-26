@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\QueueUpdate;
 use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
-use App\Models\Batch;
-use App\Models\InventoryLogs;
-use App\Models\MedicalSupplies;
 use App\Models\Patient;
 use App\Models\Queues;
 use App\Models\QueueStatus;
@@ -16,14 +13,12 @@ use App\Models\TestCategory;
 use App\Models\TestPurpose;
 use App\Models\TestType;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
-use LDAP\Result;
 use App\Mail\ResultEmailReminder;
+use DateTime;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -189,17 +184,29 @@ class MedicalStaffController extends Controller
             'selected_test_types' => 'required|array',
         ]);
 
+        $orNumber = (string) random_int(10000, 99999);
 
-        Test::create([
+        $test = Test::create([
             'referer_fullname'     => $validated['referer_fullname'],
             'doctor_license_no'    => $validated['doctor_license_no'],
             'reason_for_test'      => $validated['reason_for_test'],
             'test_schedule'        => $validated['test_schedule'],
             'total_price'          => $validated['total_price'],
+            'or_number'            => $orNumber,
             'purpose_id'           => $validated['purpose_id'],
             'patient_id'           => $validated['patient_id'],
             'category_id'          => $validated['category_id'],
-            'selected_test_types'  => json_encode($validated['selected_test_types']), // manual JSON conversion
+            'selected_test_types'  => json_encode($validated['selected_test_types']),
+        ]);
+
+        $testID = $test->id;
+
+
+        // INSERT PATIENT TEST TO THE PIVOT TABLE
+        $patient = Patient::find($validated['patient_id']);
+        $patient->test_types()->attach($validated['selected_test_types'], [
+            'test_id' => $testID,
+            'results' => null,
         ]);
     }
 
@@ -211,20 +218,70 @@ class MedicalStaffController extends Controller
         ]);
     }
 
-    public function print($id)
+
+    public function testDetailsByID(string $patientID, string $testID)
     {
-        $testDetail = Test::findOrFail($id);
+        $patient = Patient::where('id', $patientID)
+            ->whereHas('test_types', function ($query) use ($testID) {
+                $query->where('patient_test_type.test_id', $testID); // ✅ Fix here
+            })
+            ->with(['test_types' => function ($query) use ($testID) {
+                $query->wherePivot('test_id', $testID); // ✅ This is allowed here
+            }])
+            ->first();
+
+        return $patient;
+    }
+
+    public function updateTestResults(Request $request, string $patientID, string $testID)
+    {
+        $request->validate([
+            'test_results' => 'required|array',
+            'test_results.*.test_type_id' => 'required|exists:test_types,id',
+            'test_results.*.result' => 'nullable|string|max:255',
+        ]);
+
+        Log::info("CHECK DATA: ", [
+            'patientID' => $patientID,
+            '$request' => $request
+        ]);
+
+
+        foreach ($request->test_results as $item) {
+            DB::table('patient_test_type')
+                ->where('patient_id', $patientID)
+                ->where('test_type_id', $item['test_type_id'])
+                ->where('test_id', $testID)
+                ->update([
+                    'results' => $item['result'],
+                    'updated_at' => now(), // if you use timestamps
+                ]);
+        }
+
+        return back()->with('success', 'Test Results Updated.');
+    }
+
+
+    public function print($testID)
+    {
+        $testDetail = Test::findOrFail($testID);
         $patientDetails = Patient::findOrFail($testDetail->patient_id);
         $testCategory = TestCategory::findOrFail($testDetail->category_id);
 
-        $testTypeIds = json_decode($testDetail->selected_test_types, true);
-        $testTypes = TestType::whereIn('id', $testTypeIds)->get();
+        $testPatient = $this->testDetailsByID($testDetail->patient_id, $testID);
+        $testTypes = $testPatient->test_types ?? collect();
+
+
+        $dob = new DateTime($patientDetails->date_of_birth);
+        $today = new DateTime(); // current date
+        $age = $dob->diff($today)->y;
 
         return Pdf::loadView('pdf.test-detail', compact(
             'patientDetails',
             'testCategory',
+            'age',
             'testDetail',
-            'testTypes' // Use plural here
+            'testTypes'
         ))->setPaper('A4', 'portrait')
             ->setOptions(['defaultFont' => 'DejaVu Sans'])
             ->stream('combined-details.pdf');
