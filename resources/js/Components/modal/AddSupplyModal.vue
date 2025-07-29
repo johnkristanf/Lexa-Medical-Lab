@@ -100,7 +100,7 @@
                                                 for="participants"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Participants
+                                                Item
                                             </label>
                                             <input
                                                 id="participants"

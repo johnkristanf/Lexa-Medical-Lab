@@ -13,6 +13,7 @@
     import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import EmailResultReminder from '@/Components/modal/EmailResultReminder.vue'
+    import UpdatePatientDetails from '@/Components/modal/UpdatePatientDetails.vue'
 
 
 
@@ -23,8 +24,11 @@
         testTypesRequest: Array,
         testCategory: Array,
         testType: Array,
+        patientUpdate: Array,
 
     })
+
+
 
       const handleShowAddSchedule = () => {
         console.log('Opening Add Schedule Modal')
@@ -39,9 +43,19 @@
     const showEmailAppointmentModal = ref(false)
     const selectedSchedule = ref()
 
+    const patientUpdate = ref(null)
+    const showUpdatePatientDetails = ref(false)
+
+
     const openEmailAppointmentDetails = (schedule) => {
         showEmailAppointmentModal.value = true
         selectedSchedule.value = schedule
+    }
+
+
+    const openUpdatePatientDetails = (patient) => {
+         patientUpdate.value = patient
+        showUpdatePatientDetails.value = true
     }
 
     const patientID = ref(null);
@@ -126,6 +140,14 @@
                         >
                         Send Email
                         </button>
+
+                        <button
+                        @click="openUpdatePatientDetails(slotProps.data)"
+                        class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:bg-green-700"
+                        >
+                        Update
+                        </button>
+
                     </div>
                     </template>
                 </Column>
@@ -138,6 +160,12 @@
         <PatientDetailsModal
             v-if="toggles.showAddSupplyModal"
             @close="toggles.showAddSupplyModal = false"
+        />
+
+        <UpdatePatientDetails
+            v-if="showUpdatePatientDetails"
+            :patientUpdate="patientUpdate"
+            @close="showUpdatePatientDetails = false"
         />
 
         <TestModal

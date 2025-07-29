@@ -28,4 +28,9 @@ class MedicalSupplies extends Model
     {
         return $this->hasMany(Batch::class, 'medical_supply_id');
     }
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class , 'medical_supply_id');
+    }
 }

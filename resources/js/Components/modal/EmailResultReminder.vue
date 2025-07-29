@@ -123,6 +123,7 @@
                                 >
                                     Send
                                 </button>
+
                             </div>
                         </DialogPanel>
                     </TransitionChild>

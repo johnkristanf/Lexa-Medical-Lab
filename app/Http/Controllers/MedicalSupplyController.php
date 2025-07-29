@@ -10,6 +10,7 @@ use App\Models\MedicalSupplies;
 use App\Models\Patient;
 use App\Models\softdeletesupplies;
 use App\Models\SupplyRequest;
+use App\Models\Stock;
 use App\Models\Test;
 use App\Models\TestCategory;
 use App\Models\TestPurpose;
@@ -46,8 +47,7 @@ class MedicalSupplyController extends Controller
         ]);
     }
 
-
-    public function inventory()
+    public function inventory(Request $request)
     {
         $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
             $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
@@ -65,10 +65,74 @@ class MedicalSupplyController extends Controller
             }
         ])->get();
 
+        $supplyUpdate = MedicalSupplies::find($request->input('supply_id'));
+
         return Inertia::render('Inventory/Index', [
             'supplies'       => $supplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired'  => $nearlyExpired,
+            'supplyUpdate' => $supplyUpdate
+
+        ]);
+    }
+
+    public function updateSupply(Request $request, $id)
+    {
+        $supply = MedicalSupplies::findOrFail($id);
+
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        if ($validated['quantity'] > $supply->quantity) {
+            return back()->withErrors(['quantity' => 'Cannot deduct more than current supply.']);
+        }
+
+        $supply->quantity -= $validated['quantity'];
+        $supply->save();
+
+        InventoryLogs::create([
+            'requester_name' => Auth::user()->name,
+            'operation_type' => Logs::DEDUCTED,
+            'total_quantity' => $validated['quantity'],
+            'supply_id' => $supply->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Supply quantity deducted successfully.');
+    }
+
+    public function addStockSupply(Request $request, $id)
+    {
+        $supply = MedicalSupplies::findOrFail($id);
+
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'critical_stock' => 'nullable|integer|min:0',
+        ]);
+
+        $supply->quantity += $validated['quantity'];
+        $supply->save();
+
+        InventoryLogs::create([
+            'requester_name' => Auth::user()->name,
+            'operation_type' => Logs::ADDED,
+            'total_quantity' => $validated['quantity'],
+            'supply_id' => $supply->id,
+        ]);
+
+        return redirect()->back()->with([
+            'success' => 'Stock added.',
+            'critical_check' => $validated['critical_stock'], // flash it if needed
+        ]);
+    }
+
+
+
+    public function stockSupplycreate(Request $request)
+    {
+        $supplies = MedicalSupplies::with('batches')->get();
+        return Inertia::render('Inventory/Stock', [
+            'supplies' => $supplies
         ]);
     }
 

@@ -9,9 +9,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Batch extends Model
 {
     protected $guarded = ['id'];
+    protected $table = 'batches';
 
     public function medicalSupply()
     {
         return $this->belongsTo(MedicalSupplies::class, 'medical_supply_id');
+    }
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class, 'batch_id'); // uses batch_id
     }
 }

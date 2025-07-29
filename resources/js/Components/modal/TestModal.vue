@@ -205,7 +205,7 @@
                                                 {{ form.errors.doctor_license_no }}
                                             </p>
                                         </div>
-
+<!--
                                         <div>
                                             <label
                                                 for="middle_name"
@@ -226,9 +226,9 @@
                                             >
                                                 {{ form.errors.reason_for_test }}
                                             </p>
-                                        </div>
+                                        </div> -->
 
-                                        <div>
+                                        <div class="sm:col-span-2">
                                             <label
                                                 for="last_name"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -239,7 +239,7 @@
                                                 id="test_schedule"
                                                 v-model="form.test_schedule"
                                                 type="date"
-                                                class="form-input"
+                                                class="form-input text-center"
                                                 required
                                             />
                                             <p

@@ -8,11 +8,13 @@
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
+    import StockModal from '@/Components/modal/StockModal.vue'
 
     const props = defineProps({
         supplies: Array,
         inventory_logs: Array,
         supplyUpdate: Object,
+        addStock: Array,
     })
 
     const toggles = reactive({
@@ -20,13 +22,16 @@
         showInventoryDrawer: false,
     })
 
-    const showUpdateSupply = ref(false)
-    const supplyUpdate = ref(null)
+        const showStockModal = ref(false)
+        const addStock = ref(null)
 
-    const openUpdateSupply = (supply) => {
-         supplyUpdate.value = supply
-        showUpdateSupply.value = true
+       const openStockModal = (stock) => {
+        console.log('Opening StockModal with:', stock)
+        addStock.value = stock
+        showStockModal.value = true
     }
+
+
 
     console.log('supplies: ', props.supplies)
     console.log('inventory_logs: ', props.inventory_logs)
@@ -56,9 +61,9 @@
                             View Logs
                         </fwb-button> -->
 
-                        <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
+                        <!-- <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
                             Add Supply
-                        </fwb-button>
+                        </fwb-button> -->
 
                         <!-- SEARCH INPUT -->
                         <SearchInput />
@@ -69,23 +74,23 @@
                     tableStyle="min-width: 50rem"
                     class="custom-datatable"
                 >
-                    <Column field="participants" header="Item"></Column>
                     <Column field="brand_name" header="Brand Name"></Column>
-                    <Column field="unit" header="Unit"></Column>
-                    <Column field="quantity" header="Supplies Left"></Column>
-                    <Column field="manufacture_date" header="Manufacturing Date"></Column>
-                    <Column field="expiration_date" header="Expiration Date"></Column>
-                    <Column field="lot_number" header="Lot #"></Column>
+                    <Column field="quantity" header="Stock"></Column>
+                    <Column header="Critical Stock">
+                    <template #body="{ data }">
+                        {{ data.stock?.critical_stock ?? 'N/A' }}
+                    </template>
+                    </Column>
+                    <Column field="batches" header="Product Batch #">
+                <template #body="{ data }">
+                    {{ data.batches[0]?.batch_number ?? 'N/A' }}
+                </template>
+                </Column>
                     <Column header="Action">
                      <template #body="slotProps">
 
-                    <a :href="route('inventory.supply.batches', { id: slotProps.data.id })" title="View Batch"
-                        class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#1b4332]">
-                        <i class="pi pi-eye text-white-600 text-lg"></i>
-                    </a>
-
-                    <button
-                    @click="openUpdateSupply(slotProps.data)"
+                       <button
+                   @click="openStockModal(slotProps.data)"
                     title="Update Supply"
                         class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]">
                         <i class="pi pi-th-large text-white-600 text-lg"></i>
@@ -98,11 +103,13 @@
             </div>
         </div>
 
-        <UpdateSupply
-            v-if="showUpdateSupply"
-            :supplyUpdate="supplyUpdate"
-            @close="showUpdateSupply = false"
-        />
+        <StockModal
+            v-if="showStockModal"
+            :addStock="addStock"
+            @close="showStockModal = false"
+            />
+
+
 
         <!-- ADD SUPLY MODAL -->
         <AddSupplyModal
