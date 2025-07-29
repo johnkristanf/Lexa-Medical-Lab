@@ -22,10 +22,14 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::post('/patient/Details/store', [MedicalStaffController::class, 'patientDetailsStore'])
         ->name('patient.details.submit');
 
+    //UPDATE PATIENT DETAILS
+    Route::put('/patient/{patient}', [MedicalStaffController::class, 'updatePatientDetails'])
+        ->name('patient.update');
 
     //RENDER MEDICAL APPOINTMENTS PAGE
     Route::get('/medical/appointments', [MedicalStaffController::class, 'medicalAppointmentPage'])
         ->name('medical.appointments');
+
     //SEND EMAIL REMINDER FOR RESULTS
     Route::post('/medical/result/send-email', [MedicalStaffController::class, 'sendEmailResultReminder'])
         ->name('result.send');

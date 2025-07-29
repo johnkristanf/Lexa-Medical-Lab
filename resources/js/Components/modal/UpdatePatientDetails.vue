@@ -16,50 +16,65 @@
     // TOAST INITIALIZATION
     const toast = useToast()
 
+    const props = defineProps({
+        patientUpdate: Object,
+    })
+
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-    function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        result += characters[randomIndex];
-    }
-    return result;
-}
+//     function generateRandomString(length) {
+//     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     let result = '';
+//     for (let i = 0; i < length; i++) {
+//         const randomIndex = Math.floor(Math.random() * characters.length);
+//         result += characters[randomIndex];
+//     }
+//     return result;
+// }
+
 
 
     // INERTIA FORM INIATILIZATION
-    const form = useForm({
-        patient_id:generateRandomString(10),
-        first_name: '',
-        middle_name: '',
-        last_name: '',
-        gender: '',
-        date_of_birth: '',
-        address: '',
-        contact_number: '',
-        email: '',
+      const form = useForm({
+             patient_id: props.patientUpdate?.patient_id || '',
+            first_name: props.patientUpdate?.first_name || '',
+            middle_name: props.patientUpdate?.middle_name || '',
+            last_name: props.patientUpdate?.last_name || '',
+            gender: props.patientUpdate?.gender || '',
+            date_of_birth: props.patientUpdate?.date_of_birth || '',
+            address: props.patientUpdate?.address || '',
+            contact_number: props.patientUpdate?.contact_number || '',
+            email: props.patientUpdate?.email || '',
+        })
 
-    })
 
     // FORM SUBMISSION
-    function submitForm() {
-        form.post(route('patient.details.submit'), {
-            onSuccess: () => {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Medical Supply Addition Successful',
-                    life: 3000,
-                })
+      const submitForm = () => {
+    if (!props.patientUpdate?.id) {
 
-                closeModal();
-            },
-        }) // replace with your actual route
     }
+
+    form.put(route('patient.update', props.patientUpdate.id), {
+        onSuccess: () => {
+            toast.add({
+                severity: 'success',
+                summary: 'Patient successfully updated!',
+                life: 3000,
+            })
+            closeModal()
+        },
+        onError: () => {
+            toast.add({
+                severity: 'error',
+                summary: 'Failed to update patient.',
+                life: 3000,
+            })
+        }
+    })
+}
 
 
 </script>
@@ -317,7 +332,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Patient
+                                           Update Patient
                                         </button>
 
                                         <button

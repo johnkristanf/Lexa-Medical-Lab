@@ -24,6 +24,7 @@
     import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
     import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
+    import { router } from '@inertiajs/vue3'
 
 
 const showAddScheduleModal = ref(false)
@@ -43,22 +44,23 @@ const showAddScheduleModal = ref(false)
         schedules: Array,
     })
 
-//     function updateStatus(id, status) {
-//     router.put(
-//         `/admin/appointments/${id}/status`,
-//         { status },
-//         {
-//             preserveScroll: true,
-//             onSuccess: () => {
-//                 // Immediately update the status locally so UI changes
-//                 const appointment = props.appointments.find((a) => a.id === id)
-//                 if (appointment) {
-//                     appointment.status = status
-//                 }
-//             },
-//         }
-//     )
-// }
+    function updateStatus(id, status) {
+    router.put(
+        `/admin/appointments/${id}/status`,
+        { status },
+
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Immediately update the status locally so UI changes
+                const appointment = props.appointments.find((a) => a.id === id)
+                if (appointment) {
+                    appointment.status = status
+                }
+            },
+        }
+    )
+}
 
     const handleShowAddSchedule = () => {
         console.log('Opening Add Schedule Modal')
@@ -123,7 +125,7 @@ const showAddScheduleModal = ref(false)
                     </Column>
 
                     <Column header="Actions">
-                    <!-- <template #body="slotProps">
+                    <template #body="slotProps">
                         <div v-if="slotProps.data.status == 'pending'" class="flex gap-2 items-center">
                         <fwb-button color="light" @click="openEmailAppointmentDetails(slotProps.data.schedule.schedule)">
                             Send Email
@@ -140,7 +142,7 @@ const showAddScheduleModal = ref(false)
                             </fwb-list-group>
                         </fwb-dropdown>
                         </div>
-                    </template> -->
+                    </template>
                     </Column>
                     </DataTable>
                 </div>

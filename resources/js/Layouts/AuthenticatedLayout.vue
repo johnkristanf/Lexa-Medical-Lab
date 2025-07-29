@@ -24,7 +24,7 @@
             permitted: permissions.value?.is_admin,
         },
 
-          // MEDICAL STAFF DASHBOARD
+          // MEDICAL STAFF APPOINTMENT
 
          {
             name: 'Appointments',
@@ -56,14 +56,13 @@
             permitted: permissions.value?.can_manage_medical,
         },
 
-     //MEDICAL SUPPY DASHBOARD
+
+         //MEDICAL SUPPY DASHBOARD
          {
             name: 'Dashboard',
             route_name: 'dashboard.supply.create',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
-
-
 
 
         // INVENTORY AND ADMIN ACCESS ROUTE
@@ -77,6 +76,13 @@
         {
             name: 'Supply Requests',
             route_name: 'inventory.supply.request',
+            permitted: permissions.value?.can_manage_inventory_supplies,
+        },
+
+         // MEDICAL INVENTORY STOCK
+         {
+            name: 'Stock',
+            route_name: 'medical.stock.create',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
 

@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\QueueUpdate;
-use App\Models\Appointments;
-use App\Models\AppointmentSchedule;
-use App\Models\Patient;
-use App\Models\Queues;
-use App\Models\QueueStatus;
-use App\Models\Test;
-use App\Models\TestCategory;
-use App\Models\TestPurpose;
-use App\Models\TestType;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
-use App\Mail\ResultEmailReminder;
+use App\Logs;
 use DateTime;
+use App\Models\Test;
+use Inertia\Inertia;
+use App\Models\Queues;
+use App\Models\Patient;
+use App\Models\TestType;
+use App\Events\QueueUpdate;
+use App\Models\QueueStatus;
+use App\Models\TestPurpose;
+use App\Models\Appointments;
+use App\Models\TestCategory;
+use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\ResultEmailReminder;
+use Illuminate\Support\Facades\DB;
+use App\Models\AppointmentSchedule;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -88,6 +89,7 @@ class MedicalStaffController extends Controller
     {
         $patientsDetails = Patient::all();
         $testTypesPurpose = TestPurpose::all();
+        $patientUpdate = Patient::find($request->input('id'));
         // $testTypesRequest = TestRequest::all();
         $testCategory = TestCategory::with('testTypes')->get();
 
@@ -97,6 +99,7 @@ class MedicalStaffController extends Controller
             'testTypesPurpose' => $testTypesPurpose,
             // 'testTypesRequest' => $testTypesRequest,
             'testCategory' => $testCategory,
+            'patientUpdate' => $patientUpdate,
         ]);
     }
 
@@ -129,6 +132,26 @@ class MedicalStaffController extends Controller
         return Inertia::render('TestCategory/TestCategory', [
             'test_category' => $testCategory
         ]);
+    }
+
+    public function updatePatientDetails(Request $request, Patient $patient)
+    {
+
+        $validated = $request->validate([
+            'patient_id' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|string|max:10',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:15',
+            'email' => 'required|email|max:255|unique:patients,email,' . $patient->id,
+        ]);
+
+        $patient->update($validated);
+
+        return redirect()->back()->with('success', 'Patient details updated successfully.');
     }
 
     public function testCategoryStore(Request $request)

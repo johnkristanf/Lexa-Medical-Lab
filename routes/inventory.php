@@ -5,10 +5,22 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(function () {
 
+
+    //RENDER TO DASHBOARD PAGE
+    Route::get('/medical/supply/dashboard/create', [MedicalSupplyController::class, 'dashboardSupplyCreate'])
+        ->name('dashboard.supply.create');
+
     // RENDER INVETORY SUPPLIES PAGE
     Route::get('/inventory/supplies', [MedicalSupplyController::class, 'inventory'])
         ->name('inventory.supplies');
 
+    // UPDATE QUANTIY OF SUPPLY LEFT
+    Route::put('/medical/supply/update/{id}', [MedicalSupplyController::class, 'updateSupply'])
+        ->name('supply.update');
+
+    // RENDER TO STOCK PAGE
+    Route::get('/medical/stock/create', [MedicalSupplyController::class, 'stockSupplycreate'])
+        ->name('medical.stock.create');
 
     // INSERT SUPPLY REQUEST
     Route::post('/medical/supply/request/create', [MedicalSupplyController::class, 'medicalSupplyRequestCreate'])
@@ -44,11 +56,11 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::post('/supply/add', [MedicalSupplyController::class, 'store'])
         ->name('supply.add');
 
+    Route::post('/add/stock/{id}', [MedicalSupplyController::class, 'addStockSupply'])
+        ->name('supply.add.stock');
+
 
     // UPDATE REQUEST ENDPOINT
     Route::put('/update/supply/request', [MedicalSupplyController::class, 'update'])
         ->name('update.supply.request');
-    //RENDER TO DASHBOARD PAGE
-    Route::get('/medical/supply/dashboard/create', [MedicalSupplyController::class, 'dashboardSupplyCreate'])
-        ->name('dashboard.supply.create');
 });
