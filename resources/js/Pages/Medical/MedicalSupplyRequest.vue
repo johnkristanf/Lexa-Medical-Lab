@@ -5,7 +5,7 @@
     import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
     import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/20/solid'
     import { useForm } from '@inertiajs/vue3'
-
+    import { Head } from '@inertiajs/vue3'
     import { FwbButton } from 'flowbite-vue'
     import { onMounted, reactive, ref } from 'vue'
     import RequestSupplyModal from '@/Components/modal/RequestSupplyModal.vue'
@@ -70,6 +70,7 @@
 </script>
 
 <template>
+<Head title="Supply Request" />
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">

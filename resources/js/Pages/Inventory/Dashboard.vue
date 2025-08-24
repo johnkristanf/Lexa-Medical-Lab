@@ -1,26 +1,42 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head } from '@inertiajs/vue3'
-import { Column, DataTable, Drawer } from 'primevue'
-import { FwbButton } from 'flowbite-vue'
-import { reactive, ref } from 'vue'
-import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
-import SearchInput from '@/Components/SearchInput.vue'
+import { reactive, ref, computed } from 'vue'
 import { OPERATION_TYPES } from '@/Enums/Inventory'
 import ItemData from '@/Components/ItemData.vue'
+import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
+import SearchInput from '@/Components/SearchInput.vue'
+import { onMounted } from 'vue'
+import { useToast } from 'primevue/usetoast'
 
+// Props from controller
 const props = defineProps({
-  supplies: Array,
+  supplies: Array, // all supplies with stocks
   inventory_logs: Array,
   nearlyExpired: Array,
 })
 
+const toast = useToast()
+
+onMounted(() => {
+  if (props.supplies.length > 0) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Critical Stock Alert',
+      detail: `${props.supplies.length} item(s) below critical stock.`,
+      life: 5000,
+    })
+  }
+})
+
+
+// Toggles
 const toggles = reactive({
   showAddSupplyModal: false,
   showInventoryDrawer: false,
 })
 
-// Utility functions
+// Utility
 const daysLeft = (expiration) => {
   const now = new Date()
   const exp = new Date(expiration)
@@ -37,6 +53,9 @@ const formatDate = (date) => {
     year: 'numeric',
   })
 }
+
+
+
 </script>
 
 <template>
@@ -50,9 +69,16 @@ const formatDate = (date) => {
     </template>
 
     <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
-      <!-- Nearly Out of Stock Container -->
+      <!-- ✅ Low/Critical Stock -->
       <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
         <h2 class="text-center mb-6 text-2xl font-bold">Nearly Out of Stock</h2>
+
+          <!-- Notification count badge -->
+            <div v-if="props.supplies.length > 0" class="text-center mb-4">
+                <span class="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                {{ props.supplies.length }} Critical Item(s)
+                </span>
+            </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-center border-collapse">
@@ -60,33 +86,35 @@ const formatDate = (date) => {
               <tr>
                 <th class="border-b border-white py-2">Product Name</th>
                 <th class="border-b border-white py-2">Current Stock</th>
-                <th class="border-b border-white py-2">Minimum Stock</th>
+                <th class="border-b border-white py-2">Critical Stock</th>
                 <th class="border-b border-white py-2">Status</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="py-2 px-4">Paracetamol 500mg</td>
-                <td class="py-2 px-4">15</td>
-                <td class="py-2 px-4">50</td>
+             <tr v-for="supply in props.supplies" :key="supply.id">
+                <td class="py-2 px-4">{{ supply.brand_name }}</td>
+                <td class="py-2 px-4">{{ supply.quantity }}</td>
+                <td class="py-2 px-4">{{ supply.stocks?.[0]?.critical_stock ?? 'N/A' }}</td>
                 <td class="py-2 px-4">
-                  <span class="bg-[#d90429] px-2 py-1 rounded text-xs">Critical</span>
+                  <span
+                    :class="{
+                      'bg-[#d90429] text-white': supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10),
+                      'bg-[#ffba08] text-black': supply.quantity > (supply.stocks?.[0]?.critical_stock ?? 10),
+                    }"
+                    class="px-2 py-1 rounded text-xs"
+                  >
+                    {{
+                      supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10)
+                        ? 'Critical'
+                        : 'Low'
+                    }}
+                  </span>
                 </td>
               </tr>
-              <tr>
-                <td class="py-2 px-4">Ibuprofen 400mg</td>
-                <td class="py-2 px-4">8</td>
-                <td class="py-2 px-4">30</td>
-                <td class="py-2 px-4">
-                  <span class="bg-[#d90429] px-2 py-1 rounded text-xs">Critical</span>
-                </td>
-              </tr>
-              <tr>
-                <td class="py-2 px-4">Amoxicillin 250mg</td>
-                <td class="py-2 px-4">22</td>
-                <td class="py-2 px-4">40</td>
-                <td class="py-2 px-4">
-                  <span class="bg-[#ffba08] px-2 py-1 rounded text-xs">Low</span>
+
+              <tr v-if="props.supplies.length === 0">
+                <td colspan="4" class="py-2 text-center text-gray-600">
+                  No low stock items
                 </td>
               </tr>
             </tbody>
@@ -94,7 +122,7 @@ const formatDate = (date) => {
         </div>
       </div>
 
-      <!-- Nearly Expired Container -->
+      <!-- ✅ Nearly Expired Items -->
       <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
         <h2 class="text-center mb-6 text-2xl font-bold">Nearly Expired</h2>
 
@@ -140,11 +168,10 @@ const formatDate = (date) => {
       </div>
     </div>
 
+    <!-- Extra Component -->
     <ItemData />
   </AuthenticatedLayout>
 </template>
-
-
 
 <style scoped>
 .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {

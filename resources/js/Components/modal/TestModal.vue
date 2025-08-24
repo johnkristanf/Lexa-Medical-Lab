@@ -32,7 +32,6 @@
     const form = useForm({
         referer_fullname: '',
         doctor_license_no: '',
-        reason_for_test: '',
         test_schedule: '',
         total_price: '',
         purpose_id: '',
@@ -76,16 +75,23 @@
         form.total_price = totalPrice.value
 
         console.log('Submitting form data:', form.data())
-
-        form.post(route('test.submit'), {
-            onSuccess: () => {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Medical Test Submitted Successfully',
-                    life: 3000,
-                })
-                closeModal()
-            },
+            form.post(route('test.submit'), {
+                onSuccess: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Medical Test Submitted Successfully',
+                        life: 3000,
+                    })
+                    closeModal()
+                },
+                onError: (errors) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Form has validation errors.',
+                        life: 3000,
+                    })
+                    console.error(errors)
+                }
         })
     }
 

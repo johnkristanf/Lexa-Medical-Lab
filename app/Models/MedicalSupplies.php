@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MedicalSupplies extends Model
 {
+    use SoftDeletes;
     protected $guarded = [
         'id'
     ];
@@ -26,11 +27,21 @@ class MedicalSupplies extends Model
 
     public function batches()
     {
-        return $this->hasMany(Batch::class, 'medical_supply_id');
+        return $this->hasMany(Batch::class, 'medical_supply_id', 'id');
     }
 
     public function stocks()
     {
-        return $this->hasMany(Stock::class , 'medical_supply_id');
+        return $this->hasMany(Stock::class, 'medical_supply_id');
+    }
+
+    public function archived()
+    {
+        return $this->hasMany(archive_supplies::class, 'medical_supplies_id', 'id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Categories::class, 'category_id');
     }
 }

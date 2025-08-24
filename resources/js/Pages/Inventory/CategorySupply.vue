@@ -1,51 +1,51 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
-    import { Column, DataTable, Drawer } from 'primevue'
+    import { Column, DataTable, Drawer,} from 'primevue'
     import { FwbButton } from 'flowbite-vue'
     import { reactive, ref } from 'vue'
-    import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
-    import StockModal from '@/Components/modal/StockModal.vue'
+    import SelectButton from 'primevue/selectbutton';
+    import CategoryModal from '@/Components/modal/CategoryModal.vue'
+
+
 
     const props = defineProps({
-        supplies: Array,
         inventory_logs: Array,
-        supplyUpdate: Object,
-        addStock: Array,
+        categories: Array
     })
 
     const toggles = reactive({
-        showAddSupplyModal: false,
+        showCategoryModal: false,
         showInventoryDrawer: false,
     })
 
-        const showStockModal = ref(false)
-        const addStock = ref(null)  
+    const showUpdateSupply = ref(false)
+    const supplyUpdate = ref(null)
 
-       const openStockModal = (stock) => {
-        console.log('Opening StockModal with:', stock)
-        addStock.value = stock
-        showStockModal.value = true
+    const openUpdateSupply = (supply) => {
+         supplyUpdate.value = supply
+        showUpdateSupply.value = true
     }
-
-
 
     console.log('supplies: ', props.supplies)
     console.log('inventory_logs: ', props.inventory_logs)
 
     const sampleOperationType = 'added'
-</script>
+
+
+
+        </script>
 
 <template>
-    <Head title="Stock" />
+    <Head title="Category" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Medical Supply Stock
+                Medical Category Supply
             </h2>
         </template>
 
@@ -53,69 +53,55 @@
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
-                    <div class="w-full flex justify-end gap-3 mb-4">
+                    <div class="w-full flex justify-end gap-8 mb-4">
+
                         <!-- <fwb-button
                             class="bg-gray-900 hover:bg-gray-500"
                             @click="toggles.showInventoryDrawer = true"
+
                         >
                             View Logs
                         </fwb-button> -->
 
-                        <!-- <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
+                        <fwb-button color="green" @click="toggles.showCategoryModal = true">
                             Add Supply
-                        </fwb-button> -->
+                        </fwb-button>
 
                         <!-- SEARCH INPUT -->
                         <SearchInput />
                     </div>
 
                    <DataTable
-                    :value="props.supplies"
-                    tableStyle="min-width: 50rem"
-                    class="custom-datatable"
-                >
-                    <Column field="brand_name" header="Brand Name"></Column>
-                    <Column field="quantity" header="Stock"></Column>
-                    <Column header="Critical Stock">
-                    <template #body="{ data }">
-                        {{ data.stocks[0]?.critical_stock ?? 'N/A' }}
-                    </template>
-                    </Column>
-                    <Column field="batches" header="Product Batch #">
-                <template #body="{ data }">
-                    {{ data.batches[0]?.batch_number ?? 'N/A' }}
-                </template>
-                </Column>
-                    <Column header="Action">
-                     <template #body="slotProps">
+                    :value="props.categories"
+                    tableStyle="min-width:10rem"
+                    class="custom-datatable" >
 
-                       <button
-                   @click="openStockModal(slotProps.data)"
-                    title="Update Supply"
-                        class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]">
-                        <i class="pi pi-th-large text-white-600 text-lg"></i>
-                    </button>
+                    <Column field="name" header="Category Name"></Column>
+                    <Column field="description" header="Description"></Column>
 
-                    </template>
-                    </Column>
                 </DataTable>
                 </div>
             </div>
         </div>
 
-        <StockModal
-            v-if="showStockModal"
-            :addStock="addStock"
-            @close="showStockModal = false"
-            />
-
-
+        <UpdateSupply
+            v-if="showUpdateSupply"
+            :supplyUpdate="supplyUpdate"
+            @close="showUpdateSupply = false"
+        />
 
         <!-- ADD SUPLY MODAL -->
         <AddSupplyModal
             v-if="toggles.showAddSupplyModal"
             @close="toggles.showAddSupplyModal = false"
         />
+         <CategoryModal
+            v-if="toggles.showCategoryModal"
+            @close="toggles.showCategoryModal = false"
+        />
+
+
+
 
 
         <!-- DRAWER FOR INVENTORY LOGS -->

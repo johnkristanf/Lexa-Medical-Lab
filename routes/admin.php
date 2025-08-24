@@ -32,7 +32,6 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
     Route::get('/appointments', [AppointmentController::class, 'renderAdminAppointments'])
         ->name('admin.appointments');
 
-    Route::put('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
     Route::put('/appointment-schedules/{schedule}/status', [AppointmentController::class, 'updateScheduleStatus']);
 
 
@@ -40,4 +39,9 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
     Route::get('/user', function () {
         return Inertia::render('Admin/User');
     })->name('admin.user');
+});
+
+
+Route::middleware(['auth', 'verified', 'can:manage-medical'])->prefix('admin')->group(function () {
+    Route::put('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
 });

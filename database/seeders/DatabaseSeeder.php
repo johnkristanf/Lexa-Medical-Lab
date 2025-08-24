@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             TestRequestSeeder::class,
             TestPurposeSeeder::class,
             AppointmentScheduleSeeder::class,
-            RefererNameSeeder::class
+            // RefererNameSeeder::class
         ]);
     }
 }

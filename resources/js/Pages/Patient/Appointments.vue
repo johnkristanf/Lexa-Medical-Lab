@@ -73,7 +73,7 @@ const showAddScheduleModal = ref(false)
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Appointment" />
 
     <AuthenticatedLayout>
         <template #header>
