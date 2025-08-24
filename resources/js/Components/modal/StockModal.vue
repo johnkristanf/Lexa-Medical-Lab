@@ -40,8 +40,7 @@ const form = useForm({
                 summary: 'Stock added successfully',
                 life: 3000,
             })
-
-            // 🔄 Refresh supplies list
+                 closeModal();
             },
             onError: () => {
             toast.add({
@@ -85,7 +84,6 @@ const form = useForm({
                                                 v-model="form.quantity"
                                                 type="number"
                                                 class="form-input"
-                                                required
                                             />
                                             <p v-if="form.errors.quantity" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.quantity }}
@@ -101,7 +99,6 @@ const form = useForm({
                                                 v-model="form.critical_stock"
                                                 type="number"
                                                 class="form-input"
-                                                required
                                             />
                                             <p v-if="form.errors.critical_stock" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.critical_stock }}

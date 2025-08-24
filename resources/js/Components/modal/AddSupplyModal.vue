@@ -13,13 +13,21 @@
     import { useToast } from 'primevue/usetoast'
     import {generateBatchNumber} from '@/helpers/batch_random_num'
 
+
+const props = defineProps({
+    categories: {
+        type: Array,
+        required: true,
+    },
+})
+
     // TOAST INITIALIZATION
     const toast = useToast()
-
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
+
 
 
     // INERTIA FORM INIATILIZATION
@@ -32,6 +40,7 @@
         expiration_date: '',
         lot_number: '',
         batch_number:generateBatchNumber(),
+        category_id: ''
     })
 
     // FORM SUBMISSION
@@ -224,6 +233,38 @@
                                                 {{ form.errors.expiration_date }}
                                             </p>
                                         </div>
+
+
+                                        <div class="sm:col-span-2">
+                                        <label
+                                            for="category_id"
+                                            class="block text-sm font-semibold text-gray-900"
+                                        >
+                                            Category
+                                        </label>
+                                        <select
+                                            id="category_id"
+                                            v-model="form.category_id"
+                                            class="form-select w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base"
+                                        >
+                                            <option disabled value="" class="text-center">-- Select Category --</option>
+                                            <option
+                                            v-for="category in props.categories"
+                                            :key="category.id"
+                                            :value="category.id"
+                                            >
+                                            {{ category.name }}
+                                            </option>
+                                        </select>
+
+                                        <p
+                                            v-if="form.errors.category_id"
+                                            class="text-sm text-red-500 mt-1"
+                                        >
+                                            {{ form.errors.category_id }}
+                                        </p>
+                                        </div>
+
 
                                         <div class="sm:col-span-2">
                                             <label

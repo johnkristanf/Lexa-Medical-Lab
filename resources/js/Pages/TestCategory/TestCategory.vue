@@ -62,7 +62,7 @@ function test(categoryq) {
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Patient Test"/>
 
     <AuthenticatedLayout>
         <template #header>

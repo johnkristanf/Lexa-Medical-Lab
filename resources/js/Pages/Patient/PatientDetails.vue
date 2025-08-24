@@ -86,7 +86,7 @@
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Patient Details" />
 
     <AuthenticatedLayout>
         <template #header>

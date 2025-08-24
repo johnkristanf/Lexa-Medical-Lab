@@ -198,7 +198,6 @@ class MedicalStaffController extends Controller
         $validated = $request->validate([
             'referer_fullname' => 'required|string|max:255',
             'doctor_license_no' => 'required|string|max:255',
-            'reason_for_test' => 'required|string|max:255',
             'test_schedule' => 'required|date',
             'total_price' => 'required|string',
             'purpose_id' => 'required|integer',
@@ -212,7 +211,6 @@ class MedicalStaffController extends Controller
         $test = Test::create([
             'referer_fullname'     => $validated['referer_fullname'],
             'doctor_license_no'    => $validated['doctor_license_no'],
-            'reason_for_test'      => $validated['reason_for_test'],
             'test_schedule'        => $validated['test_schedule'],
             'total_price'          => $validated['total_price'],
             'or_number'            => $orNumber,

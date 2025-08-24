@@ -1,31 +1,26 @@
 <script setup>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-    import { Head } from '@inertiajs/vue3'
-    import { Column, DataTable, Drawer } from 'primevue'
-    import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
-    import BatchModal from '@/Components/modal/BatchModal.vue'
-    import SearchInput from '@/Components/SearchInput.vue'
-    import { OPERATION_TYPES } from '@/Enums/Inventory'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head } from '@inertiajs/vue3'
+import { Column, DataTable } from 'primevue'
+import { reactive } from 'vue'
+import SearchInput from '@/Components/SearchInput.vue'
 
-    const props = defineProps({
-        supplies: Array,
-        inventory_logs: Array,
-    })
+const props = defineProps({
+    supplies: Array,
+    inventory_logs: Array,
+    arcvhivedSupplies: Array,
+})
 
-    const toggles = reactive({
-        showBatchModal: false,
-        showInventoryDrawer: false,
-    })
+const toggles = reactive({
+    showBatchModal: false,
+    showInventoryDrawer: false,
+})
 
-    console.log('supplies: ', props.supplies)
-    console.log('inventory_logs: ', props.inventory_logs)
-
-    const sampleOperationType = 'added'
+console.log('Archived Supplies: ', props.arcvhivedSupplies)
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Archived Supplies" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -34,63 +29,59 @@
             </h2>
         </template>
 
-        <div>
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="card p-8">
-                    <!-- TABLE FUNCTIONS -->
-                    <div class="w-full flex justify-end gap-3 mb-4">
-                        <!-- <fwb-button
-                            class="bg-gray-900 hover:bg-gray-500"
-                            @click="toggles.showInventoryDrawer = true"
-                        >
-                            View Logs
-                        </fwb-button> -->
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="card p-8">
+                <!-- TABLE HEADER ACTIONS -->
+                <div class="w-full flex justify-end gap-3 mb-4">
+                    <SearchInput />
+                </div>
 
-                        <!-- <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
-                            Add Supply
-                        </fwb-button> -->
-
-                        <!-- SEARCH INPUT -->
-                        <SearchInput />
-                    </div>
-
-                   <DataTable
-                    :value="props.supplies"
+                <DataTable
+                    :value="[...props.arcvhivedSupplies]"
                     tableStyle="min-width: 50rem"
                     class="custom-datatable"
-                     >
-                    <Column field="brand_name" header="Brand Name"></Column>
-                    <Column field="manufacture_date" header="Manufacturing Date"></Column>
-                    <Column field="expiration_date" header="Expiration Date"></Column>
-                <Column field="batches" header="Product Batch #">
-                <template #body="{ data }">
-                    {{ data.batches[0]?.batch_number ?? 'N/A' }}
-                </template>
-                </Column>
+                >
+                    <!-- Brand Name -->
+                    <Column header="Brand Name">
+                        <template #body="{ data }">
+                            {{ data.medical_supply?.brand_name || 'N/A' }}
+                        </template>
+                    </Column>
+
+                    <!-- Manufacture Date -->
+                    <Column header="Manufacture Date">
+                        <template #body="{ data }">
+                            {{ data.medical_supply?.manufacture_date || 'N/A' }}
+                        </template>
+                    </Column>
+
+                    <!-- Expiration Date -->
+                    <Column header="Expiration Date">
+                        <template #body="{ data }">
+                            {{ data.medical_supply?.expiration_date || 'N/A' }}
+                        </template>
+                    </Column>
+
+                    <!-- Product Batch # -->
+                    <Column header="Product Batch #">
+                        <template #body="{ data }">
+                            {{ data.batches?.batch_number || 'N/A' }}
+                        </template>
+                    </Column>
                 </DataTable>
-                </div>
             </div>
         </div>
-        <!-- ADD SUPPLY MODAL -->
-        <!-- <BatchModal
-            v-if="toggles.showBatchModal"
-            @close="toggles.showBatchModal = false"
-        /> -->
     </AuthenticatedLayout>
 </template>
 
-
 <style scoped>
-
-
 .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
-  background-color: #208b3a;
-  color: white;
+    background-color: #208b3a;
+    color: white;
 }
 
 .custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
-  background-color: #ffffff;
-  color: #374151;
+    background-color: #ffffff;
+    color: #374151;
 }
 </style>
-

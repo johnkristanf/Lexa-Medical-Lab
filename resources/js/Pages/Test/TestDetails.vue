@@ -37,7 +37,7 @@
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Test Details"/>
 
     <AuthenticatedLayout>
         <template #header>

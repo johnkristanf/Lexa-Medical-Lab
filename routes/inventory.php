@@ -34,6 +34,14 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     // Route::post('/medical/supply/batch/store', [MedicalSupplyController::class, 'storeBatchNumber'])
     //     ->name('add.batch');
 
+    //RENDER CATEGORY SUPPLY PAGE
+    Route::get('/category/supplies/data/create', [MedicalSupplyController::class, 'CategoriesSupplycreate'])
+        ->name('category.supplies.create');
+
+    // STORED DATA CATEGORY SUPPLY
+    Route::post('/category/store/data', [MedicalSupplyController::class, 'categoriesStoreData'])
+        ->name('categories.store.data');
+
     // RENDER SUPPLY ARCHIVED SUPPLIES PAGE
     Route::get('/archive/supplies/data/create', [MedicalSupplyController::class, 'archiveSuppliescreate'])
         ->name('archive.supplies.create');
@@ -59,6 +67,8 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::post('/add/stock/{id}', [MedicalSupplyController::class, 'addStockSupply'])
         ->name('supply.add.stock');
 
+    Route::get('/inventory/print', [MedicalSupplyController::class, 'printPDFReport'])
+        ->name('inventory.print');
 
     // UPDATE REQUEST ENDPOINT
     Route::put('/update/supply/request', [MedicalSupplyController::class, 'update'])

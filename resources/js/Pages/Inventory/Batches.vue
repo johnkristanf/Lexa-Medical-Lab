@@ -23,13 +23,13 @@
 
     const sampleOperationType = 'added'
 
-//     function archive(id) {
-//     if (confirm('Are you sure you want to archive this supply?')) {
-//         router.post(`/archive/supplies/${id}/store`, {
-//             preserveScroll: true,
-//         })
-//     }
-// }
+    function archive(id) {
+    if (confirm('Are you sure you want to archive this supply?')) {
+        router.post(`/archive/supplies/${id}/store`, {
+            preserveScroll: true,
+        })
+    }
+}
 </script>
 
 <template>

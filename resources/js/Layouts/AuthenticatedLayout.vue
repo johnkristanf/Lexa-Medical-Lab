@@ -73,6 +73,7 @@
         },
 
 
+
         {
             name: 'Supply Requests',
             route_name: 'inventory.supply.request',
@@ -85,6 +86,15 @@
             route_name: 'medical.stock.create',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
+
+
+            //CATEGORY SUPPLY PAGE
+          {
+            name: 'Category',
+            route_name: 'category.supplies.create',
+            permitted: permissions.value?.can_manage_inventory_supplies,
+        },
+
 
         // ARCHIVED SUPPLIES PAGE
          {
@@ -145,8 +155,8 @@
                                 <i class="pi pi-bell text-white-600 text-2xl text-black"></i>
                              </button>
 
-                            <Drawer v-model:visible="visibleRight" header="Right Drawer" position="right">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            <Drawer v-model:visible="visibleRight" header="Notification" position="right">
+                                <p></p>
                             </Drawer>
                             <div class="relative ms-3">
                                 <Dropdown align="right" width="48">

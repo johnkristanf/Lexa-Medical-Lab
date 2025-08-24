@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('referer_fullname');
             $table->string('doctor_license_no')->nullable();
-            $table->string('reason_for_test');
             $table->date('test_schedule');
             $table->integer('total_price');
             $table->enum('status', ['paid', 'pending'])->default('pending');

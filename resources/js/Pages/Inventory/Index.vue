@@ -13,6 +13,7 @@
         supplies: Array,
         inventory_logs: Array,
         supplyUpdate: Object,
+        categories: Array
     })
 
     const toggles = reactive({
@@ -55,6 +56,13 @@
                         >
                             View Logs
                         </fwb-button> -->
+                           <fwb-button
+                        color="green"
+                        :href="route('inventory.print')"
+                        target="_blank"
+                        >
+                        Print As PDF
+                        </fwb-button>
 
                         <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
                             Add Supply
@@ -107,6 +115,7 @@
         <!-- ADD SUPLY MODAL -->
         <AddSupplyModal
             v-if="toggles.showAddSupplyModal"
+            :categories="categories"
             @close="toggles.showAddSupplyModal = false"
         />
 
