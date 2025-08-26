@@ -30,6 +30,7 @@ class AppointmentController extends Controller
 
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'first_name'         => 'required|string|max:255',
             'middle_name'        => 'nullable|string|max:255',
@@ -42,6 +43,7 @@ class AppointmentController extends Controller
             'selected_type_ids.*' => 'exists:test_types,id',
         ]);
 
+        Log::info("validated", [$validated]);
 
         $appointment = Appointments::create([
             'first_name'     => $validated['first_name'],
@@ -55,7 +57,6 @@ class AppointmentController extends Controller
         ]);
 
         Mail::to($appointment->email)->queue(new AppointmentConfirmationMail($appointment));
-        return back()->with('success', 'Confirmation email sent.');
 
         $appointment->test_types()->attach($validated['selected_type_ids']);
         $selectedSchedule = AppointmentSchedule::where('id', $appointment->schedule_id)->value('schedule');
@@ -63,14 +64,14 @@ class AppointmentController extends Controller
         return redirect()
             ->back()
             ->with([
-                'success' => 'Successful Queue Insertion!',
+                'success' => 'Successful Appointment Schedule!',
                 'schedule' => $selectedSchedule
             ]);
     }
 
     public function renderAdminAppointments()
     {
-        $appointments = Appointments::with(['schedule', 'test_types'])
+        $appointments = Appointments::with(['schedule', 'test_types.test_category'])
             ->latest()
             ->get();
 
@@ -113,11 +114,15 @@ class AppointmentController extends Controller
 
     public function sendEmailDetails(Request $request)
     {
-        $data = $request->only(['appointment_number', 'schedule', 'message']);
-
-        $recipient = 'camarote757@gmail.com';
-
+        $data = $request->only(['appointment_id', 'email', 'appointment_number', 'schedule', 'message']);
+        Log::info("data", [$data]);
+        
+        $recipient = $data['email'];
         Mail::to($recipient)->send(new AppointmentConfirmationMail($data));
+
+        Appointments::where('id', $data['appointment_id'])->update([
+            'appointment_number' => $data['appointment_number']
+        ]);
     }
 
     public function addAppointmentSchedule(Request $request)

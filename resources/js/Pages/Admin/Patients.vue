@@ -17,9 +17,15 @@
         patients: Array,
     })
 
-    onMounted(() => {
-        console.log('props.patients: ', props.patients)
-    })
+    const headers = [
+        'Patient ID',
+        'Full Name',
+        'Sex',
+        'Birth Date',
+        'Address',
+        'Contact No.',
+        'Email',
+    ]
 </script>
 
 <template>
@@ -64,14 +70,14 @@
         </div>
 
         <fwb-table hoverable>
-            <fwb-table-head class="bg-green-600 text-white">
-                <fwb-table-head-cell>Patient ID</fwb-table-head-cell>
-                <fwb-table-head-cell>Full Name</fwb-table-head-cell>
-                <fwb-table-head-cell>Sex</fwb-table-head-cell>
-                <fwb-table-head-cell>Birth Date</fwb-table-head-cell>
-                <fwb-table-head-cell>Address</fwb-table-head-cell>
-                <fwb-table-head-cell>Contact No.</fwb-table-head-cell>
-                <fwb-table-head-cell>Email</fwb-table-head-cell>
+            <fwb-table-head>
+                <fwb-table-head-cell
+                    v-for="(header, index) in headers"
+                    :key="index"
+                    class="px-4 py-2 text-sm font-semibold tracking-wide uppercase bg-green-600 text-white"
+                >
+                    {{ header }}
+                </fwb-table-head-cell>
             </fwb-table-head>
 
             <fwb-table-body>

@@ -20,6 +20,13 @@
     import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
     import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
+    import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
+
+    // COMPONENT PROPS
+    const props = defineProps({
+        appointments: Array,
+        schedules: Array,
+    })
 
     // MODAL REFS
     const showAddScheduleModal = ref(false)
@@ -27,40 +34,50 @@
 
     // EMAIL DETAILS MODAL REFS
     const showEmailAppointmentModal = ref(false)
-    const selectedSchedule = ref()
+    const showAppointmentDetailsModal = ref(false)
 
-    const openEmailAppointmentDetails = (schedule) => {
+    const selectedSchedule = ref()
+    const selectedAppointmentID = ref()
+    const selectedAppointmentNumber = ref()
+    const selectedAppointment = ref()
+    const selectedAppointmentEmail = ref()
+
+    const openEmailAppointmentDetails = (appointment_id, appointment_number, schedule, email) => {
         showEmailAppointmentModal.value = true
+        selectedAppointmentID.value = appointment_id
+        selectedAppointmentNumber.value = appointment_number
         selectedSchedule.value = schedule
+        selectedAppointmentEmail.value = email
     }
 
-    const props = defineProps({
-        appointments: Array,
-        schedules: Array,
-    })
+    const openAppointmentDetails = (appointment) => {
+        selectedAppointment.value = appointment
+        showAppointmentDetailsModal.value = true
+    }
 
     function updateStatus(id, status) {
-    router.put(
-        `/admin/appointments/${id}/status`,
-        { status },
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Immediately update the status locally so UI changes
-                const appointment = props.appointments.find((a) => a.id === id)
-                if (appointment) {
-                    appointment.status = status
-                }
+        router.put(
+            `/admin/appointments/${id}/status`,
+            { status },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Immediately update the status locally so UI changes
+                    const appointment = props.appointments.find((a) => a.id === id)
+                    if (appointment) {
+                        appointment.status = status
+                    }
+                },
             },
-        }
-    )
-}
+        )
+    }
 
     const handleShowAddSchedule = () => {
-        console.log('Opening Add Schedule Modal')
-        showAddScheduleModal.value = true;
-        showSchedulesModal.value = false;
+        showAddScheduleModal.value = true
+        showSchedulesModal.value = false
     }
+
+    const headers = ['Appointment #', 'Full Name', 'Email', 'Status', 'Schedule', 'Actions']
 </script>
 
 <template>
@@ -108,18 +125,24 @@
         </div>
 
         <div class="h-screen">
-            <fwb-table class="h-full" hoverable>
-                <fwb-table-head class="bg-green-600 text-white">
-                    <fwb-table-head-cell>Full Name</fwb-table-head-cell>
-                    <fwb-table-head-cell>Email</fwb-table-head-cell>
-                    <fwb-table-head-cell>Status</fwb-table-head-cell>
-                    <fwb-table-head-cell>Schedule</fwb-table-head-cell>
-                    <fwb-table-head-cell>Actions</fwb-table-head-cell>
+            <fwb-table class="h-full">
+                <fwb-table-head>
+                    <fwb-table-head-cell
+                        v-for="(header, index) in headers"
+                        :key="index"
+                        class="px-4 py-2 text-sm font-semibold tracking-wide uppercase bg-green-600 text-white"
+                    >
+                        {{ header }}
+                    </fwb-table-head-cell>
                 </fwb-table-head>
 
                 <fwb-table-body>
                     <template v-if="appointments.length > 0">
                         <fwb-table-row v-for="appointment in appointments" :key="appointment.id">
+                            <fwb-table-cell>
+                                {{ appointment.appointment_number ?? 'N/A' }}
+                            </fwb-table-cell>
+
                             <fwb-table-cell>
                                 {{ appointment.first_name }} {{ appointment.middle_name ?? '' }}
                                 {{ appointment.last_name }}
@@ -145,10 +168,13 @@
                                     class="flex gap-2 items-center"
                                 >
                                     <fwb-button
-                                        color="light"
+                                        color="green"
                                         @click="
                                             openEmailAppointmentDetails(
+                                                appointment.id,
+                                                appointment.appointment_number,
                                                 appointment.schedule.schedule,
+                                                appointment.email,
                                             )
                                         "
                                     >
@@ -157,7 +183,7 @@
 
                                     <fwb-dropdown text="Status" color="green">
                                         <fwb-list-group
-                                            class="w-32 text-sm text-gray-700  dark:text-gray-200"
+                                            class="w-32 text-sm text-gray-700 dark:text-gray-200"
                                         >
                                             <fwb-list-group-item
                                                 class="flex justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
@@ -167,6 +193,15 @@
                                             </fwb-list-group-item>
                                         </fwb-list-group>
                                     </fwb-dropdown>
+                                </div>
+
+                                <div v-else>
+                                    <fwb-button
+                                        color="green"
+                                        @click="openAppointmentDetails(appointment)"
+                                    >
+                                        Details
+                                    </fwb-button>
                                 </div>
                             </fwb-table-cell>
                         </fwb-table-row>
@@ -191,15 +226,21 @@
             @addSchedule="handleShowAddSchedule"
         />
 
-        <AddScheduleModal
-            v-if="showAddScheduleModal"
-            @close="showAddScheduleModal = false"
-        />
+        <AddScheduleModal v-if="showAddScheduleModal" @close="showAddScheduleModal = false" />
 
         <EmailAppointmentDetails
             v-if="showEmailAppointmentModal"
+            :selectedAppointmentID="selectedAppointmentID"
+            :selectedAppointmentNumber="selectedAppointmentNumber"
+            :selectedAppointmentEmail="selectedAppointmentEmail"
             :selectedSchedule="selectedSchedule"
             @close="showEmailAppointmentModal = false"
+        />
+
+        <AppointmentDetails
+            v-if="showAppointmentDetailsModal"
+            :selectedAppointment="selectedAppointment"
+            @close="showAppointmentDetailsModal = false"
         />
     </AdminLayout>
 </template>

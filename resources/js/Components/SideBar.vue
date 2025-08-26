@@ -16,7 +16,6 @@
          {
             name: 'Dashboard',
             route_name: 'admin.dashboard',
-            page_url: '/admin/dashboard',
             permitted: permissions.value?.is_admin,
             icon: UserIcon,
         },
@@ -24,7 +23,6 @@
         {
             name: 'Patients',
             route_name: 'admin.patients',
-            page_url: '/admin/patients',
 
             permitted: permissions.value?.is_admin,
             icon: UserGroupIcon,
@@ -32,14 +30,12 @@
         {
             name: 'Appointments',
             route_name: 'admin.appointments',
-            page_url: '/admin/appointments',
             permitted: permissions.value?.is_admin,
             icon: CalendarIcon,
         },
         {
             name: 'User',
             route_name: 'admin.user',
-            page_url: '/admin/user',
             permitted: permissions.value?.is_admin,
             icon: UserIcon,
         },

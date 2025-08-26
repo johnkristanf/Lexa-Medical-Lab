@@ -65,8 +65,8 @@ class User extends Authenticatable
             // PURPOSE OF absolute: false IS TO NOT RETURN A FULL URL (https://example.com/dashboard)
             // ONLY RELATIVE URL (/dashboard)
 
-            Roles::ADMIN => route('admin.patients', absolute: false),
-            Roles::MEDICAL => route('patient.queue', absolute: false),
+            Roles::ADMIN => route('admin.dashboard', absolute: false),
+            Roles::MEDICAL => route('medical.appointments', absolute: false),
             Roles::INVENTORY => route('inventory.supplies', absolute: false),
             default => route('unauthorized', absolute: false),
         };
