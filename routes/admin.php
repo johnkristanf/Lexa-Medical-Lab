@@ -24,7 +24,7 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
     Route::get('/patients', [PatientController::class, 'renderAdminPatients'])
         ->name('admin.patients');
 
-    Route::get('/admin/dashboard', [MedicalSupplyController::class, 'renderAdminDashboard'])
+    Route::get('/dashboard', [MedicalSupplyController::class, 'renderAdminDashboard'])
         ->name('admin.dashboard');
 
 

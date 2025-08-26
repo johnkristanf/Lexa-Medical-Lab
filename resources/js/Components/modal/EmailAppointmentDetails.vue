@@ -15,40 +15,55 @@
     import { router } from '@inertiajs/vue3'
     import { ref } from 'vue'
 
-        const props = defineProps({
-        selectedSchedule: String
-        })
+    const props = defineProps({
+        selectedAppointmentID: String,
+        selectedAppointmentNumber: String,
+        selectedAppointmentEmail: String,
+        selectedSchedule: String,
+    })
 
-        const emit = defineEmits(['close'])
-        const closeModal = () => emit('close')
-        const toast = useToast()
-        const schedule = props.selectedSchedule ?? new Date()
-        const appointmentNumber = ref (generateRandomNumberString(7))
+    const emit = defineEmits(['close'])
+    const closeModal = () => emit('close')
+    const toast = useToast()
 
+    const schedule = props.selectedSchedule ?? new Date()
+    const appointmentNumber = props.selectedAppointmentNumber ?? generateRandomNumberString(7)
 
-       const sendEmail = () => {
+    const sendEmail = () => {
+        console.log('props', props.selectedAppointmentID)
+        console.log('schedule', schedule)
+
         const scheduleFormatted = formatDate(schedule)
 
-    router.post(route('appointment.send'), {
-        appointment_number: appointmentNumber.value,
-        schedule: scheduleFormatted,
-        message: 'Your appointment has been booked. Please bring your ID and vaccination card.'
-    }, {
-        onSuccess: () => {
-        toast.add({
-            severity: 'success',
-            summary: 'Email Sent',
-            detail: 'Appointment Schedule confirmation has been sent to email successfully.',
-            life: 3000
-        })
-        },
-        onError: (errors) => {
-        console.error('Validation or response error:', errors)
-        }
-    })
+        router.post(
+            route('appointment.send'),
+            {
+                appointment_id: props.selectedAppointmentID,
+                email: props.selectedAppointmentEmail,
+                appointment_number: appointmentNumber,
+                schedule: scheduleFormatted,
+                message:
+                    'Your appointment has been booked. Please bring your ID and vaccination card.',
+            },
+            {
+                onSuccess: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Email Sent',
+                        detail: 'Appointment Schedule confirmation has been sent to email successfully.',
+                        life: 3000,
+                    })
+
+                    setTimeout(() => {
+                        closeModal()
+                    }, [3100])
+                },
+                onError: (errors) => {
+                    console.error('Validation or response error:', errors)
+                },
+            },
+        )
     }
-
-
 </script>
 
 <template>
@@ -94,15 +109,20 @@
                                 <div class="flex flex-col gap-6 mt-10">
                                     <h1 class="text-lg flex flex-col">
                                         Appointment Number:
-                                        <span class="text-2xl">
-                                            - {{ appointmentNumber }}
-                                        </span>
+                                        <span class="text-2xl">- {{ appointmentNumber }}</span>
                                     </h1>
 
                                     <h1 class="text-lg flex flex-col">
                                         Schedule:
                                         <span class="text-2xl">
                                             - {{ formatDate(selectedSchedule) }}
+                                        </span>
+                                    </h1>
+
+                                    <h1 class="text-lg flex flex-col">
+                                        Send To:
+                                        <span class="text-2xl">
+                                            - {{ selectedAppointmentEmail }}
                                         </span>
                                     </h1>
                                 </div>

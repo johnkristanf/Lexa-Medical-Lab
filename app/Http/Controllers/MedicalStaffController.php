@@ -70,7 +70,7 @@ class MedicalStaffController extends Controller
 
     public function medicalAppointmentPage(Request $request)
     {
-        $appointments = Appointments::with(['schedule', 'test_types'])
+        $appointments = Appointments::with(['schedule', 'test_types.test_category'])
             ->latest()
             ->get();
 
