@@ -244,10 +244,10 @@ class MedicalStaffController extends Controller
     {
         $patient = Patient::where('id', $patientID)
             ->whereHas('test_types', function ($query) use ($testID) {
-                $query->where('patient_test_type.test_id', $testID); // ✅ Fix here
+                $query->where('patient_test_type.test_id', $testID);
             })
             ->with(['test_types' => function ($query) use ($testID) {
-                $query->wherePivot('test_id', $testID); // ✅ This is allowed here
+                $query->wherePivot('test_id', $testID);
             }])
             ->first();
 
@@ -275,7 +275,7 @@ class MedicalStaffController extends Controller
                 ->where('test_id', $testID)
                 ->update([
                     'results' => $item['result'],
-                    'updated_at' => now(), // if you use timestamps
+                    'updated_at' => now(),
                 ]);
         }
 
@@ -294,7 +294,7 @@ class MedicalStaffController extends Controller
 
 
         $dob = new DateTime($patientDetails->date_of_birth);
-        $today = new DateTime(); // current date
+        $today = new DateTime(); 
         $age = $dob->diff($today)->y;
 
         return Pdf::loadView('pdf.test-detail', compact(

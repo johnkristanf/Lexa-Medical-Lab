@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import { Column, DataTable } from 'primevue'
-import { reactive } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import SearchInput from '@/Components/SearchInput.vue'
 
 const props = defineProps({
@@ -11,9 +11,31 @@ const props = defineProps({
     arcvhivedSupplies: Array,
 })
 
+const search = ref('')
+
 const toggles = reactive({
     showBatchModal: false,
     showInventoryDrawer: false,
+})
+
+const filteredSupplies = computed(() => {
+    if (!search.value) {
+        return props.arcvhivedSupplies
+    }
+
+    return props.arcvhivedSupplies.filter(item => {
+        const brand = item.medical_supply?.brand_name?.toLowerCase() || ''
+        const manufacture = item.medical_supply?.manufacture_date?.toLowerCase() || ''
+        const expiration = item.medical_supply?.expiration_date?.toLowerCase() || ''
+        const batch = item.batches?.batch_number?.toLowerCase() || ''
+
+        return (
+            brand.includes(search.value.toLowerCase()) ||
+            manufacture.includes(search.value.toLowerCase()) ||
+            expiration.includes(search.value.toLowerCase()) ||
+            batch.includes(search.value.toLowerCase())
+        )
+    })
 })
 
 console.log('Archived Supplies: ', props.arcvhivedSupplies)
@@ -33,11 +55,11 @@ console.log('Archived Supplies: ', props.arcvhivedSupplies)
             <div class="card p-8">
                 <!-- TABLE HEADER ACTIONS -->
                 <div class="w-full flex justify-end gap-3 mb-4">
-                    <SearchInput />
+                    <SearchInput v-model="search" />
                 </div>
 
                 <DataTable
-                    :value="[...props.arcvhivedSupplies]"
+                    :value="filteredSupplies"
                     tableStyle="min-width: 50rem"
                     class="custom-datatable"
                 >

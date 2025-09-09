@@ -3,7 +3,7 @@
     import { Head } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
+    import { reactive, ref, computed } from 'vue'
     import BatchModal from '@/Components/modal/BatchModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
@@ -13,6 +13,8 @@
         supplies: Array,
     })
 
+    const search = ref('')
+
     const toggles = reactive({
         showBatchModal: false,
         showInventoryDrawer: false,
@@ -20,6 +22,27 @@
 
     console.log('supplies: ', props.supplies)
     console.log('inventory_logs: ', props.inventory_logs)
+
+    const filteredSupplies = computed(() => {
+    if (!search.value) {
+        return props.supplies
+    }
+
+    return props.supplies.filter(item => {
+        const brand = item.brand_name?.toLowerCase() || ''
+        const manufacture = item.manufacture_date?.toLowerCase() || ''
+        const expiration = item.expiration_date?.toLowerCase() || ''
+      const batch = item.batches?.[0]?.batch_number?.toLowerCase() || ''
+
+
+        return (
+            brand.includes(search.value.toLowerCase()) ||
+            manufacture.includes(search.value.toLowerCase()) ||
+            expiration.includes(search.value.toLowerCase()) ||
+            batch.includes(search.value.toLowerCase())
+        )
+    })
+})
 
     const sampleOperationType = 'added'
 
@@ -59,11 +82,11 @@
                         </fwb-button> -->
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput v-model="search" />
                     </div>
 
                    <DataTable
-                    :value="props.supplies"
+                    :value="filteredSupplies"
                     tableStyle="min-width: 50rem"
                     class="custom-datatable"
                      >

@@ -44,21 +44,52 @@ class MedicalSupplyController extends Controller
 
     public function renderAdminDashboard(Request $request)
     {
-        $supplies = MedicalSupplies::with('batches')->get();
+        // $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
+        //     ->get()
+        //     ->filter(function ($supply) {
+        //         $critical = $supply->stocks->first()?->critical_stock ?? 10;
+        //         return $supply->quantity <= $critical;
+        //     })
+        //     ->values(); // Reset index
+
+        // $inventoryLogs = InventoryLogs::with('medical_supplies:id,brand_name,quantity')->get();
+
+        // $thresholdDate = Carbon::now()->addDays(30);
+
+        // $nearlyExpired = Batch::with('medicalSupply')
+        //     ->whereHas('medicalSupply', function ($query) {
+        //         $query->whereNull('deleted_at');
+        //     })
+        //     ->whereDate('expiration_date', '<=', $thresholdDate)
+        //     ->whereDate('expiration_date', '>=', Carbon::today())
+        //     ->get();
+
+        // return Inertia::render('Admin/ItemDashboard', [
+        //     'supplies' => $lowStockSupplies, // now only low/critical stock items
+        //     'inventory_logs' => $inventoryLogs,
+        //     'nearlyExpired' => $nearlyExpired,
+        // ]);
+
+        $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
+            ->get()
+            ->filter(function ($supply) {
+                $critical = $supply->stocks->first()?->critical_stock ?? 10;
+                return $supply->quantity <= $critical;
+            })
+            ->values();
+
         $inventoryLogs = InventoryLogs::with('medical_supplies:id,brand_name,quantity')->get();
 
         $thresholdDate = Carbon::now()->addDays(30);
 
         $nearlyExpired = Batch::with('medicalSupply')
-            ->whereHas('medicalSupply', function ($query) {
-                $query->whereNull('deleted_at'); // ✅ exclude archived supplies
-            })
+            ->whereHas('medicalSupply', fn($q) => $q->whereNull('deleted_at'))
             ->whereDate('expiration_date', '<=', $thresholdDate)
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
 
         return Inertia::render('Admin/ItemDashboard', [
-            'supplies' => $supplies,
+            'supplies' => $lowStockSupplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
         ]);
@@ -67,28 +98,60 @@ class MedicalSupplyController extends Controller
 
     public function dashboardSupplyCreate(Request $request)
     {
-        $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
+        // $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
+        //     ->get()
+        //     ->filter(function ($supply) {
+        //         $critical = $supply->stocks->first()?->critical_stock ?? 10;
+        //         return $supply->quantity <= $critical;
+        //     })
+        //     ->values(); // Reset index
+
+        // $inventoryLogs = InventoryLogs::with('medical_supplies')->get()
+        //     ->map(function ($log) {
+        //         $log->created_at = $log->created_at->format('d-m-Y');
+        //         return $log;
+        //     });
+
+        // $thresholdDate = Carbon::now()->addDays(30);
+
+        // $nearlyExpired = Batch::with('medicalSupply')
+        //     ->whereHas('medicalSupply', function ($query) {
+        //         $query->whereNull('deleted_at');
+        //     })
+        //     ->whereDate('expiration_date', '<=', $thresholdDate)
+        //     ->whereDate('expiration_date', '>=', Carbon::today())
+        //     ->get();
+
+        // return Inertia::render('Inventory/Dashboard', [
+        //     'supplies' => $lowStockSupplies, // now only low/critical stock items
+        //     'inventory_logs' => $inventoryLogs,
+        //     'nearlyExpired' => $nearlyExpired,
+        // ]);
+
+        $inventoryLogs = InventoryLogs::with('medical_supplies')->get()
+            ->map(function ($log) {
+                $log->created_at = $log->created_at->format('d-m-Y');
+                return $log;
+            });
+
+        $supplies = MedicalSupplies::with(['stocks', 'batches'])
             ->get()
             ->filter(function ($supply) {
                 $critical = $supply->stocks->first()?->critical_stock ?? 10;
                 return $supply->quantity <= $critical;
             })
-            ->values(); // Reset index
-
-        $inventoryLogs = InventoryLogs::with('medical_supplies:id,brand_name,quantity')->get();
+            ->values();
 
         $thresholdDate = Carbon::now()->addDays(30);
 
         $nearlyExpired = Batch::with('medicalSupply')
-            ->whereHas('medicalSupply', function ($query) {
-                $query->whereNull('deleted_at'); // ✅ exclude archived supplies
-            })
+            ->whereHas('medicalSupply', fn($q) => $q->whereNull('deleted_at'))
             ->whereDate('expiration_date', '<=', $thresholdDate)
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
 
         return Inertia::render('Inventory/Dashboard', [
-            'supplies' => $lowStockSupplies, // now only low/critical stock items
+            'supplies' => $supplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
         ]);
@@ -151,6 +214,18 @@ class MedicalSupplyController extends Controller
     }
 
 
+    public function suppliescreate(Request $request)
+    {
+        $supplies = MedicalSupplies::with('category')->get(); // fetch supplies with category
+        $categories_supplies = Categories::with('medical_supplies')->get();
+
+        return Inertia::render('Inventory/Supplies', [
+            'supplies' => $supplies,
+            'categories' => $categories_supplies
+        ]);
+    }
+
+
     public function addStockSupply(Request $request, $id)
     {
         // $supply = MedicalSupplies::findOrFail($id);
@@ -163,7 +238,7 @@ class MedicalSupplyController extends Controller
         // $supply->quantity += $validated['quantity'];
         // $supply->save();
 
-        // // ✅ Save to critical_stocks table if provided
+        // // Save to critical_stocks table if provided
         // Stock::create([
         //     'medical_supply_id' => $supply->id,
         //     'batch_id' => $supply->batches->first()->id ?? null, // Use first batch or null if none exists
@@ -188,15 +263,15 @@ class MedicalSupplyController extends Controller
             'critical_stock' => 'nullable|integer|min:0',
         ]);
 
-        // ✅ Update the quantity in medical_supplies
+        //  Update the quantity in medical_supplies
         $supply->quantity += $validated['quantity'];
         $supply->save();
 
-        // ✅ Get the latest or current stock record
+        //  Get the latest or current stock record
         $stock = $supply->stocks()->latest()->first();
 
         if ($stock) {
-            // ✅ Update critical_stock only (don't create new one)
+            //  Update critical_stock only (don't create new one)
             $stock->critical_stock = $validated['critical_stock'] ?? $stock->critical_stock;
             $stock->save();
         } else {
@@ -206,7 +281,7 @@ class MedicalSupplyController extends Controller
             ]);
         }
 
-        // ✅ Log the inventory addition
+        //  Log the inventory addition
         InventoryLogs::create([
             'requester_name' => Auth::user()->name,
             'operation_type' => Logs::ADDED,
@@ -243,28 +318,6 @@ class MedicalSupplyController extends Controller
 
     public function store(Request $request)
     {
-        // $validated = $request->validate([
-        //     'participants' => 'required|string|max:255',
-        //     'brand_name' => 'required|string|max:255',
-        //     'unit' => 'required|string|max:50',
-        //     'quantity' => 'required|integer|min:0',
-        //     'manufacture_date' => 'required|date',
-        //     'expiration_date' => 'required|date|after_or_equal:manufacture_date',
-        //     'lot_number' => 'nullable|string|max:255',
-        //     'batch_number' => 'nullable|string|max:255',
-        // ]);
-
-        // $createdSupply = MedicalSupplies::create($validated);
-
-        // InventoryLogs::create([
-        //     'requester_name' => Auth::user()->name,
-        //     'operation_type' => Logs::ADDED,
-        //     'total_quantity' => $createdSupply->quantity,
-        //     'supply_id' => $createdSupply->id,
-        // ]);
-
-        // return redirect()->back()->with('success', 'Supply added successfully.');
-
 
         //THIS IS A RIGHT METHOD
         $validated = $request->validate([
@@ -276,7 +329,7 @@ class MedicalSupplyController extends Controller
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
-            'crtical_stock' => 'nullable|integer|min:0', // ✅ Add this
+            'crtical_stock' => 'nullable|integer|min:0', 
             'category_id'       => 'required|exists:categories,id',
 
         ]);
@@ -288,7 +341,7 @@ class MedicalSupplyController extends Controller
             'quantity'           => $validated['quantity'],
             'manufacture_date'   => $validated['manufacture_date'],
             'expiration_date'    => $validated['expiration_date'],
-            'lot_number'         => $validated['lot_number'], // ✅ Add this
+            'lot_number'         => $validated['lot_number'],
             'batch_number'     => $validated['batch_number'],
             'category_id'       => $validated['category_id'],
 
@@ -512,89 +565,4 @@ class MedicalSupplyController extends Controller
 
         return back()->with('success', 'Supply archived successfully.');
     }
-
-    //this boundary is for testing
-
-    //test for supply with category creation
-    // public function inventory(Request $request)
-    // {
-    //     $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
-    //         $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
-    //     }])
-    //         ->whereHas('batches', function ($query) {
-    //             $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
-    //         })
-    //         ->get();
-
-    //     $supplies = MedicalSupplies::with('batches')->get();
-
-    //     $inventoryLogs = InventoryLogs::with([
-    //         'medical_supplies' => function ($query) {
-    //             $query->select('id', 'brand_name', 'quantity');
-    //         }
-    //     ])->get();
-
-    //     $supplyUpdate = MedicalSupplies::find($request->input('supply_id'));
-    //     $categories_supply = Categories::all();
-
-    //     return Inertia::render('Inventory/index1', [
-    //         'supplies'       => $supplies,
-    //         'inventory_logs' => $inventoryLogs,
-    //         'nearlyExpired'  => $nearlyExpired,
-    //         'supplyUpdate' => $supplyUpdate,
-    //         'categories' => $categories_supply
-
-
-    //     ]);
-    // }
-
-    // public function store(Request $request)
-    // {
-
-
-    //     $validated = $request->validate([
-    //         'participants' => 'required|string|max:255',
-    //         'brand_name' => 'required|string|max:255',
-    //         'unit' => 'required|string|max:50',
-    //         'quantity' => 'required|integer|min:0',
-    //         'manufacture_date' => 'required|date',
-    //         'expiration_date' => 'required|date|after_or_equal:manufacture_date',
-    //         'lot_number' => 'nullable|string|max:255',
-    //         'batch_number' => 'required|string|max:255',
-    //         'crtical_stock' => 'nullable|integer|min:0',
-    //         'category_id'       => 'required|exists:categories,id',
-    //     ]);
-
-    //     // Create main supply
-    //     $createdSupply = MedicalSupplies::create([
-    //         'participants'       => $validated['participants'],
-    //         'brand_name'         => $validated['brand_name'],
-    //         'unit'               => $validated['unit'],
-    //         'quantity'           => $validated['quantity'],
-    //         'manufacture_date'   => $validated['manufacture_date'],
-    //         'expiration_date'    => $validated['expiration_date'],
-    //         'lot_number'         => $validated['lot_number'],
-    //         'batch_number'     => $validated['batch_number'],
-    //         'category_id'       => $validated['category_id'],
-    //     ]);
-
-    //     // Create batch for the supply
-    //     $createdSupply->batches()->create([
-    //         'quantity'         => $validated['quantity'],
-    //         'batch_number'     => $validated['batch_number'],
-    //         'manufacture_date' => $validated['manufacture_date'],
-    //         'expiration_date'  => $validated['expiration_date'],
-    //     ]);
-
-
-    //     // Log the inventory
-    //     InventoryLogs::create([
-    //         'requester_name' => Auth::user()->name,
-    //         'operation_type' => Logs::ADDED,
-    //         'total_quantity' => $validated['quantity'],
-    //         'supply_id'      => $createdSupply->id,
-    //     ]);
-
-    //     return redirect()->back()->with('success', 'Supply and batch added successfully.');
-    // }
 }

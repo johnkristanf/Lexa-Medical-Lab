@@ -42,6 +42,10 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::post('/category/store/data', [MedicalSupplyController::class, 'categoriesStoreData'])
         ->name('categories.store.data');
 
+    //RENDER SUPPLIES PAGE
+    Route::get('/supplies/create/data', [MedicalSupplyController::class, 'suppliescreate'])
+        ->name('supplies.create.page');
+
     // RENDER SUPPLY ARCHIVED SUPPLIES PAGE
     Route::get('/archive/supplies/data/create', [MedicalSupplyController::class, 'archiveSuppliescreate'])
         ->name('archive.supplies.create');

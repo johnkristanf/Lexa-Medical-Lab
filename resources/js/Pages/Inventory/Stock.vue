@@ -3,7 +3,7 @@
     import { Head } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
+    import { reactive, ref, computed } from 'vue'
     import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
@@ -22,14 +22,35 @@
         showInventoryDrawer: false,
     })
 
+    const search = ref('')
+
         const showStockModal = ref(false)
-        const addStock = ref(null)  
+        const addStock = ref(null)
 
        const openStockModal = (stock) => {
         console.log('Opening StockModal with:', stock)
         addStock.value = stock
         showStockModal.value = true
     }
+    const filteredSupplies = computed(() => {
+    if (!search.value) {
+        return props.supplies
+    }
+
+    return props.supplies.filter(item => {
+        const brand = item.brand_name?.toLowerCase() || ''
+        const quantity = String(item.quantity || '').toLowerCase()
+        const critical = String(item.stocks?.[0]?.critical_stock || '').toLowerCase()
+        const batch = item.batches?.[0]?.batch_number?.toLowerCase() || ''
+
+        return (
+            brand.includes(search.value.toLowerCase()) ||
+            quantity.includes(search.value.toLowerCase()) ||
+            critical.includes(search.value.toLowerCase()) ||
+            batch.includes(search.value.toLowerCase())
+        )
+    })
+})
 
 
 
@@ -66,11 +87,11 @@
                         </fwb-button> -->
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput v-model="search" />
                     </div>
 
                    <DataTable
-                    :value="props.supplies"
+                    :value="filteredSupplies"
                     tableStyle="min-width: 50rem"
                     class="custom-datatable"
                 >
