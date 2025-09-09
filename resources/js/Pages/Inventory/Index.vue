@@ -3,7 +3,7 @@
     import { Head } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
+    import { reactive, ref, computed } from 'vue'
     import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
@@ -15,6 +15,8 @@
         supplyUpdate: Object,
         categories: Array
     })
+
+    const search = ref('')
 
     const toggles = reactive({
         showAddSupplyModal: false,
@@ -28,6 +30,33 @@
          supplyUpdate.value = supply
         showUpdateSupply.value = true
     }
+
+
+    const filteredSupplies = computed(() => {
+        if (!search.value) {
+            return props.supplies
+        }
+
+        return props.supplies.filter(item => {
+            const itemName = item.participants?.toLowerCase() || ''
+            const brand = item.brand_name?.toLowerCase() || ''
+            const unit = item.unit?.toLowerCase() || ''
+            const quantity = String(item.quantity || '').toLowerCase()
+            const manufacture = item.manufacture_date?.toLowerCase() || ''
+            const expiration = item.expiration_date?.toLowerCase() || ''
+            const lot = item.lot_number?.toLowerCase() || ''
+
+            return (
+                itemName.includes(search.value.toLowerCase()) ||
+                brand.includes(search.value.toLowerCase()) ||
+                unit.includes(search.value.toLowerCase()) ||
+                quantity.includes(search.value.toLowerCase()) ||
+                manufacture.includes(search.value.toLowerCase()) ||
+                expiration.includes(search.value.toLowerCase()) ||
+                lot.includes(search.value.toLowerCase())
+            )
+        })
+    })
 
     console.log('supplies: ', props.supplies)
     console.log('inventory_logs: ', props.inventory_logs)
@@ -69,11 +98,11 @@
                         </fwb-button>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput v-model="search" />
                     </div>
 
                    <DataTable
-                    :value="props.supplies"
+                    :value="filteredSupplies"
                     tableStyle="min-width: 50rem"
                     class="custom-datatable"
                 >

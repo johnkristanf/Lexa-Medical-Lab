@@ -11,11 +11,12 @@ import {
 
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import { Head } from '@inertiajs/vue3'
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
 import SearchInput from '@/Components/SearchInput.vue'
 import { OPERATION_TYPES } from '@/Enums/Inventory'
 import ItemData from '@/Components/ItemData.vue'
+import { useToast } from 'primevue/usetoast'
 
 const props = defineProps({
   supplies: Array,
@@ -26,6 +27,30 @@ const props = defineProps({
 const toggles = reactive({
   showAddSupplyModal: false,
   showInventoryDrawer: false,
+})
+
+const toast = useToast()
+
+onMounted(() => {
+  if (props.supplies.length > 0) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Critical Stock Alert',
+      detail: `${props.supplies.length} item(s) below critical stock.`,
+      life: 5000,
+    })
+  }
+})
+
+onMounted(() => {
+  if (props.nearlyExpired.length > 0) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Expiration Alert',
+      detail: `${props.nearlyExpired.length} item(s) nearly expired.`,
+      life: 5000,
+    })
+  }
 })
 
 const daysLeft = (expiration) => {
@@ -45,112 +70,121 @@ const formatDate = (date) => {
   })
 }
 </script>
-        <template>
-        <Head title="Dashboard" />
 
-                    <AdminLayout>
-                        <div class="flex justify-between items-center mb-3">
-            <h1 class="text-2xl  text-gray-600">Dashboard</h1>
-                </div>
-                    <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
-                    <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
-                    <h2 class="text-center mb-6 text-2xl font-bold">Nearly Out of Stock</h2>
+<template>
+  <Head title="Dashboard" />
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full table-fixed">
-            <thead>
-                <tr class="bg-gray-200 text-gray-700">
-                <th class="py-3 px-4 text-left">Product Name</th>
-                <th class="py-3 px-4 text-left">Current Stock</th>
-                <th class="py-3 px-4 text-left">Minimum Stock</th>
-                <th class="py-3 px-4 text-left w-1/4">Status</th>
-                </tr>
-            </thead>
-            <tbody class="text-sm">
-                <tr class="hover:bg-gray-100">
-                <td class="py-2 px-4 break-words">Paracetamol 500mg</td>
-                <td class="py-2 px-4">15</td>
-                <td class="py-2 px-4">50</td>
-                <td class="py-2 px-4">
-                    <span class="bg-[#d90429] text-white px-2 py-1 rounded text-xs">Critical</span>
-                </td>
-                </tr>
-                <tr class="hover:bg-gray-100">
-                <td class="py-2 px-4 break-words">Ibuprofen 400mg</td>
-                <td class="py-2 px-4">8</td>
-                <td class="py-2 px-4">30</td>
-                <td class="py-2 px-4">
-                    <span class="bg-[#d90429] text-white px-2 py-1 rounded text-xs">Critical</span>
-                </td>
-                </tr>
-                <tr class="hover:bg-gray-100">
-                <td class="py-2 px-4 break-words">Amoxicillin 250mg</td>
-                <td class="py-2 px-4">22</td>
-                <td class="py-2 px-4">40</td>
-                <td class="py-2 px-4">
-                    <span class="bg-[#ffba08] text-black px-2 py-1 rounded text-xs">Low</span>
-                </td>
-                </tr>
-            </tbody>
-            </table>
-        </div>
+  <AdminLayout>
+    <div class="flex justify-between items-center mb-3">
+      <h1 class="text-2xl text-gray-600">Dashboard</h1>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
+      <!-- Nearly Out of Stock -->
+      <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
+        <h2 class="text-center mb-6 text-2xl font-bold">Nearly Out of Stock</h2>
+
+        <div v-if="props.supplies.length > 0" class="text-center mb-4">
+          <span class="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+            {{ props.supplies.length }} Critical Item(s)
+          </span>
         </div>
 
-            <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
-            <h2 class="text-center mb-6 text-2xl font-bold">Nearly Expired</h2>
-
-    <!-- ✅ Scroll wrapper -->
         <div class="overflow-x-auto">
-            <table class="min-w-full table-auto">
+          <table class="w-full text-center border-collapse">
             <thead>
-                <tr class="bg-gray-200 text-gray-700">
-                <th class="py-3 px-4 text-left">Product Name</th>
-                <th class="py-3 px-4 text-left">Expiration Date</th>
-                <th class="py-3 px-4 text-left">Batch Number</th>
-                <th class="py-3 px-4 text-left">Days Left</th>
-                </tr>
+              <tr>
+                <th class="border-b border-white py-2">Product Name</th>
+                <th class="border-b border-white py-2">Current Stock</th>
+                <th class="border-b border-white py-2">Critical Stock</th>
+                <th class="border-b border-white py-2">Status</th>
+              </tr>
             </thead>
-            <tbody class="text-sm">
-                <tr
-                v-for="batch in props.nearlyExpired"
-                :key="batch.id"
-                class="hover:bg-gray-100"
-                >
-                <td class="py-2 px-4 break-words">
-                    {{ batch.medical_supply?.brand_name ?? 'N/A' }}
-                </td>
-                <td class="py-2 px-4">{{ formatDate(batch.expiration_date) }}</td>
-                <td class="py-2 px-4 whitespace-nowrap">
-                    {{ batch.batch_number }}
-                </td>
+            <tbody>
+              <tr v-for="supply in props.supplies" :key="supply.id">
+                <td class="py-2 px-4">{{ supply.brand_name }}</td>
+                <td class="py-2 px-4">{{ supply.quantity }}</td>
+                <td class="py-2 px-4">{{ supply.stocks?.[0]?.critical_stock ?? 'N/A' }}</td>
                 <td class="py-2 px-4">
-                    <span
+                  <span
                     :class="{
-                        'bg-[#d90429] text-white': daysLeft(batch.expiration_date) <= 30,
-                        'bg-[#ffba08] text-black': daysLeft(batch.expiration_date) > 30,
+                      'bg-[#d90429] text-white': supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10),
+                      'bg-[#ffba08] text-black': supply.quantity > (supply.stocks?.[0]?.critical_stock ?? 10),
                     }"
                     class="px-2 py-1 rounded text-xs"
-                    >
-                    {{ daysLeft(batch.expiration_date) }} days
-                    </span>
+                  >
+                    {{
+                      supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10)
+                        ? 'Critical'
+                        : 'Low'
+                    }}
+                  </span>
                 </td>
-                </tr>
+              </tr>
 
-                <tr v-if="props.nearlyExpired.length === 0">
+              <tr v-if="props.supplies.length === 0">
                 <td colspan="4" class="py-2 text-center text-gray-600">
-                    No nearly expired items
-                    </td>
-                    </tr>
-                </tbody>
-                </table>
-                </div>
-            </div>
+                  No low stock items
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Nearly Expired -->
+      <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
+        <h2 class="text-center mb-6 text-2xl font-bold">Nearly Expired</h2>
+
+        <div v-if="props.nearlyExpired.length > 0" class="text-center mb-4">
+          <span class="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+            {{ props.nearlyExpired.length }} Nearly Expired Item(s)
+          </span>
         </div>
 
-    <ItemData />
+        <div class="overflow-x-auto">
+          <table class="w-full text-center border-collapse">
+            <thead>
+              <tr>
+                <th class="border-b border-white py-2">Product Name</th>
+                <th class="border-b border-white py-2">Expiration Date</th>
+                <th class="border-b border-white py-2">Batch Number</th>
+                <th class="border-b border-white py-2">Days Left</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="batch in props.nearlyExpired" :key="batch.id">
+                <td class="py-2 px-4">{{ batch.medical_supply?.brand_name ?? 'N/A' }}</td>
+                <td class="py-2 px-4">{{ formatDate(batch.expiration_date) }}</td>
+                <td class="py-2 px-4">{{ batch.batch_number }}</td>
+                <td class="py-2 px-4">
+                  <span
+                    :class="{
+                      'bg-[#d90429] text-white': daysLeft(batch.expiration_date) <= 30,
+                      'bg-[#ffba08] text-black': daysLeft(batch.expiration_date) > 30,
+                    }"
+                    class="px-2 py-1 rounded text-xs"
+                  >
+                    {{ daysLeft(batch.expiration_date) }} days
+                  </span>
+                </td>
+              </tr>
+
+              <tr v-if="props.nearlyExpired.length === 0">
+                <td colspan="4" class="py-2 text-center text-gray-600">
+                  No nearly expired items
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs -->
+    <ItemData :inventory_logs="props.inventory_logs" />
   </AdminLayout>
 </template>
-
 
 <style scoped>
 .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {

@@ -11,7 +11,7 @@ import { useToast } from 'primevue/usetoast'
 
 // Props from controller
 const props = defineProps({
-  supplies: Array, // all supplies with stocks
+  supplies: Array, 
   inventory_logs: Array,
   nearlyExpired: Array,
 })
@@ -24,6 +24,17 @@ onMounted(() => {
       severity: 'warn',
       summary: 'Critical Stock Alert',
       detail: `${props.supplies.length} item(s) below critical stock.`,
+      life: 5000,
+    })
+  }
+})
+
+onMounted(() => {
+  if (props.nearlyExpired.length > 0) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Critical Stock Alert',
+      detail: `${props.nearlyExpired.length} item(s) nearly expired.`,
       life: 5000,
     })
   }
@@ -125,6 +136,13 @@ const formatDate = (date) => {
       <!-- ✅ Nearly Expired Items -->
       <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
         <h2 class="text-center mb-6 text-2xl font-bold">Nearly Expired</h2>
+
+        <!-- Notification count badge -->
+            <div v-if="props.supplies.length > 0" class="text-center mb-4">
+                <span class="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                {{ props.supplies.length }} Nearly Expired Item(s)
+                </span>
+            </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-center border-collapse">

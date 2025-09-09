@@ -83,7 +83,7 @@
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                Add Medical Category Description Here
+                                Add Supplies Category Description Here
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
