@@ -42,7 +42,7 @@
     function submitForm() {
         form.birthdate = formateBirthDate(form.birthdate)
 
-        console.log("form data boss: ", form);
+        console.log('form data boss: ', form)
         form.post(route('store.services.appointment'), {
             onSuccess: () => {
                 toast.add({
@@ -80,15 +80,15 @@
         <Stepper
             :value="currentStep"
             @update:value="(val) => (currentStep = val)"
-            class="basis-[50rem] overflow-y-auto"
+            class="basis-[50rem] flex flex-col"
         >
-            <StepList>
+            <StepList class="sticky top-0 z-10">
                 <Step value="1">Terms & Conditions</Step>
                 <Step value="2">Personal Information</Step>
                 <Step value="3">Test Type & Schedule</Step>
             </StepList>
 
-            <StepPanels>
+            <StepPanels class="overflow-y-auto max-h-[70vh]">
                 <StepPanel v-slot="{ activateCallback }" value="1">
                     <div class="flex flex-col h-full">
                         <div class="flex-auto flex justify-center items-center font-medium">
