@@ -157,8 +157,8 @@
                             </fwb-table-cell>
                             <fwb-table-cell>
                                 {{
-                                    appointment.schedule?.schedule
-                                        ? formatDate(appointment.schedule.schedule)
+                                    appointment.schedule?.date
+                                        ? formatDate(appointment.schedule.date)
                                         : 'Not scheduled'
                                 }}
                             </fwb-table-cell>
@@ -173,7 +173,7 @@
                                             openEmailAppointmentDetails(
                                                 appointment.id,
                                                 appointment.appointment_number,
-                                                appointment.schedule.schedule,
+                                                appointment.schedule.date,
                                                 appointment.email,
                                             )
                                         "

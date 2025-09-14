@@ -13,7 +13,7 @@
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
     import { router } from '@inertiajs/vue3'
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
 
     const props = defineProps({
         selectedAppointmentID: String,

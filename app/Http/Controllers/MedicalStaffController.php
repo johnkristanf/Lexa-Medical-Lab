@@ -74,7 +74,8 @@ class MedicalStaffController extends Controller
             ->latest()
             ->get();
 
-        $schedules = AppointmentSchedule::select('id', 'schedule', 'status')
+        $schedules = AppointmentSchedule::select('id', 'date')
+            ->with(['appointment_slots'])
             ->latest()
             ->get();
 
@@ -116,8 +117,8 @@ class MedicalStaffController extends Controller
             'contact_number' => 'required|string|max:15',
             'email' => 'required|email|max:255|unique:patients,email',
         ]);
-        $patient = Patient::create($validated);
 
+        Patient::create($validated);
         return redirect()->back()->with('success', 'Patient details added successfully.');
     }
 

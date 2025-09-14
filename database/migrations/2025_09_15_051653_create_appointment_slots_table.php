@@ -1,0 +1,38 @@
+<?php
+
+use App\Models\Appointments;
+use App\Models\AppointmentSlots;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('appointment_slots', function (Blueprint $table) {
+            $statuses =  [
+                AppointmentSlots::AVAIALBLE, 
+                AppointmentSlots::UNAVAIALBLE, 
+                AppointmentSlots::CANCELLED
+            ];
+
+            $table->id();
+            $table->time('time_slot');  
+            $table->enum('status', $statuses)->default(AppointmentSlots::AVAIALBLE);
+            $table->foreignId('schedule_id')->constrained('appointment_schedules')->onDelete('cascade');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('appointment_slots');
+    }
+};

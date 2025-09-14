@@ -13,4 +13,9 @@ class AppointmentSchedule extends Model
     {
         return $this->hasMany(Appointments::class, 'schedule_id');
     }
+
+    public function appointment_slots(): HasMany
+    {
+        return $this->hasMany(AppointmentSlots::class, 'schedule_id');
+    }
 }

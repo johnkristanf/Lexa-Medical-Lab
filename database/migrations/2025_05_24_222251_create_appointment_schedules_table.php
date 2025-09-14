@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('appointment_schedules', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('schedule');
-            $table->string('status')->default('available'); // available or unavailable
+            $table->date('date');
             $table->timestamps();
         });
     }
