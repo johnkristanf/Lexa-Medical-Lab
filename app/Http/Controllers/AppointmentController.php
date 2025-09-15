@@ -22,9 +22,13 @@ class AppointmentController extends Controller
 {
     public function index()
     {
-        $testCategories = TestCategory::with('testTypes')->get();
+        $testCategories = TestCategory::with('testTypes')
+            ->latest()
+            ->get();
+
         $schedules = AppointmentSchedule::select('id', 'date')
             ->with(['appointment_slots'])
+            ->latest()
             ->get();
 
         return Inertia::render('Appointment/Index', [
@@ -81,9 +85,6 @@ class AppointmentController extends Controller
             ->latest()
             ->get();
 
-        Log::info("appointments admin: ", [$appointments]);
-        Log::info("schedules admin: ", [$schedules]);
-
         return Inertia::render('Admin/Appointments', [
             'appointments' => $appointments,
             'schedules' => $schedules,
@@ -125,12 +126,15 @@ class AppointmentController extends Controller
         Appointments::where('id', $data['appointment_id'])->update([
             'appointment_number' => $data['appointment_number']
         ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Appointment Email Sent Successfully');
     }
 
     public function addAppointmentSchedule(StoreAppoinmentScheduleRequest $request)
     {
         $data = $request->validated();
-        Log::info("Schedule data: ", [$data]);
 
         DB::transaction(function () use ($data) {
             // Create parent schedule

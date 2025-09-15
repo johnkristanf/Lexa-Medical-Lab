@@ -21,6 +21,8 @@
     import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
+    import AddButton from '@/Components/AddButton.vue'
+import StatusButton from '@/Components/StatusButton.vue'
 
     // COMPONENT PROPS
     const props = defineProps({
@@ -90,9 +92,7 @@
             <!-- SEARCH INPUT -->
 
             <div class="flex gap-3">
-                <fwb-button color="green" @click="showSchedulesModal = true">
-                    View Schedules
-                </fwb-button>
+                <AddButton @click="showSchedulesModal = true">View Schedules</AddButton>
                 <div class="relative">
                     <div
                         class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
@@ -167,20 +167,6 @@
                                     v-if="appointment.status == 'pending'"
                                     class="flex gap-2 items-center"
                                 >
-                                    <fwb-button
-                                        color="green"
-                                        @click="
-                                            openEmailAppointmentDetails(
-                                                appointment.id,
-                                                appointment.appointment_number,
-                                                appointment.schedule.date,
-                                                appointment.email,
-                                            )
-                                        "
-                                    >
-                                        Send Email
-                                    </fwb-button>
-
                                     <fwb-dropdown text="Status" color="green">
                                         <fwb-list-group
                                             class="w-32 text-sm text-gray-700 dark:text-gray-200"
@@ -193,15 +179,28 @@
                                             </fwb-list-group-item>
                                         </fwb-list-group>
                                     </fwb-dropdown>
+
+                                    <AddButton
+                                        @click="
+                                            openEmailAppointmentDetails(
+                                                appointment.id,
+                                                appointment.appointment_number,
+                                                appointment.schedule.date,
+                                                appointment.email,
+                                            )
+                                        "
+                                    >
+                                        Send Email
+                                    </AddButton>
                                 </div>
 
                                 <div v-else>
-                                    <fwb-button
+                                    <AddButton
                                         color="green"
                                         @click="openAppointmentDetails(appointment)"
                                     >
-                                        Details
-                                    </fwb-button>
+                                        View Details
+                                    </AddButton>
                                 </div>
                             </fwb-table-cell>
                         </fwb-table-row>

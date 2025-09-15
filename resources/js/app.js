@@ -7,6 +7,7 @@ import { createApp, h } from 'vue'
 import { ZiggyVue } from '../../vendor/tightenco/ziggy'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice';
 import Aura from '@primeuix/themes/aura';
 import 'primeicons/primeicons.css'
 
@@ -26,6 +27,7 @@ createInertiaApp({
                 }
             })
             .use(ToastService)
+            .use(ConfirmationService)
             .component('Link', Link)
             .mount(el)
     },

@@ -66,6 +66,7 @@
                         toast.add({
                             severity: 'success',
                             summary: 'Schedule Created Successfully',
+                            life: 1500,
                         })
 
                         setTimeout(() => {
@@ -263,7 +264,7 @@
                                         type="submit"
                                         class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
                                     >
-                                        Create Schedule
+                                        Submit
                                     </button>
                                 </div>
                             </form>
