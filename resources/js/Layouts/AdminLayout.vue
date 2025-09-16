@@ -32,7 +32,7 @@
 <template>
     <div>
         <div class="min-h-screen bg-white">
-            <nav class="border-b border-gray-100 bg-white">
+            <nav class="sticky top-0 border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -63,7 +63,7 @@
                             </button>
 
                             <!-- Settings Dropdown -->
-                            <div class="relative ms-3">
+                            <div class="relative ms-3 ">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
@@ -88,8 +88,8 @@
                                         </span>
                                     </template>
 
-                                    <template #content>
-                                        <DropdownLink :href="route('profile.edit')">
+                                    <template #content class="z-[9999]">
+                                        <DropdownLink :href="route('admin.profile.edit')">
                                             Profile
                                         </DropdownLink>
                                         <DropdownLink
@@ -162,7 +162,7 @@
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')">
+                            <ResponsiveNavLink :href="route('admin.profile.edit')">
                                 Profile
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">

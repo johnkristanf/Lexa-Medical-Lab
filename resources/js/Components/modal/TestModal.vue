@@ -75,31 +75,28 @@
         form.total_price = totalPrice.value
 
         console.log('Submitting form data:', form.data())
-            form.post(route('test.submit'), {
-                onSuccess: () => {
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Medical Test Submitted Successfully',
-                        life: 3000,
-                    })
+        form.post(route('test.submit'), {
+            onSuccess: () => {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medical Test Submitted Successfully',
+                    life: 1500,
+                })
+
+                setTimeout(() => {
                     closeModal()
-                },
-                onError: (errors) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Form has validation errors.',
-                        life: 3000,
-                    })
-                    console.error(errors)
-                }
+                }, [1500])
+            },
+            onError: (errors) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Form has validation errors.',
+                    life: 3000,
+                })
+                console.error(errors)
+            },
         })
     }
-
-    onMounted(() => {
-        console.log('sa category ni: ', props.testCategory)
-        console.log('Selected Test Types:', form.selected_test_types)
-        console.log('Total Price:', totalPrice.value)
-    })
 </script>
 
 <template>
@@ -135,11 +132,11 @@
                                 as="h1"
                                 class="text-2xl font-medium leading-6 text-gray-900"
                             >
-                                Add Test
+                                Conduct Test
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                Add Test Description Here
+                                Provide Test Details below
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
@@ -211,7 +208,7 @@
                                                 {{ form.errors.doctor_license_no }}
                                             </p>
                                         </div>
-<!--
+                                        <!--
                                         <div>
                                             <label
                                                 for="middle_name"
@@ -383,7 +380,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Test
+                                            Save
                                         </button>
 
                                         <button

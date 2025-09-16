@@ -58,7 +58,7 @@ onMounted(() => {
               <!-- Logo -->
               <div class="flex shrink-0 items-center">
                 <Link :href="route('admin.dashboard')">
-                  <BusinessLogo class="block w-48 h-9 w-auto fill-current text-gray-800" />
+                  <BusinessLogo class="block  h-9 w-auto fill-current text-gray-800" />
                 </Link>
               </div>
 

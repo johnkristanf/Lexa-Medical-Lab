@@ -14,17 +14,22 @@
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
     import { FwbButton } from 'flowbite-vue'
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { formatDate } from '@/helpers/formatter'
     import { router } from '@inertiajs/vue3'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
+    import AddButton from '@/Components/AddButton.vue'
 
     // COMPONENT PROPS
     const props = defineProps({
         appointments: Array,
         schedules: Array,
+    })
+
+    onMounted(() => {
+        console.log('appointments: ', props.appointments)
     })
 
     // EMAIL DETAILS MODAL REFS
@@ -79,8 +84,8 @@
             <h2 class="text-xl font-semibold text-gray-800 leading-tight">Appointments</h2>
         </template>
 
-        <div class="h-screen">
-            <div class="h-full mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div>
+            <div class="h-full mx-auto max-w-8xl sm:px-6 lg:px-8">
                 <div class="h-full card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
@@ -99,7 +104,7 @@
                         </fwb-table-head>
 
                         <fwb-table-body>
-                            <template v-if="appointments.length > 0">
+                            <template v-if="appointments && appointments.length > 0">
                                 <fwb-table-row
                                     v-for="appointment in appointments"
                                     :key="appointment.id"
@@ -129,8 +134,8 @@
                                     </fwb-table-cell>
                                     <fwb-table-cell>
                                         {{
-                                            appointment.schedule?.schedule
-                                                ? formatDate(appointment.schedule.schedule)
+                                            appointment.schedule?.date
+                                                ? formatDate(appointment.schedule.date)
                                                 : 'Not scheduled'
                                         }}
                                     </fwb-table-cell>
@@ -139,20 +144,6 @@
                                             v-if="appointment.status == 'pending'"
                                             class="flex gap-2 items-center"
                                         >
-                                            <fwb-button
-                                                color="green"
-                                                @click="
-                                                    openEmailAppointmentDetails(
-                                                        appointment.id,
-                                                        appointment.appointment_number,
-                                                        appointment.schedule.schedule,
-                                                        appointment.email,
-                                                    )
-                                                "
-                                            >
-                                                Send Email
-                                            </fwb-button>
-
                                             <fwb-dropdown text="Status" color="green">
                                                 <fwb-list-group
                                                     class="w-32 text-sm text-gray-700 dark:text-gray-200"
@@ -167,15 +158,29 @@
                                                     </fwb-list-group-item>
                                                 </fwb-list-group>
                                             </fwb-dropdown>
+
+                                            <AddButton
+                                                color="green"
+                                                @click="
+                                                    openEmailAppointmentDetails(
+                                                        appointment.id,
+                                                        appointment.appointment_number,
+                                                        appointment.schedule.date,
+                                                        appointment.email,
+                                                    )
+                                                "
+                                            >
+                                                Send Email
+                                            </AddButton>
                                         </div>
 
                                         <div v-else>
-                                            <fwb-button
+                                            <AddButton
                                                 color="green"
                                                 @click="openAppointmentDetails(appointment)"
                                             >
                                                 Details
-                                            </fwb-button>
+                                            </AddButton>
                                         </div>
                                     </fwb-table-cell>
                                 </fwb-table-row>

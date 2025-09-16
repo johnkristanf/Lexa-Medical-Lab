@@ -10,11 +10,15 @@
 
     import { useToast } from 'primevue/usetoast'
     import { router } from '@inertiajs/vue3'
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
 
     // PROPS DATA
-    defineProps({
+    const props = defineProps({
         roles: Array,
+    })
+
+    onMounted(() => {
+        console.log('roles: ', props.roles)
     })
 
     // TOAST INITIALIZATION
@@ -123,7 +127,7 @@
                     formData.value = {
                         name: '',
                         email: '',
-                        role: '',
+                        role: -1,
                         password: '',
                     }
 

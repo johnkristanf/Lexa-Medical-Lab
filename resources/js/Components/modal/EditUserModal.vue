@@ -52,8 +52,8 @@
 
     // FORM VALIDATION
     function validateForm() {
-        console.log("formData: ", formData);
-        
+        console.log('formData: ', formData)
+
         if (!formData.value.name.trim()) {
             toast.add({
                 severity: 'warn',
@@ -117,17 +117,17 @@
                             detail: `User ${formData.value.name} has been updated`,
                         })
 
-                        // Reset form
-                        formData.value = {
-                            name: '',
-                            email: '',
-                            role: '',
-                            password: '',
-                        }
-
                         setTimeout(() => {
+                            // Reset form
+                            formData.value = {
+                                name: '',
+                                email: '',
+                                role: '',
+                                password: '',
+                            }
+
                             closeModal()
-                        }, 2000)
+                        }, 1500)
                     }
                 },
                 onError: (error) => {

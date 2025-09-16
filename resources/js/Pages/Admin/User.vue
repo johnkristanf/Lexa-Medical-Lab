@@ -6,14 +6,13 @@
         FwbTableHead,
         FwbTableHeadCell,
         FwbTableRow,
-        FwbButton,
     } from 'flowbite-vue'
 
     import AddUserModal from '@/Components/modal/AddUserModal.vue'
     import AdminLayout from '@/Layouts/AdminLayout.vue'
 
     import { Head, router } from '@inertiajs/vue3'
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
 
     import { formatDate } from '@/helpers/formatter'
     import { useToast } from 'primevue/usetoast'
@@ -26,6 +25,12 @@
     const props = defineProps({
         users: Array,
         roles: Array,
+    });
+
+
+    onMounted(() => {
+        console.log("users: ", props.users);
+        
     })
 
     const toast = useToast()
