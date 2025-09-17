@@ -55,8 +55,9 @@ class RegisteredUserController extends Controller
         ]);
     }
 
-    public function renderAdminUserPanel()
+    public function renderAdminUserPanel(Request $request)
     {
+        $searchQuery = $request->query('search');
         $users = User::select(
             'users.id',
             'users.name',
@@ -67,6 +68,12 @@ class RegisteredUserController extends Controller
         )
             ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
             ->where('users.id', '!=', Auth::user()->id) 
+            ->when($searchQuery, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('users.name', 'LIKE', "%{$search}%")
+                    ->orWhere('users.email', 'LIKE', "%{$search}%");
+                });
+            })
             ->latest()
             ->get();
 

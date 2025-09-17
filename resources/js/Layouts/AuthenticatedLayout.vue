@@ -23,9 +23,9 @@ const navigationLinks = computed(() => [
 
   // MEDICAL STAFF
   { name: 'Appointments', route_name: 'medical.appointments', permitted: permissions.value?.can_manage_medical },
-  { name: 'Patient Queue', route_name: 'patient.queue', permitted: permissions.value?.can_manage_medical },
-  { name: 'Patient Details', route_name: 'patient.details.create', permitted: permissions.value?.can_manage_medical },
-  { name: 'Patient Test', route_name: 'test.category.create', permitted: permissions.value?.can_manage_medical },
+  { name: 'Queue', route_name: 'patient.queue', permitted: permissions.value?.can_manage_medical },
+  { name: 'Patients', route_name: 'patient.details.create', permitted: permissions.value?.can_manage_medical },
+  { name: 'Test Category', route_name: 'test.category.create', permitted: permissions.value?.can_manage_medical },
 
   // LABORATORY SUPPLY DASHBOARD
   { name: 'Dashboard', route_name: 'dashboard.supply.create', permitted: permissions.value?.can_manage_inventory_supplies },
@@ -39,7 +39,7 @@ const navigationLinks = computed(() => [
   { name: 'Archived Supplies', route_name: 'archive.supplies.create', permitted: permissions.value?.can_manage_inventory_supplies },
 
   // TESTS
-  { name: 'Test Details', route_name: 'test.details.create', permitted: permissions.value?.can_manage_medical },
+  { name: 'Laboratory Test', route_name: 'test.details.create', permitted: permissions.value?.can_manage_medical },
 ])
 
 onMounted(() => {

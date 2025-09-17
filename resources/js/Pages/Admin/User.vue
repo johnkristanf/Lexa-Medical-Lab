@@ -21,16 +21,15 @@
     import DangerButton from '@/Components/DangerButton.vue'
     import EditButton from '@/Components/EditButton.vue'
     import AddButton from '@/Components/AddButton.vue'
+import SearchInput from '@/Components/SearchInput.vue'
 
     const props = defineProps({
         users: Array,
         roles: Array,
-    });
-
+    })
 
     onMounted(() => {
-        console.log("users: ", props.users);
-        
+        console.log('users: ', props.users)
     })
 
     const toast = useToast()
@@ -86,6 +85,8 @@
             },
         })
     }
+
+    const userTableHeaders = ['Name', 'Email', 'Role', 'Account Created', 'Actions']
 </script>
 
 <template>
@@ -109,42 +110,19 @@
 
                     Create User
                 </AddButton>
-                <div class="relative">
-                    <div
-                        class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-                    >
-                        <svg
-                            class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                            />
-                        </svg>
-                    </div>
-                    <input
-                        type="search"
-                        class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
-                        placeholder="Search Name, Schedule..."
-                        required
-                    />
-                </div>
+                <SearchInput route="admin.user" placeholder="Search Name, Email" />
             </div>
         </div>
 
         <fwb-table hoverable>
-            <fwb-table-head class="bg-green-600 text-white">
-                <fwb-table-head-cell>Name</fwb-table-head-cell>
-                <fwb-table-head-cell>Email</fwb-table-head-cell>
-                <fwb-table-head-cell>Role</fwb-table-head-cell>
-                <fwb-table-head-cell>Account Created</fwb-table-head-cell>
-                <fwb-table-head-cell>Actions</fwb-table-head-cell>
+            <fwb-table-head>
+                <fwb-table-head-cell
+                    v-for="(header, index) in userTableHeaders"
+                    :key="index"
+                    class="bg-green-600 text-white"
+                >
+                    {{ header }}
+                </fwb-table-head-cell>
             </fwb-table-head>
 
             <fwb-table-body>

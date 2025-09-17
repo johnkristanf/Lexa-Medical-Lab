@@ -21,7 +21,6 @@
 
     const props = defineProps({
         test_category: Array,
-        inventory_logs: Array,
     })
 
     const toggles = reactive({
@@ -89,7 +88,10 @@
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput
+                            route="test.category.create"
+                            placeholder="Search Category Name"
+                        />
                     </div>
 
                     <fwb-table hoverable>
@@ -106,13 +108,9 @@
 
                         <!-- Table Body -->
                         <fwb-table-body>
-                            <template
-                                v-if="
-                                    props.test_category.data && props.test_category.data.length > 0
-                                "
-                            >
+                            <template v-if="test_category && test_category.length > 0">
                                 <fwb-table-row
-                                    v-for="(category, index) in props.test_category.data"
+                                    v-for="(category, index) in props.test_category"
                                     :key="index"
                                 >
                                     <!-- Category Name -->
@@ -161,10 +159,7 @@
                             <!-- No records -->
                             <template v-else>
                                 <fwb-table-row>
-                                    <fwb-table-cell
-                                        colspan="4"
-                                        class="text-center bg-gray-100 text-gray-500"
-                                    >
+                                    <fwb-table-cell colspan="2" class="bg-gray-100 text-gray-500">
                                         No categories found.
                                     </fwb-table-cell>
                                 </fwb-table-row>

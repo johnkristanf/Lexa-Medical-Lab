@@ -70,7 +70,20 @@ class MedicalStaffController extends Controller
 
     public function medicalAppointmentPage(Request $request)
     {
+        $searchQuery = $request->query('search');
+        Log::info("searchQuery medical: ", [$searchQuery]);
         $appointments = Appointments::with(['schedule', 'test_types.test_category'])
+            ->when($searchQuery, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('appointment_number', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere(
+                        DB::raw("CONCAT(first_name, ' ', middle_name, ' ', last_name)"),
+                        'like',
+                        "%{$search}%"
+                    );
+                });
+            })
             ->latest()
             ->get();
 
@@ -88,7 +101,18 @@ class MedicalStaffController extends Controller
     //Patient Details
     public function patientDetailscreate(Request $request)
     {
-        $patientsDetails = Patient::all();
+        $searchQuery = $request->query('search');
+        $patientsDetails = Patient::when($searchQuery, function ($query, $search) {
+            $query->where('patient_id', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere(
+                    DB::raw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)"),
+                    'like',
+                    "%{$search}%"
+                );
+            })
+            ->get();
+
         $testTypesPurpose = TestPurpose::all();
         $patientUpdate = Patient::find($request->input('id'));
         // $testTypesRequest = TestRequest::all();
@@ -124,12 +148,17 @@ class MedicalStaffController extends Controller
 
     public function testCategoryCreate(Request $request)
     {
-        // dd($request->all());
+        $searchQuery = $request->query('search');
+        Log::info("searchQuery: ", [$searchQuery]);
         $testCategory = TestCategory::with('testTypes')
-            ->when($request->search, function ($query, $search) {
+            ->when($searchQuery, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
-            ->paginate(10);
+            ->get();
+
+                Log::info("testCategory: ", [$testCategory]);
+
+            
         return Inertia::render('TestCategory/TestCategory', [
             'test_category' => $testCategory
         ]);
@@ -234,7 +263,11 @@ class MedicalStaffController extends Controller
 
     public function testDetailsCreate(Request $request)
     {
-        $testDetails = Test::all();
+        $searchQuery = $request->query('search');
+        $testDetails = Test::when($searchQuery, function ($query, $search) {
+            $query->where('referer_fullname', 'like', "%{$search}%");
+        })->get();
+
         return Inertia::render('Test/TestDetails', [
             'testDetails' => $testDetails
         ]);

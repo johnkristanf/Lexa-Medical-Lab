@@ -1,16 +1,33 @@
 <script setup>
-const modelValue = defineModel()
+    import { router } from '@inertiajs/vue3'
+    import { ref, watch } from 'vue'
+    import { debounce } from 'lodash'
 
+    const props = defineProps({
+        route: String,
+        placeholder: String
+    })
+
+    const search = ref('')
+    const handleSearchPatient = debounce((value) => {
+        console.log('search: ', search)
+        router.get(
+            route(props.route),
+            { search: value },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        )
+    }, 500) // 500 ms delay before performing search request
+
+    watch(search, (newValue) => {
+        handleSearchPatient(newValue)
+    })
 </script>
 
 <template>
-    <div class="w-[25%]">
-        <label
-            for="default-search"
-            class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-        >
-            Search
-        </label>
+    <div class="flex gap-3">
         <div class="relative">
             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
@@ -30,12 +47,11 @@ const modelValue = defineModel()
                 </svg>
             </div>
             <input
-                v-model="modelValue"
                 type="search"
+                v-model="search"
                 id="default-search"
-                class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
-                placeholder="Search Product"
-                required
+                class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
+                :placeholder="placeholder"
             />
         </div>
     </div>

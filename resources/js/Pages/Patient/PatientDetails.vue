@@ -76,7 +76,7 @@
         'Gender',
         'Birth Date',
         'Address',
-        'Phone Number',
+        'Contact Number',
         'Email',
         'Actions',
     ]
@@ -100,7 +100,7 @@
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput route="patient.details.create" placeholder="Search Patient ID, Name, Email" />
                     </div>
 
                     <fwb-table hoverable>
@@ -161,7 +161,7 @@
                             <template v-else>
                                 <fwb-table-row>
                                     <fwb-table-cell
-                                        colspan="10"
+                                        colspan="5"
                                         class="text-center bg-gray-100 text-gray-500"
                                     >
                                         No patient records found.

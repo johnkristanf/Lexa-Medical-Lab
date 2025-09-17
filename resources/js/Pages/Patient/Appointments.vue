@@ -89,7 +89,7 @@
                 <div class="h-full card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <SearchInput />
+                        <SearchInput route="medical.appointments" placeholder="Search Appointment Number, Name, Email" />
                     </div>
 
                     <fwb-table class="h-full">

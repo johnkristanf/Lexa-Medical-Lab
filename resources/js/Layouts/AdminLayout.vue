@@ -88,7 +88,7 @@
                                         </span>
                                     </template>
 
-                                    <template #content class="z-[9999]">
+                                    <template #content>
                                         <DropdownLink :href="route('admin.profile.edit')">
                                             Profile
                                         </DropdownLink>

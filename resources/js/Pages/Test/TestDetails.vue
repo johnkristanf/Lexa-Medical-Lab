@@ -1,7 +1,7 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import PatientTestModal from '@/Components/modal/PatientTestModal.vue'
 
@@ -17,6 +17,10 @@
 
     const props = defineProps({
         testDetails: Array,
+    })
+
+    onMounted(() => {
+        console.log('testDetails: ', props.testDetails)
     })
 
     const showTestDetailsDialog = ref(false)
@@ -40,6 +44,7 @@
         'Doctor License No#',
         'Test Schedule',
         'Total Price',
+        'Status',
         'Actions',
     ]
 </script>
@@ -49,7 +54,7 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-gray-800 leading-tight">Test Details</h2>
+            <h2 class="text-xl font-semibold text-gray-800 leading-tight">Laboratory Test</h2>
         </template>
 
         <div>
@@ -58,7 +63,10 @@
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput
+                            route="test.details.create"
+                            placeholder="Search Referrer Name"
+                        />
                     </div>
 
                     <fwb-table hoverable>
@@ -103,6 +111,7 @@
 
                                     <!-- Total Price -->
                                     <fwb-table-cell>{{ test.total_price }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ test.status.toUpperCase() }}</fwb-table-cell>
 
                                     <!-- Actions -->
                                     <fwb-table-cell class="!text-left">
@@ -110,7 +119,7 @@
                                             class="bg-green-600 rounded-md px-3 py-1 text-white hover:bg-green-700"
                                             @click="openTestDialog(test.patient_id, test.id)"
                                         >
-                                            Test Result
+                                            Result
                                         </AddButton>
                                     </fwb-table-cell>
                                 </fwb-table-row>
@@ -119,10 +128,7 @@
                             <!-- Empty State -->
                             <template v-else>
                                 <fwb-table-row>
-                                    <fwb-table-cell
-                                        colspan="3"
-                                        class="text-center bg-gray-100 text-gray-500"
-                                    >
+                                    <fwb-table-cell colspan="3" class="bg-gray-100 text-gray-500">
                                         No test records found.
                                     </fwb-table-cell>
                                 </fwb-table-row>

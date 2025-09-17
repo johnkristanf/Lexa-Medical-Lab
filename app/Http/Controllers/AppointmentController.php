@@ -75,9 +75,20 @@ class AppointmentController extends Controller
             ]);
     }
 
-    public function renderAdminAppointments()
+    public function renderAdminAppointments(Request $request)
     {
+        $searchQuery = $request->query('search');
         $appointments = Appointments::with(['schedule', 'test_types.test_category'])
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->whereRaw(
+                    "LOWER(CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)) LIKE ?",
+                    ['%' . strtolower($searchQuery) . '%']
+                )
+                ->orWhereRaw(
+                    "LOWER(email) LIKE ?",
+                    ['%' . strtolower($searchQuery) . '%']
+                );
+            })
             ->latest()
             ->get();
 

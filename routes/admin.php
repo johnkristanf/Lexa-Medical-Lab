@@ -36,11 +36,16 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
 
 
     // USER PROTECTED ROUTES
-    Route::get('/user', [RegisteredUserController::class, 'renderAdminUserPanel'])->name('admin.user');
-    Route::post('/user/add', [RegisteredUserController::class, 'store'])->name('admin.user.add');
+    Route::get('/user', [RegisteredUserController::class, 'renderAdminUserPanel'])
+        ->name('admin.user');
+        
+    Route::post('/user/add', [RegisteredUserController::class, 'store'])
+        ->name('admin.user.add');
 
-    Route::put('/users/{user}', [RegisteredUserController::class, 'update'])->name('admin.user.update');
-    Route::delete('/user/{user}', [RegisteredUserController::class, 'destroy'])->name('admin.user.destroy');
+    Route::put('/users/{user}', [RegisteredUserController::class, 'update'])
+        ->name('admin.user.update');
+    Route::delete('/user/{user}', [RegisteredUserController::class, 'destroy'])
+        ->name('admin.user.destroy');
 });
 
 

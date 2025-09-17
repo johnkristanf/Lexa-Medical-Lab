@@ -9,8 +9,9 @@ use Inertia\Inertia;
 
 class PatientController extends Controller
 {
-    public function renderAdminPatients()
+    public function renderAdminPatients(Request $request)
     {
+        $searchQuery = $request->query('search');
         $patients = Patient::select([
             'id',
             'patient_id',
@@ -22,7 +23,13 @@ class PatientController extends Controller
             'address',
             'contact_number',
             'email',
-        ])->get();
+            ])->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->whereRaw(
+                    "LOWER(CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)) LIKE ?",
+                    ['%' . strtolower($searchQuery) . '%']
+                );
+            })
+        ->get();
 
         Log::info("Patient: ", [
             'patients' => $patients

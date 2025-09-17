@@ -159,6 +159,10 @@ class MedicalSupplyController extends Controller
 
     public function inventory(Request $request)
     {
+        $searchQuery = $request->query('search');
+
+        Log::info("searchQuery inventory: ", [$searchQuery]);
+
         $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
             $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
         }])
@@ -167,7 +171,17 @@ class MedicalSupplyController extends Controller
             })
             ->get();
 
-        $supplies = MedicalSupplies::with('batches')->get();
+        $supplies = MedicalSupplies::with(['batches', 'category'])
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('participants', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
+                    ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                        $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+                    });
+                });
+            })
+            ->get();
 
         $inventoryLogs = InventoryLogs::with([
             'medical_supplies' => function ($query) {
