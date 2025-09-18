@@ -112,11 +112,11 @@
                                 as="h1"
                                 class="text-2xl font-medium leading-6 text-gray-900"
                             >
-                                Add Patient Details
+                                Update Patient Details
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                Add Patient Details Description Here
+                                Modify Patient Details below
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
@@ -332,7 +332,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                           Update Patient
+                                           Save
                                         </button>
 
                                         <button

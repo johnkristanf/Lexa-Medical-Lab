@@ -11,13 +11,13 @@
     import AdminLayout from '@/Layouts/AdminLayout.vue'
     import { Head } from '@inertiajs/vue3'
     import { formatDate } from '@/helpers/formatter'
-    import { onMounted } from 'vue'
+    import SearchInput from '@/Components/SearchInput.vue'
 
     const props = defineProps({
         patients: Array,
     })
 
-    const headers = [
+    const patientTableHeaders = [
         'Patient ID',
         'Full Name',
         'Sex',
@@ -29,50 +29,20 @@
 </script>
 
 <template>
-    <Head title="Appointments" />
+    <Head title="Patients" />
 
     <AdminLayout>
         <div class="flex justify-between items-center mb-3">
             <h1 class="text-2xl mb-3 text-gray-600">Patients Information</h1>
 
             <!-- SEARCH INPUT -->
-
-            <div class="flex gap-3">
-                <div class="relative">
-                    <div
-                        class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-                    >
-                        <svg
-                            class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                            />
-                        </svg>
-                    </div>
-                    <input
-                        type="search"
-                        id="default-search"
-                        class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
-                        placeholder="Search Name..."
-                        required
-                    />
-                </div>
-            </div>
+            <SearchInput route="admin.patients" placeholder="Search Name" />
         </div>
 
         <fwb-table hoverable>
             <fwb-table-head>
                 <fwb-table-head-cell
-                    v-for="(header, index) in headers"
+                    v-for="(header, index) in patientTableHeaders"
                     :key="index"
                     class="px-4 py-2 text-sm font-semibold tracking-wide uppercase bg-green-600 text-white"
                 >

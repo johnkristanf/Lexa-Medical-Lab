@@ -17,12 +17,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesSeeder::class,
             AdminSeeder::class,
-            StaffSeeder::class,
+            // StaffSeeder::class,
             PriorityTypesSeeder::class,
             QueueStatusSeeder::class,
             TestRequestSeeder::class,
             TestPurposeSeeder::class,
-            AppointmentScheduleSeeder::class,
+            // AppointmentScheduleSeeder::class,
             // RefererNameSeeder::class
         ]);
     }

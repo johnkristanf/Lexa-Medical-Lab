@@ -14,6 +14,7 @@
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
     import AppointmentDetailsModal from '@/Components/modal/AppointmentDetailsModal.vue'
+    import { formateBirthDate } from '@/helpers/formatter'
 
     const props = defineProps({
         test_categories: Array,
@@ -32,29 +33,18 @@
         email: '', // MAKE THIS NULLABLE IN THE BACKEND PARA SA MGA ARTE NA PANEL
         gender: '',
         birthdate: '',
-        selected_schedule: -1,
+        selected_schedule_id: -1,
+        selected_time_slot_id: -1,
         selected_type_ids: [],
     })
 
     // FORM SUBMISSION
     function submitForm() {
-        if (form.birthdate instanceof Date) {
-            form.birthdate = form.birthdate.toISOString().slice(0, 10)
-        } else if (typeof form.birthdate === 'string') {
-            // If already a string, try to convert it to Date first
-            const d = new Date(form.birthdate)
-            if (!isNaN(d.getTime())) {
-                form.birthdate = d.toISOString().slice(0, 10)
-            }
-        }
+        form.birthdate = formateBirthDate(form.birthdate)
 
+        console.log('form data boss: ', form)
         form.post(route('store.services.appointment'), {
-            onSuccess: (response) => {
-                const selectedSchedule = response?.props?.flash?.schedule
-
-                // showAppointmentDetails.value = true
-                // selectedScheduleRef.value = selectedSchedule
-
+            onSuccess: () => {
                 toast.add({
                     severity: 'success',
                     summary: 'Appointment Request Submitted',
@@ -64,7 +54,7 @@
                 })
 
                 setTimeout(() => {
-                    window.location.href = '/services/appointment';
+                    window.location.href = '/services/appointment'
                 }, 4100)
             },
         })
@@ -90,15 +80,15 @@
         <Stepper
             :value="currentStep"
             @update:value="(val) => (currentStep = val)"
-            class="basis-[50rem] overflow-y-auto"
+            class="basis-[50rem] flex flex-col"
         >
-            <StepList>
+            <StepList class="sticky top-0 z-10">
                 <Step value="1">Terms & Conditions</Step>
                 <Step value="2">Personal Information</Step>
                 <Step value="3">Test Type & Schedule</Step>
             </StepList>
 
-            <StepPanels>
+            <StepPanels class="overflow-y-auto max-h-[70vh]">
                 <StepPanel v-slot="{ activateCallback }" value="1">
                     <div class="flex flex-col h-full">
                         <div class="flex-auto flex justify-center items-center font-medium">

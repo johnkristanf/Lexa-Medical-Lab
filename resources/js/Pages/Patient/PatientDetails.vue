@@ -1,19 +1,25 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
-    import { Column, DataTable, Drawer } from 'primevue'
-    import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref, computed } from 'vue'
-    import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
+    import { Drawer } from 'primevue'
+    import {
+        FwbTable,
+        FwbTableBody,
+        FwbTableCell,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableRow,
+    } from 'flowbite-vue'
+
+    import { reactive, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import PatientDetailsModal from '@/Components/modal/PatientDetailsModal.vue'
     import TestModal from '@/Components/modal/TestModal.vue'
-    import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
-    import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
-    import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import EmailResultReminder from '@/Components/modal/EmailResultReminder.vue'
     import UpdatePatientDetails from '@/Components/modal/UpdatePatientDetails.vue'
+    import AddButton from '@/Components/AddButton.vue'
+    import { formatDate } from '@/helpers/formatter'
 
     const props = defineProps({
         patients: Array,
@@ -23,41 +29,10 @@
         testCategory: Array,
         testType: Array,
         patientUpdate: Array,
-
     })
 
-    const search = ref('')
 
-     const filteredPatients = computed(() => {
-    if (!search.value) {
-        return props.patients
-    }
-
-    return props.patients.filter(info => {
-        const firstName = info.first_name?.toLowerCase() || ''
-        const middleName = info.middle_name?.toLowerCase() || ''
-        const lastName = info.last_name?.toLowerCase() || ''
-        const email = info.email?.toLowerCase() || ''
-        const address = info.address?.toLowerCase() || ''
-
-        return (
-            firstName.includes(search.value.toLowerCase()) ||
-            middleName.includes(search.value.toLowerCase()) ||
-            lastName.includes(search.value.toLowerCase()) ||
-            email.includes(search.value.toLowerCase()) ||
-            address.includes(search.value.toLowerCase())
-
-        )
-    })
-})
-
-      const handleShowAddSchedule = () => {
-        console.log('Opening Add Schedule Modal')
-        showAddScheduleModal.value = true;
-        showSchedulesModal.value = false;
-    }
-
-     const showAddScheduleModal = ref(false)
+    const showAddScheduleModal = ref(false)
     const showSchedulesModal = ref(false)
 
     // EMAIL DETAILS MODAL REFS
@@ -67,43 +42,44 @@
     const patientUpdate = ref(null)
     const showUpdatePatientDetails = ref(false)
 
-
     const openEmailAppointmentDetails = (schedule) => {
         showEmailAppointmentModal.value = true
         selectedSchedule.value = schedule
     }
 
-
     const openUpdatePatientDetails = (patient) => {
-         patientUpdate.value = patient
+        patientUpdate.value = patient
         showUpdatePatientDetails.value = true
     }
 
-    const patientID = ref(null);
-
+    const patientID = ref(null)
 
     const toggles = reactive({
         showAddSupplyModal: false,
         showInventoryDrawer: false,
     })
 
-
-     const togglesTestModal = reactive({
+    const togglesTestModal = reactive({
         showTestModal: false,
         showInventoryDrawer: false,
     })
 
     const showTestModal = (patient_id) => {
-        patientID.value = patient_id,
-        togglesTestModal.showTestModal = true;
-        console.log('sa patient ni',patientID.value);
-
+        ;(patientID.value = patient_id), (togglesTestModal.showTestModal = true)
+        console.log('sa patient ni', patientID.value)
     }
 
-
-
-
-    const sampleOperationType = 'added'
+    // TABLE HEADERS
+    const patientTableHeaders = [
+        'Patient ID',
+        'Full Name',
+        'Gender',
+        'Birth Date',
+        'Address',
+        'Contact Number',
+        'Email',
+        'Actions',
+    ]
 </script>
 
 <template>
@@ -111,68 +87,89 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Patient Details
-            </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Patient Details</h2>
         </template>
 
         <div>
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-8xl mt-3 sm:px-6 lg:px-8">
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-
-
-                        <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
+                        <AddButton color="green" @click="toggles.showAddSupplyModal = true">
                             Add Patient
-                        </fwb-button>
+                        </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput v-model="search" />
+                        <SearchInput route="patient.details.create" placeholder="Search Patient ID, Name, Email" />
                     </div>
 
-               <DataTable
-                :value="filteredPatients"
-                class="w-full custom-datatable"
-                >
-                <Column field="patient_id" header="Patient ID" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="first_name" header="First Name" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="middle_name" header="Middle Name" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="last_name" header="Last Name" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="gender" header="Gender" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="date_of_birth" header="Birth Date" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="address" header="Address" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="contact_number" header="Phone Number#" headerClass="text-sm font-semibold whitespace-nowrap" />
-                <Column field="email" header="Email" headerClass="text-sm font-semibold whitespace-nowrap" />
+                    <fwb-table hoverable>
+                        <fwb-table-head>
+                            <fwb-table-head-cell
+                                v-for="(header, index) in patientTableHeaders"
+                                :key="index"
+                                class="bg-green-600 text-white"
+                            >
+                                {{ header }}
+                            </fwb-table-head-cell>
+                        </fwb-table-head>
 
-                <Column header="Actions" headerClass="text-sm font-semibold whitespace-nowrap">
-                    <template #body="slotProps">
-                    <div class="flex items-center gap-2">
-                        <button
-                        @click="showTestModal(slotProps.data.id)"
-                        class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:bg-green-700"
-                        >
-                        Test
-                        </button>
+                        <fwb-table-body>
+                            <template v-if="patients && patients.length > 0">
+                                <fwb-table-row v-for="(patient, index) in patients" :key="index">
+                                    <fwb-table-cell>{{ patient.patient_id }}</fwb-table-cell>
+                                    <fwb-table-cell
+                                        class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
+                                    >
+                                        {{ patient.first_name }} {{ patient.middle_name }}
+                                        {{ patient.last_name }}
+                                    </fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.gender }}</fwb-table-cell>
+                                    <fwb-table-cell>
+                                        {{ formatDate(patient.date_of_birth, false) }}
+                                    </fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.email }}</fwb-table-cell>
 
-                        <button
-                        @click="openEmailAppointmentDetails()"
-                        class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:bg-green-700"
-                        >
-                        Send Email
-                        </button>
+                                    <!-- Actions -->
+                                    <fwb-table-cell class="flex items-center gap-3">
+                                        <button
+                                            @click="showTestModal(patient.id)"
+                                            class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
+                                        >
+                                            Conduct Test
+                                        </button>
 
-                        <button
-                        @click="openUpdatePatientDetails(slotProps.data)"
-                        class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:bg-green-700"
-                        >
-                        Update
-                        </button>
+                                        <button
+                                            @click="openEmailAppointmentDetails(patient)"
+                                            class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
+                                        >
+                                            Send Email
+                                        </button>
 
-                    </div>
-                    </template>
-                </Column>
-                </DataTable>
+                                        <button
+                                            @click="openUpdatePatientDetails(patient)"
+                                            class="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
+                                        >
+                                            Update
+                                        </button>
+                                    </fwb-table-cell>
+                                </fwb-table-row>
+                            </template>
+
+                            <template v-else>
+                                <fwb-table-row>
+                                    <fwb-table-cell
+                                        colspan="5"
+                                        class="text-center bg-gray-100 text-gray-500"
+                                    >
+                                        No patient records found.
+                                    </fwb-table-cell>
+                                </fwb-table-row>
+                            </template>
+                        </fwb-table-body>
+                    </fwb-table>
                 </div>
             </div>
         </div>
@@ -193,17 +190,16 @@
             v-if="togglesTestModal.showTestModal"
             :testTypesPurpose="testTypesPurpose"
             :testTypesRequest="testTypesRequest"
-            :patientID ="patientID"
+            :patientID="patientID"
             :testCategory="testCategory"
             @close="togglesTestModal.showTestModal = false"
             :testType="testType"
         />
-         <EmailResultReminder
+        <EmailResultReminder
             v-if="showEmailAppointmentModal"
             :selectedSchedule="selectedSchedule"
             @close="showEmailAppointmentModal = false"
         />
-
 
         <!-- DRAWER FOR INVENTORY LOGS -->
         <Drawer
@@ -213,8 +209,11 @@
             class="!w-full sm:!w-80 lg:!w-[25rem]"
         >
             <div class="flex flex-col gap-3">
-
-                <div v-for="log in props.inventory_logs" v-bind:key="log.id" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
+                <div
+                    v-for="log in props.inventory_logs"
+                    v-bind:key="log.id"
+                    class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
+                >
                     <h1>
                         Brand Name:
                         <br />

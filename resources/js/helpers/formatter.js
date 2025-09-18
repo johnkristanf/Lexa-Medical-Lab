@@ -1,5 +1,5 @@
 // DATE FORMATTER: 04/29/25 10:30AM
-export const formatDate = (dateString) => {
+export const formatDate = (dateString, withTime = true) => {
     const date = new Date(dateString)
 
     const padZero = (num) => (num < 10 ? '0' + num : num)
@@ -8,14 +8,18 @@ export const formatDate = (dateString) => {
     const day = padZero(date.getDate())
     const year = String(date.getFullYear()).slice(-2) // Get last 2 digits
 
-    let hours = date.getHours()
-    const minutes = padZero(date.getMinutes())
-    const ampm = hours >= 12 ? 'PM' : 'AM'
+    if (withTime) {
+        let hours = date.getHours()
+        const minutes = padZero(date.getMinutes())
+        const ampm = hours >= 12 ? 'PM' : 'AM'
 
-    hours = hours % 12
-    hours = hours ? hours : 12 // the hour '0' should be '12'
+        hours = hours % 12
+        hours = hours ? hours : 12 // the hour '0' should be '12'
 
-    return `${month}/${day}/${year} ${padZero(hours)}:${minutes}${ampm}`
+        return `${month}/${day}/${year} ${padZero(hours)}:${minutes}${ampm}`
+    }
+
+    return `${month}/${day}/${year}`
 }
 
 // QUEUE STATUS FORMATTER
@@ -45,4 +49,17 @@ export function calculateAge(dob) {
     }
 
     return age
+}
+
+export function formateBirthDate(birthdate) {
+    if (birthdate instanceof Date) {
+        birthdate = birthdate.toISOString().slice(0, 10)
+    } else if (typeof birthdate === 'string') {
+        const d = new Date(birthdate)
+        if (!isNaN(d.getTime())) {
+            birthdate = d.toISOString().slice(0, 10)
+        }
+    }
+
+    return birthdate
 }

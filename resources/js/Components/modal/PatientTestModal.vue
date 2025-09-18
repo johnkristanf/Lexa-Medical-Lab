@@ -1,5 +1,4 @@
 <script setup>
-    import { calculateAge } from '@/helpers/formatter'
     import {
         TransitionRoot,
         TransitionChild,
@@ -8,6 +7,16 @@
         DialogTitle,
         DialogDescription,
     } from '@headlessui/vue'
+
+    import {
+        FwbTable,
+        FwbTableBody,
+        FwbTableCell,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableRow,
+    } from 'flowbite-vue'
+
     import { useForm } from '@inertiajs/vue3'
 
     import Toast from 'primevue/toast'
@@ -55,15 +64,15 @@
 
         form.patch(route('test.update', [props.patientID, props.testID]), {
             onSuccess: () => {
-                console.log('23434')
-
                 toast.add({
                     severity: 'success',
                     summary: 'Patient Test Results Updated',
-                    life: 3000,
+                    life: 1500,
                 })
 
-                closeModal()
+                setTimeout(() => {
+                    closeModal()
+                }, [1500])
             },
         })
     }
@@ -90,6 +99,8 @@
     onMounted(() => {
         fetchTestById(props.patientID, props.testID)
     })
+
+    const testResultsTableHeaders = ['Test Name', 'Results', 'Reference Range']
 </script>
 
 <template>
@@ -119,14 +130,14 @@
                         leave-to="opacity-0 scale-95"
                     >
                         <DialogPanel
-                            class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                            class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
                             <DialogTitle
                                 v-if="testDetail"
                                 as="h1"
                                 class="font-medium leading-6 text-gray-900 flex justify-between items-center"
                             >
-                                <h1 class="text-2xl">Test Details</h1>
+                                <h1 class="text-2xl">Test Result</h1>
 
                                 <a
                                     :href="route('print.test.details', props.testID)"
@@ -152,49 +163,68 @@
                                 <div>Patient ID: {{ testDetail.patient_id }}</div>
                             </div>
 
-                            <div v-if="testDetail" class="w-full isolate">
-                                <form @submit.prevent="submitForm" class="max-w-xl">
-                                    <div class="mt-6">
-                                        <div
-                                            v-if="form.test_results.length > 0"
-                                            v-for="(test, index) in form.test_results"
-                                            :key="test.test_type_id"
-                                            class="mb-4 border-b pb-4"
-                                        >
-                                            <label
-                                                :for="'result_' + test.test_type_id"
-                                                class="block font-medium text-sm text-gray-700"
+                            <div v-if="testDetail" class="w-full mt-8 isolate">
+                                <form @submit.prevent="submitForm">
+                                    <fwb-table hoverable>
+                                        <!-- Table Head -->
+                                        <fwb-table-head class="bg-green-600 text-white">
+                                            <fwb-table-head-cell
+                                                v-for="(header, index) in testResultsTableHeaders"
+                                                :key="index"
+                                                class="bg-green-600 text-white"
                                             >
-                                                {{ test.name }}
-                                            </label>
+                                                {{ header }}
+                                            </fwb-table-head-cell>
+                                        </fwb-table-head>
 
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <input
-                                                    :id="'result_' + test.test_type_id"
-                                                    v-model="form.test_results[index].result"
-                                                    type="text"
-                                                    class="form-input w-1/2"
-                                                />
-                                                <span class="text-sm text-gray-500">
-                                                    Reference: {{ test.reference_range }}
-                                                    {{ test.unit }}
-                                                </span>
-                                            </div>
-
-                                            <!-- optional error display if you add validation later -->
-                                            <p
-                                                v-if="form.errors[`test_results.${index}.result`]"
-                                                class="text-sm text-red-500 mt-1"
+                                        <!-- Table Body -->
+                                        <fwb-table-body>
+                                            <fwb-table-row
+                                                v-for="(test, index) in form.test_results"
+                                                :key="test.test_type_id"
                                             >
-                                                {{ form.errors[`test_results.${index}.result`] }}
-                                            </p>
-                                        </div>
-                                    </div>
+                                                <!-- Test Name -->
+                                                <fwb-table-cell>
+                                                    {{ test.name }}
+                                                </fwb-table-cell>
 
-                                    <div class="flex justify-end items-center gap-3">
+                                                <!-- Result Input -->
+                                                <fwb-table-cell>
+                                                    <input
+                                                        :id="'result_' + test.test_type_id"
+                                                        v-model="form.test_results[index].result"
+                                                        type="text"
+                                                        class="form-input w-full"
+                                                    />
+                                                    <p
+                                                        v-if="
+                                                            form.errors[
+                                                                `test_results.${index}.result`
+                                                            ]
+                                                        "
+                                                        class="text-sm text-red-500 mt-1"
+                                                    >
+                                                        {{
+                                                            form.errors[
+                                                                `test_results.${index}.result`
+                                                            ]
+                                                        }}
+                                                    </p>
+                                                </fwb-table-cell>
+
+                                                <!-- Reference Range -->
+                                                <fwb-table-cell class="!text-left">
+                                                    {{ test.reference_range }}
+                                                </fwb-table-cell>
+                                            </fwb-table-row>
+                                        </fwb-table-body>
+                                    </fwb-table>
+
+                                    <!-- Actions -->
+                                    <div class="flex justify-end items-center gap-3 mt-8">
                                         <button
                                             type="button"
-                                            class="bg-gray-900 rounded-md p-3 text-white"
+                                            class="bg-gray-900 rounded-md px-4 py-2 text-white"
                                             @click="closeModal"
                                         >
                                             Cancel
@@ -202,7 +232,7 @@
 
                                         <button
                                             type="submit"
-                                            class="bg-green-600 rounded-md p-3 text-white"
+                                            class="bg-green-600 rounded-md px-4 py-2 text-white"
                                         >
                                             Save
                                         </button>

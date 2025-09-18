@@ -4,7 +4,7 @@
 // ADMIN ROUTE
 
 use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\MedicalStaffController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MedicalSupplyController;
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
@@ -32,13 +32,20 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
     Route::get('/appointments', [AppointmentController::class, 'renderAdminAppointments'])
         ->name('admin.appointments');
 
-    Route::put('/appointment-schedules/{schedule}/status', [AppointmentController::class, 'updateScheduleStatus']);
+    Route::put('/appointment-schedules/slots/{slotId}/status', [AppointmentController::class, 'updateScheduleStatus']);
 
 
     // USER PROTECTED ROUTES
-    Route::get('/user', function () {
-        return Inertia::render('Admin/User');
-    })->name('admin.user');
+    Route::get('/user', [RegisteredUserController::class, 'renderAdminUserPanel'])
+        ->name('admin.user');
+        
+    Route::post('/user/add', [RegisteredUserController::class, 'store'])
+        ->name('admin.user.add');
+
+    Route::put('/users/{user}', [RegisteredUserController::class, 'update'])
+        ->name('admin.user.update');
+    Route::delete('/user/{user}', [RegisteredUserController::class, 'destroy'])
+        ->name('admin.user.destroy');
 });
 
 

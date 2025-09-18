@@ -10,7 +10,6 @@
         FwbDropdown,
         FwbListGroup,
         FwbListGroupItem,
-        FwbButton,
     } from 'flowbite-vue'
 
     import AdminLayout from '@/Layouts/AdminLayout.vue'
@@ -21,6 +20,8 @@
     import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
+    import AddButton from '@/Components/AddButton.vue'
+    import SearchInput from '@/Components/SearchInput.vue'
 
     // COMPONENT PROPS
     const props = defineProps({
@@ -90,37 +91,8 @@
             <!-- SEARCH INPUT -->
 
             <div class="flex gap-3">
-                <fwb-button color="green" @click="showSchedulesModal = true">
-                    View Schedules
-                </fwb-button>
-                <div class="relative">
-                    <div
-                        class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-                    >
-                        <svg
-                            class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                            />
-                        </svg>
-                    </div>
-                    <input
-                        type="search"
-                        id="default-search"
-                        class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
-                        placeholder="Search Name, Schedule..."
-                        required
-                    />
-                </div>
+                <AddButton @click="showSchedulesModal = true">View Schedules</AddButton>
+                <SearchInput route="admin.appointments" placeholder="Search Name, Email" />
             </div>
         </div>
 
@@ -157,8 +129,8 @@
                             </fwb-table-cell>
                             <fwb-table-cell>
                                 {{
-                                    appointment.schedule?.schedule
-                                        ? formatDate(appointment.schedule.schedule)
+                                    appointment.schedule?.date
+                                        ? formatDate(appointment.schedule.date)
                                         : 'Not scheduled'
                                 }}
                             </fwb-table-cell>
@@ -167,20 +139,6 @@
                                     v-if="appointment.status == 'pending'"
                                     class="flex gap-2 items-center"
                                 >
-                                    <fwb-button
-                                        color="green"
-                                        @click="
-                                            openEmailAppointmentDetails(
-                                                appointment.id,
-                                                appointment.appointment_number,
-                                                appointment.schedule.schedule,
-                                                appointment.email,
-                                            )
-                                        "
-                                    >
-                                        Send Email
-                                    </fwb-button>
-
                                     <fwb-dropdown text="Status" color="green">
                                         <fwb-list-group
                                             class="w-32 text-sm text-gray-700 dark:text-gray-200"
@@ -193,15 +151,28 @@
                                             </fwb-list-group-item>
                                         </fwb-list-group>
                                     </fwb-dropdown>
+
+                                    <AddButton
+                                        @click="
+                                            openEmailAppointmentDetails(
+                                                appointment.id,
+                                                appointment.appointment_number,
+                                                appointment.schedule.date,
+                                                appointment.email,
+                                            )
+                                        "
+                                    >
+                                        Send Email
+                                    </AddButton>
                                 </div>
 
                                 <div v-else>
-                                    <fwb-button
+                                    <AddButton
                                         color="green"
                                         @click="openAppointmentDetails(appointment)"
                                     >
-                                        Details
-                                    </fwb-button>
+                                        View Details
+                                    </AddButton>
                                 </div>
                             </fwb-table-cell>
                         </fwb-table-row>

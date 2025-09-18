@@ -20,14 +20,8 @@ class QueueController extends Controller
 
         if ($request->has('id')) {
             $priorityTypeId = $request->input('id');
-
-            Log::info("Priority ID found in request: " . $priorityTypeId);
-
             $newQueueNumber = $this->getNewQueueNumber($priorityTypeId);
-
-            Log::info("Generated queue number: " . $newQueueNumber);
         } else {
-            Log::info("No priority ID in request, using default priority type");
 
             // If no ID is provided, use the first priority type as default
             $defaultPriorityType = $priorityTypes->first();
@@ -35,12 +29,9 @@ class QueueController extends Controller
             if ($defaultPriorityType) {
 
                 $newQueueNumber = $this->getNewQueueNumber($defaultPriorityType->id);
-                Log::info("Default priority type ID: " . $defaultPriorityType->id);
-                Log::info("Default queue number: " . $newQueueNumber);
             } else {
                 // Fallback in case there are no priority types
                 $newQueueNumber = "01";
-                Log::warning("No priority types found, using fallback queue number");
             }
         }
 

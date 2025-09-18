@@ -1,9 +1,9 @@
 <script setup>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import DeleteUserForm from './Partials/DeleteUserForm.vue'
     import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue'
     import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue'
     import { Head } from '@inertiajs/vue3'
+    import AdminLayout from '@/Layouts/AdminLayout.vue'
 
     defineProps({
         mustVerifyEmail: {
@@ -18,15 +18,13 @@
 <template>
     <Head title="Profile" />
 
-    <AuthenticatedLayout>
-        <template #header>
+    <AdminLayout>
+        <div>
             <h2 class="text-xl leading-tight text-gray-800 mb-2">Personal Profile</h2>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-gray-500 mb-8">
                 Manage your personal information and account settings
             </p>
-        </template>
 
-        <div class="py-12">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <div class="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                     <UpdateProfileInformationForm
@@ -45,5 +43,5 @@
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

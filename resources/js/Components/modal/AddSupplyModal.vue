@@ -11,15 +11,14 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {generateBatchNumber} from '@/helpers/batch_random_num'
+    import { generateBatchNumber } from '@/helpers/batch_random_num'
 
-
-const props = defineProps({
-    categories: {
-        type: Array,
-        required: true,
-    },
-})
+    const props = defineProps({
+        categories: {
+            type: Array,
+            required: true,
+        },
+    })
 
     // TOAST INITIALIZATION
     const toast = useToast()
@@ -27,8 +26,6 @@ const props = defineProps({
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
-
-
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
@@ -39,26 +36,24 @@ const props = defineProps({
         manufacture_date: '',
         expiration_date: '',
         lot_number: '',
-        batch_number:generateBatchNumber(),
-        category_id: ''
+        batch_number: generateBatchNumber(),
+        category_id: '',
     })
 
     // FORM SUBMISSION
-   function submitForm() {
-    form.post(route('supply.add'), {
-        onSuccess: () => {
-            toast.add({
-                severity: 'success',
-                summary: 'Medical Supply Addition Successful',
-                life: 3000,
-            })
+    function submitForm() {
+        form.post(route('supply.add'), {
+            onSuccess: () => {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medical Supply Addition Successful',
+                    life: 3000,
+                })
 
-            closeModal();
-        },
-    })
-}
-
-
+                closeModal()
+            },
+        })
+    }
 </script>
 
 <template>
@@ -109,7 +104,7 @@ const props = defineProps({
                                                 for="participants"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Item
+                                                Description
                                             </label>
                                             <input
                                                 id="participants"
@@ -234,37 +229,37 @@ const props = defineProps({
                                             </p>
                                         </div>
 
-
                                         <div class="sm:col-span-2">
-                                        <label
-                                            for="category_id"
-                                            class="block text-sm font-semibold text-gray-900"
-                                        >
-                                            Category
-                                        </label>
-                                        <select
-                                            id="category_id"
-                                            v-model="form.category_id"
-                                            class="form-select w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base"
-                                        >
-                                            <option disabled value="" class="text-center">-- Select Category --</option>
-                                            <option
-                                            v-for="category in props.categories"
-                                            :key="category.id"
-                                            :value="category.id"
+                                            <label
+                                                for="category_id"
+                                                class="block text-sm font-semibold text-gray-900"
                                             >
-                                            {{ category.name }}
-                                            </option>
-                                        </select>
+                                                Category
+                                            </label>
+                                            <select
+                                                id="category_id"
+                                                v-model="form.category_id"
+                                                class="form-select w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base"
+                                            >
+                                                <option disabled value="" class="text-center">
+                                                    -- Select Category --
+                                                </option>
+                                                <option
+                                                    v-for="category in props.categories"
+                                                    :key="category.id"
+                                                    :value="category.id"
+                                                >
+                                                    {{ category.name }}
+                                                </option>
+                                            </select>
 
-                                        <p
-                                            v-if="form.errors.category_id"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.category_id }}
-                                        </p>
+                                            <p
+                                                v-if="form.errors.category_id"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.category_id }}
+                                            </p>
                                         </div>
-
 
                                         <div class="sm:col-span-2">
                                             <label
@@ -287,7 +282,7 @@ const props = defineProps({
                                             </p>
                                         </div>
 
-                                         <div class="sm:col-span-2">
+                                        <div class="sm:col-span-2">
                                             <label
                                                 for="lot_number"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -315,7 +310,9 @@ const props = defineProps({
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-green-600 hover:bg-green-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
@@ -327,7 +324,9 @@ const props = defineProps({
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >

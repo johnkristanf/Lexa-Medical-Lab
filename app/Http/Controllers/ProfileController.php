@@ -24,6 +24,14 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function adminProfile(Request $request): Response
+    {
+        return Inertia::render('Profile/AdminProfile', [
+            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'status' => session('status'),
+        ]);
+    }
+
     /**
      * Update the user's profile information.
      */

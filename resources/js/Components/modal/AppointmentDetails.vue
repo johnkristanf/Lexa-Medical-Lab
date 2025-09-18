@@ -14,13 +14,18 @@
         selectedAppointment: Object,
     })
 
+    onMounted(() => {
+        console.log("selectedAppointment: ", props.selectedAppointment);
+        
+    })
+
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
     // Computed properties for better data formatting
     const formattedScheduleDate = computed(() => {
-        if (props.selectedAppointment?.schedule?.schedule) {
-            return new Date(props.selectedAppointment.schedule.schedule).toLocaleString()
+        if (props.selectedAppointment?.schedule?.date) {
+            return new Date(props.selectedAppointment.schedule.date).toLocaleString()
         }
         return 'N/A'
     })
@@ -243,7 +248,7 @@
                                                     Schedule Status
                                                 </label>
                                                 <span class="inline-block py-1 text-sm capitalize">
-                                                    {{ selectedAppointment?.schedule?.status }}
+                                                    {{ selectedAppointment?.status }}
                                                 </span>
                                             </div>
                                         </div>
