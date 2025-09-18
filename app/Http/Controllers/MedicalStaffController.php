@@ -41,8 +41,7 @@ class MedicalStaffController extends Controller
             ->where('status_id', $statusID)
             ->get()
             ->sortBy(fn($queue) => $queue->priority_types->priority_level)
-            ->values(); // Reset index
-
+            ->values();
 
         return Inertia::render('Medical/Queue', [
             'queue_statuses' => $queueStatuses,
@@ -328,7 +327,7 @@ class MedicalStaffController extends Controller
 
 
         $dob = new DateTime($patientDetails->date_of_birth);
-        $today = new DateTime(); 
+        $today = new DateTime();
         $age = $dob->diff($today)->y;
 
         return Pdf::loadView('pdf.test-detail', compact(

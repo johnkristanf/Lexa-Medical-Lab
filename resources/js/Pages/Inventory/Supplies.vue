@@ -39,7 +39,7 @@
         )
     })
 
-    // ✅ Dropdown state
+    //  Dropdown state
     const open = ref(false)
     const search = ref("")
 
