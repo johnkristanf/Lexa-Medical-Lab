@@ -3,7 +3,7 @@
     import { Head } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
+    import { reactive, ref, computed } from 'vue'
     import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
@@ -14,8 +14,6 @@
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import EmailResultReminder from '@/Components/modal/EmailResultReminder.vue'
     import UpdatePatientDetails from '@/Components/modal/UpdatePatientDetails.vue'
-
-
 
     const props = defineProps({
         patients: Array,
@@ -28,7 +26,30 @@
 
     })
 
+    const search = ref('')
 
+     const filteredPatients = computed(() => {
+    if (!search.value) {
+        return props.patients
+    }
+
+    return props.patients.filter(info => {
+        const firstName = info.first_name?.toLowerCase() || ''
+        const middleName = info.middle_name?.toLowerCase() || ''
+        const lastName = info.last_name?.toLowerCase() || ''
+        const email = info.email?.toLowerCase() || ''
+        const address = info.address?.toLowerCase() || ''
+
+        return (
+            firstName.includes(search.value.toLowerCase()) ||
+            middleName.includes(search.value.toLowerCase()) ||
+            lastName.includes(search.value.toLowerCase()) ||
+            email.includes(search.value.toLowerCase()) ||
+            address.includes(search.value.toLowerCase())
+
+        )
+    })
+})
 
       const handleShowAddSchedule = () => {
         console.log('Opening Add Schedule Modal')
@@ -107,11 +128,11 @@
                         </fwb-button>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput v-model="search" />
                     </div>
 
                <DataTable
-                :value="props.patients"
+                :value="filteredPatients"
                 class="w-full custom-datatable"
                 >
                 <Column field="patient_id" header="Patient ID" headerClass="text-sm font-semibold whitespace-nowrap" />

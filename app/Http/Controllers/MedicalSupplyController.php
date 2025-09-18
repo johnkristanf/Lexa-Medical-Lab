@@ -158,35 +158,38 @@ class MedicalSupplyController extends Controller
     }
 
     public function inventory(Request $request)
-    {
-        $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
+{
+    $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
+        $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
+    }])
+        ->whereHas('batches', function ($query) {
             $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
-        }])
-            ->whereHas('batches', function ($query) {
-                $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
-            })
-            ->get();
+        })
+        ->get();
 
-        $supplies = MedicalSupplies::with('batches')->get();
+    // ✅ Backend pagination
+    $supplies = MedicalSupplies::with('batches')
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
-        $inventoryLogs = InventoryLogs::with([
-            'medical_supplies' => function ($query) {
-                $query->select('id', 'brand_name', 'quantity');
-            }
-        ])->get();
+    $inventoryLogs = InventoryLogs::with([
+        'medical_supplies' => function ($query) {
+            $query->select('id', 'brand_name', 'quantity');
+        }
+    ])->get();
 
-        $supplyUpdate = MedicalSupplies::find($request->input('supply_id'));
-        $categories_supply = Categories::all();
+    $supplyUpdate = MedicalSupplies::find($request->input('supply_id'));
+    $categories_supply = Categories::all();
 
-        return Inertia::render('Inventory/Index', [
-            'supplies'       => $supplies,
-            'inventory_logs' => $inventoryLogs,
-            'nearlyExpired'  => $nearlyExpired,
-            'supplyUpdate' => $supplyUpdate,
-            'categories' => $categories_supply
-
-        ]);
-    }
+    return Inertia::render('Inventory/Index', [
+        'supplies'       => $supplies,
+        'inventory_logs' => $inventoryLogs,
+        'nearlyExpired'  => $nearlyExpired,
+        'supplyUpdate'   => $supplyUpdate,
+        'categories'     => $categories_supply,
+        'filters'        => $request->only(['perPage', 'page', 'search'])
+    ]);
+}
 
     public function updateSupply(Request $request, $id)
     {
@@ -329,7 +332,7 @@ class MedicalSupplyController extends Controller
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
-            'crtical_stock' => 'nullable|integer|min:0', 
+            'crtical_stock' => 'nullable|integer|min:0',
             'category_id'       => 'required|exists:categories,id',
 
         ]);
