@@ -10,7 +10,6 @@
     const chartOptions = ref({
         labels: [],
         colors: ['#00b4d8', '#36a2eb', '#ff6384', '#ff9f40', '#4bc0c0'],
-        legend: { position: 'bottom' },
         dataLabels: {
             enabled: true,
             formatter: function (val, opts) {
@@ -51,8 +50,8 @@
 </script>
 
 <template>
-    <div class="p-6 max-w-2xl mx-auto">
-        <h2 class="text-2xl font-bold mb-4 text-center text-black">Most Used Medical Supplies</h2>
+    <div class="mt-7 mb-12 p-6 max-w-6xl mx-auto rounded-lg shadow-2xl">
+        <h2 class="text-2xl font-bold mb-4 text-center text-gray-600">Most Used Medical Supplies</h2>
 
         <!-- Filter Buttons -->
         <div class="flex justify-center gap-3 mb-4">
@@ -60,7 +59,7 @@
                 v-for="type in filters"
                 :key="type"
                 class="px-3 py-1 rounded-md text-sm capitalize"
-                :class="filterType === type ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'"
+                :class="filterType === type ? 'bg-green-600 text-white' : 'bg-gray-200 text-black'"
                 @click="filterType = type"
             >
                 {{

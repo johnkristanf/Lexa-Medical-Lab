@@ -139,7 +139,7 @@
                                     v-if="appointment.status == 'pending'"
                                     class="flex gap-2 items-center"
                                 >
-                                    <fwb-dropdown text="Status" color="green">
+                                    <fwb-dropdown text="Status" color="green" >
                                         <fwb-list-group
                                             class="w-32 text-sm text-gray-700 dark:text-gray-200"
                                         >

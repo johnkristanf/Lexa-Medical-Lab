@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Test Results </title>
     <style>
@@ -100,7 +99,13 @@
 <body>
 
     <div class="header">
-        <h2>LEXA MEDICAL LABORATORY</h2>
+        @if(isset($logoBase64) && $logoBase64)
+            <img src="{{ $logoBase64 }}" alt="Lexa Medical Laboratory Logo">
+        @else
+            <div style="height: 60px; margin-bottom: 10px; font-weight: bold; font-size: 16px; color: #74c69d;">
+                LEXA MEDICAL LABORATORY
+            </div>
+        @endif
         <p><strong>CLINICAL LABORATORY DEPARTMENT</strong></p>
         <p><strong>CLINICAL CHEMISTRY REPORT</strong></p>
     </div>

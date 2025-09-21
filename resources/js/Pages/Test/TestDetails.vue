@@ -50,7 +50,7 @@
 </script>
 
 <template>
-    <Head title="Test Details" />
+    <Head title="Laboratory Test" />
 
     <AuthenticatedLayout>
         <template #header>

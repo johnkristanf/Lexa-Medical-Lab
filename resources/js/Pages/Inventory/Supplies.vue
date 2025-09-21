@@ -134,7 +134,7 @@
                                 <a
                                     :href="route('inventory.supply.batches', { id: slotProps.data.id })"
                                     title="View Batch"
-                                    class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#1b4332]"
+                                    class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75"
                                 >
                                     View
                                 </a>
@@ -142,7 +142,7 @@
                                 <button
                                     @click="openUpdateSupply(slotProps.data)"
                                     title="Update Supply"
-                                    class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
+                                    class="bg-green-600 px-3 h-[28px] ml-[8px] rounded text-white hover:opacity-75"
                                 >
                                     Deduct
                                 </button>

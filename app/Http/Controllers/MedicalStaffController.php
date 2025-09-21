@@ -322,20 +322,36 @@ class MedicalStaffController extends Controller
         $today = new DateTime;
         $age = $dob->diff($today)->y;
 
+        $logoBase64 = $this->getLogoAsBase64();
+
         return Pdf::loadView('pdf.test-detail', compact(
             'patientDetails',
             'testCategory',
             'age',
             'testDetail',
-            'testTypes'
+            'testTypes',
+            'logoBase64'
         ))->setPaper('A4', 'portrait')
             ->setOptions(['defaultFont' => 'DejaVu Sans'])
             ->stream('combined-details.pdf');
     }
 
+
+    private function getLogoAsBase64()
+    {
+        $logoPath = public_path('img/lexa-logo-removedbg.png');
+
+        if (file_exists($logoPath)) {
+            $imageData = base64_encode(file_get_contents($logoPath));
+            $mimeType = mime_content_type($logoPath);
+            return 'data:' . $mimeType . ';base64,' . $imageData;
+        }
+
+        return null;
+    }
+
     public function sendEmailResultReminder(Request $request)
     {
-        Log::info("request->get('email'): ", [$request->get('email')]);
         Mail::to($request->get('email'))->send(new ResultEmailReminder);
         return back()->with('success', 'Reminder email sent.');
     }

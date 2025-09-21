@@ -1,5 +1,4 @@
 <script setup>
-
     import {
         FwbTable,
         FwbTableBody,
@@ -8,46 +7,46 @@
         FwbTableHeadCell,
         FwbTableRow,
     } from 'flowbite-vue'
+    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+    import { Head, router } from '@inertiajs/vue3'
+    import { Column, DataTable, Drawer } from 'primevue'
+    import { FwbButton } from 'flowbite-vue'
+    import { reactive, ref, computed } from 'vue'
+    import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
+    import SearchInput from '@/Components/SearchInput.vue'
+    import { OPERATION_TYPES } from '@/Enums/Inventory'
+    import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
     import DangerButton from '@/Components/DangerButton.vue'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head, router } from '@inertiajs/vue3'
-import { Column, DataTable, Drawer } from 'primevue'
-import { FwbButton } from 'flowbite-vue'
-import { reactive, ref, computed } from 'vue'
-import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
-import SearchInput from '@/Components/SearchInput.vue'
-import { OPERATION_TYPES } from '@/Enums/Inventory'
-import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
+import AddButton from '@/Components/AddButton.vue'
 
     const props = defineProps({
         supplies: Array,
         inventory_logs: Array,
         supplyUpdate: Object,
-        categories: Array
+        categories: Array,
     })
 
     const search = ref('')
 
-// Table modals
-const toggles = reactive({
-    showAddSupplyModal: false,
-    showInventoryDrawer: false,
-})
-const showUpdateSupply = ref(false)
-const supplyUpdate = ref(null)
+    // Table modals
+    const toggles = reactive({
+        showAddSupplyModal: false,
+        showInventoryDrawer: false,
+    })
+    const showUpdateSupply = ref(false)
+    const supplyUpdate = ref(null)
 
     const openUpdateSupply = (supply) => {
-         supplyUpdate.value = supply
+        supplyUpdate.value = supply
         showUpdateSupply.value = true
     }
-
 
     const filteredSupplies = computed(() => {
         if (!search.value) {
             return props.supplies
         }
 
-        return props.supplies.filter(item => {
+        return props.supplies.filter((item) => {
             const itemName = item.participants?.toLowerCase() || ''
             const brand = item.brand_name?.toLowerCase() || ''
             const unit = item.unit?.toLowerCase() || ''
@@ -71,18 +70,23 @@ const supplyUpdate = ref(null)
     console.log('supplies: ', props.supplies)
     console.log('inventory_logs: ', props.inventory_logs)
 
-    const sampleOperationType = 'added'
+    const invetoryTableHeaders = [
+        'Item',
+        'Brand Name',
+        'Unit',
+        'Supplies Left',
+        'Manufacturing Date',
+        'Expiration Date',
+        'Lot #',
+    ]
 </script>
 
 <template>
-
     <Head title="Inventory" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Medical Supply Inventory
-            </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Medical Supply Inventory</h2>
         </template>
 
         <div>
@@ -96,32 +100,28 @@ const supplyUpdate = ref(null)
                         >
                             View Logs
                         </fwb-button> -->
-                           <fwb-button
-                        color="green"
-                        :href="route('inventory.print')"
-                        target="_blank"
-                        >
-                        Print As PDF
-                        </fwb-button>
 
-                        <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
+                        <DangerButton>
+                            <a color="green" :href="route('inventory.print')" target="_blank">Print As PDF</a>
+                        </DangerButton>
+
+                        <AddButton color="green" @click="toggles.showAddSupplyModal = true">
                             Add Supply
-                        </fwb-button>
+                        </AddButton>
 
                         <!-- SEARCH INPUT -->
                         <SearchInput v-model="search" />
                     </div>
 
-                   <fwb-table>
+                    <fwb-table>
                         <fwb-table-head>
-                        <fwb-table-head-cell>Item</fwb-table-head-cell>
-                        <fwb-table-head-cell>Brand Name</fwb-table-head-cell>
-                        <fwb-table-head-cell>Unit</fwb-table-head-cell>
-                        <fwb-table-head-cell>Supplies Left</fwb-table-head-cell>
-                        <fwb-table-head-cell>Manufacturing Date</fwb-table-head-cell>
-                        <fwb-table-head-cell>Expiration Date</fwb-table-head-cell>
-                        <fwb-table-head-cell>Lot #</fwb-table-head-cell>
-                        <fwb-table-head-cell>Action</fwb-table-head-cell>
+                            <fwb-table-head-cell
+                                v-for="header in invetoryTableHeaders"
+                                :key="header"
+                                class="bg-green-600 text-white"
+                            >
+                                {{ header }}
+                            </fwb-table-head-cell>
                         </fwb-table-head>
 
                         <fwb-table-body>
@@ -132,24 +132,7 @@ const supplyUpdate = ref(null)
                                 <fwb-table-cell>{{ supply.quantity }}</fwb-table-cell>
                                 <fwb-table-cell>{{ supply.manufacture_date }}</fwb-table-cell>
                                 <fwb-table-cell>{{ supply.expiration_date }}</fwb-table-cell>
-                                <fwb-table-cell>{{ supply.lot_number }}</fwb-table-cell>
-                                <fwb-table-cell class="flex gap-2">
-                                <a
-                                    :href="route('inventory.supply.batches', { id: supply.id })"
-                                    title="View Batch"
-                                    class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#1b4332]"
-                                >
-                                    <i class="pi pi-eye text-white-600 text-lg"></i>
-                                </a>
-
-                                <button
-                                    @click="openUpdateSupply(supply)"
-                                    title="Update Supply"
-                                    class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
-                                >
-                                    <i class="pi pi-th-large text-white-600 text-lg"></i>
-                                </button>
-                                </fwb-table-cell>
+                                <fwb-table-cell class="!text-left">{{ supply.lot_number }}</fwb-table-cell>
                             </fwb-table-row>
                         </fwb-table-body>
                     </fwb-table>
@@ -158,7 +141,11 @@ const supplyUpdate = ref(null)
         </div>
 
         <!-- MODALS -->
-        <UpdateSupply v-if="showUpdateSupply" :supplyUpdate="supplyUpdate" @close="showUpdateSupply = false" />
+        <UpdateSupply
+            v-if="showUpdateSupply"
+            :supplyUpdate="supplyUpdate"
+            @close="showUpdateSupply = false"
+        />
 
         <!-- ADD SUPLY MODAL -->
         <AddSupplyModal
@@ -167,13 +154,19 @@ const supplyUpdate = ref(null)
             @close="toggles.showAddSupplyModal = false"
         />
 
-
         <!-- INVENTORY LOGS -->
-        <Drawer v-model:visible="toggles.showInventoryDrawer" header="Inventory Logs" position="right"
-            class="!w-full sm:!w-80 lg:!w-[25rem]">
+        <Drawer
+            v-model:visible="toggles.showInventoryDrawer"
+            header="Inventory Logs"
+            position="right"
+            class="!w-full sm:!w-80 lg:!w-[25rem]"
+        >
             <div class="flex flex-col gap-3">
-
-                <div v-for="log in props.inventory_logs" :key="log.id" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
+                <div
+                    v-for="log in props.inventory_logs"
+                    :key="log.id"
+                    class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
+                >
                     <h1>
                         Brand Name:
                         <br />
@@ -187,16 +180,22 @@ const supplyUpdate = ref(null)
 
                     <div class="flex flex-col gap-2">
                         <h1>Operation Type:</h1>
-                        <span class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
+                        <span
+                            class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
                             :class="{
                                 'bg-green-100 text-green-800': log.operation_type === OPERATION_TYPES.ADDED,
                                 'bg-red-100 text-yellow-800': log.operation_type === OPERATION_TYPES.DEDUCTED,
-                            }">
+                            }"
+                        >
                             {{ log.operation_type }}
                         </span>
                     </div>
 
-                    <h1>Total Quantity {{ log.operation_type.toUpperCase() }}:<br />{{ log.total_quantity }}</h1>
+                    <h1>
+                        Total Quantity {{ log.operation_type.toUpperCase() }}:
+                        <br />
+                        {{ log.total_quantity }}
+                    </h1>
                 </div>
             </div>
         </Drawer>
@@ -204,15 +203,13 @@ const supplyUpdate = ref(null)
 </template>
 
 <style scoped>
+    .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
+        background-color: #208b3a;
+        color: white;
+    }
 
-
-.custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
-  background-color: #208b3a;
-  color: white;
-}
-
-.custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
-  background-color: #ffffff;
-  color: #374151;
-}
+    .custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
+        background-color: #ffffff;
+        color: #374151;
+    }
 </style>
