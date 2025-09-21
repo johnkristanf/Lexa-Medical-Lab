@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\PriorityTypes;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PriorityTypesSeeder extends Seeder
@@ -16,25 +15,25 @@ class PriorityTypesSeeder extends Seeder
         PriorityTypes::firstOrCreate([
             'name' => 'Person with Disability',
             'priority_level' => 1,
-            'code' => 'PWD'
+            'code' => 'PWD',
         ]);
-        
+
         PriorityTypes::firstOrCreate([
             'name' => 'Senior Citizen',
             'priority_level' => 1,
-            'code' => 'SC'
+            'code' => 'SC',
         ]);
-        
+
         PriorityTypes::firstOrCreate([
             'name' => 'Pregnant Woman',
             'priority_level' => 1,
-            'code' => 'PW'
+            'code' => 'PW',
         ]);
-        
+
         PriorityTypes::firstOrCreate([
             'name' => 'Regular Patient',
             'priority_level' => 2,
-            'code' => 'RP'
+            'code' => 'RP',
         ]);
     }
 }

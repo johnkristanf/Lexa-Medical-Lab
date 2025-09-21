@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TestPurpose extends Model
 {
     protected $guarded = ['id'];
+
     protected $table = 'test_purpose';
 
     public function test()

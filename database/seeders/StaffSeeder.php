@@ -19,7 +19,6 @@ class StaffSeeder extends Seeder
             'role_id' => 3,
         ]);
 
-
         User::factory()->createOne([
             'name' => 'Jake the Medicator',
             'email' => 'medical@technician',

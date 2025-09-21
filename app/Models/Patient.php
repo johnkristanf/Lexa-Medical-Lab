@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Patient extends Model
 {
-    protected  $guarded = ['id'];
-    protected  $table = 'patients';
+    protected $guarded = ['id'];
+
+    protected $table = 'patients';
 
     public function test()
     {

@@ -19,10 +19,9 @@ class SupplyRequest extends Model
             'request_id',            // foreign key on pivot table for this model
             'supply_id'              // foreign key on pivot table for related model
         )
-        ->withPivot('quantity')
-        ->withTimestamps();
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
-
 
     public function requested_supply(): HasMany
     {
@@ -33,5 +32,4 @@ class SupplyRequest extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    
 }

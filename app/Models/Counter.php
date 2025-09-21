@@ -9,7 +9,7 @@ class Counter extends Model
 {
     protected $guarded = ['id'];
 
-    public function queue(): HasOne 
+    public function queue(): HasOne
     {
         return $this->hasOne(Queues::class, 'counter_id');
     }

@@ -11,7 +11,7 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {generateBatchNumber} from '@/helpers/batch_random_num'
+    import { generateBatchNumber } from '@/helpers/batch_random_num'
     import { computed } from 'vue'
 
     // TOAST INITIALIZATION
@@ -21,38 +21,33 @@
         supplyUpdate: Object,
     })
 
-const remainingSupply = computed(() => {
-    const current = parseInt(props.supplyUpdate.quantity) || 0
-    const deduct = parseInt(form.quantity) || 0
-    return current - deduct
-})
+    const remainingSupply = computed(() => {
+        const current = parseInt(props.supplyUpdate.quantity) || 0
+        const deduct = parseInt(form.quantity) || 0
+        return current - deduct
+    })
 
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-
     const form = useForm({
-        quantity:'',
-
+        quantity: '',
     })
-
 
     // FORM SUBMISSION
-   function submitForm() {
-    form.put(route('supply.update', props.supplyUpdate.id), {
-        onSuccess: () => {
-            toast.add({
-                severity: 'success',
-                summary: 'Deducted from supply successfully',
-                life: 3000,
-            })
+    function submitForm() {
+        form.put(route('supply.update', props.supplyUpdate.id), {
+            onSuccess: () => {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Deducted from supply successfully',
+                    life: 3000,
+                })
 
-            closeModal();
-        },
-    })
-}
-
-
+                closeModal()
+            },
+        })
+    }
 </script>
 
 <template>
@@ -84,10 +79,7 @@ const remainingSupply = computed(() => {
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Update Medical Supply
                             </DialogTitle>
 
@@ -98,45 +90,41 @@ const remainingSupply = computed(() => {
                             <div class="isolate px-6 lg:px-8 mt-10">
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+                                        <!-- Quantity to Deduct -->
+                                        <div>
+                                            <label
+                                                for="quantity"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Deduct Supply Left
+                                            </label>
+                                            <input
+                                                id="quantity"
+                                                v-model="form.quantity"
+                                                type="number"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p v-if="form.errors.quantity" class="text-sm text-red-500 mt-1">
+                                                {{ form.errors.quantity }}
+                                            </p>
+                                        </div>
 
-                                         <!-- Quantity to Deduct -->
-                                <div>
-                                    <label
-                                        for="quantity"
-                                        class="block text-sm font-semibold text-gray-900"
-                                    >
-                                        Deduct Supply Left
-                                    </label>
-                                   <input
-                                    id="quantity"
-                                    v-model="form.quantity"
-                                    type="number"
-                                    class="form-input"
-                                    required
-                                />
-                                    <p
-                                        v-if="form.errors.quantity"
-                                        class="text-sm text-red-500 mt-1"
-                                    >
-                                        {{ form.errors.quantity }}
-                                    </p>
-                                </div>
-
-                                  <div>
-                                <label
-                                    for="current_quantity"
-                                    class="block text-sm font-semibold text-gray-900"
-                                >
-                                    Current Supplies Left
-                                </label>
-                               <input
-                                    id="current_quantity"
-                                    :value="remainingSupply"
-                                    type="number"
-                                    disabled
-                                    class="form-input bg-gray-100 cursor-not-allowed"
-                                />
-                                 </div>
+                                        <div>
+                                            <label
+                                                for="current_quantity"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Current Supplies Left
+                                            </label>
+                                            <input
+                                                id="current_quantity"
+                                                :value="remainingSupply"
+                                                type="number"
+                                                disabled
+                                                class="form-input bg-gray-100 cursor-not-allowed"
+                                            />
+                                        </div>
                                     </div>
 
                                     <div class="mt-10">
@@ -144,11 +132,13 @@ const remainingSupply = computed(() => {
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-green-600 hover:bg-green-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Update Supply
+                                            Save
                                         </button>
 
                                         <button
@@ -156,7 +146,9 @@ const remainingSupply = computed(() => {
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >

@@ -4,10 +4,7 @@ use App\Http\Controllers\MedicalStaffController;
 use App\Http\Controllers\MedicalSupplyController;
 use Illuminate\Support\Facades\Route;
 
-
-
 Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function () {
-
 
     Route::get('/medical/supply/request', [MedicalSupplyController::class, 'medicalSupplyRequest'])
         ->name('supply.request');
@@ -15,26 +12,26 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::post('/medical/supply/request/create', [MedicalSupplyController::class, 'medicalSupplyRequestCreate'])
         ->name('medical.request.create');
 
-    //RENDER PATIENT DETAILS PAGE
+    // RENDER PATIENT DETAILS PAGE
     Route::get('/patient/Details/create', [MedicalStaffController::class, 'patientDetailscreate'])
         ->name('patient.details.create');
 
     Route::post('/patient/Details/store', [MedicalStaffController::class, 'patientDetailsStore'])
         ->name('patient.details.submit');
 
-    //UPDATE PATIENT DETAILS
+    // UPDATE PATIENT DETAILS
     Route::put('/patient/{patient}', [MedicalStaffController::class, 'updatePatientDetails'])
         ->name('patient.update');
 
-    //RENDER MEDICAL APPOINTMENTS PAGE
+    // RENDER MEDICAL APPOINTMENTS PAGE
     Route::get('/medical/appointments', [MedicalStaffController::class, 'medicalAppointmentPage'])
         ->name('medical.appointments');
 
-    //SEND EMAIL REMINDER FOR RESULTS
+    // SEND EMAIL REMINDER FOR RESULTS
     Route::post('/medical/result/send-email', [MedicalStaffController::class, 'sendEmailResultReminder'])
         ->name('result.send');
 
-    //RENDER  TEST CATEGORY PAGE
+    // RENDER  TEST CATEGORY PAGE
     Route::prefix('test/Category')->group(function () {
 
         Route::get('/create', [MedicalStaffController::class, 'testCategoryCreate'])
@@ -65,11 +62,7 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
             ->name('test.update');
     });
 
-
-    //RENDER TEST TYPE PAGE
-
-
-
+    // RENDER TEST TYPE PAGE
 
     // PROTECTED QUEUE ROUTES (MEDICAL STAFF SIDE)
     Route::get('/patient/queue', [MedicalStaffController::class, 'queuePage'])

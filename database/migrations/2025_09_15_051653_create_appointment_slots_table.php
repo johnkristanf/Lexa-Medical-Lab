@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Appointments;
 use App\Models\AppointmentSlots;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,14 +13,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appointment_slots', function (Blueprint $table) {
-            $statuses =  [
-                AppointmentSlots::AVAIALBLE, 
-                AppointmentSlots::UNAVAIALBLE, 
-                AppointmentSlots::CANCELLED
+            $statuses = [
+                AppointmentSlots::AVAIALBLE,
+                AppointmentSlots::UNAVAIALBLE,
+                AppointmentSlots::CANCELLED,
             ];
 
             $table->id();
-            $table->time('time_slot');  
+            $table->time('time_slot');
             $table->enum('status', $statuses)->default(AppointmentSlots::AVAIALBLE);
             $table->foreignId('schedule_id')->constrained('appointment_schedules')->onDelete('cascade');
             $table->timestamps();

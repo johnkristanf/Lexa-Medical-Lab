@@ -4,8 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -19,7 +17,7 @@ class QueueUpdate implements ShouldBroadcast
 
     public function __construct($updatedQueueID)
     {
-        Log::info("updatedQueueID 123: " . $updatedQueueID);
+        Log::info('updatedQueueID 123: '.$updatedQueueID);
         $this->updatedQueueID = $updatedQueueID;
     }
 
@@ -38,7 +36,6 @@ class QueueUpdate implements ShouldBroadcast
         return 'update.queue';
     }
 
-    
     public function broadcastWith(): array
     {
         return [

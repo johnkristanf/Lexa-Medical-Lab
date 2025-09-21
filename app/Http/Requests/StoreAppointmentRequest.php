@@ -22,16 +22,16 @@ class StoreAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name'         => 'required|string|max:255',
-            'middle_name'        => 'nullable|string|max:255',
-            'last_name'          => 'required|string|max:255',
-            'email'              => 'nullable|email|max:255', // nullable for those who don't want to give it
-            'gender'             => 'required|string',
-            'birthdate'          => 'required|date',
-            'selected_schedule_id'  => 'required|exists:appointment_schedules,id',
-            'selected_time_slot_id'  => 'required|exists:appointment_slots,id',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255', // nullable for those who don't want to give it
+            'gender' => 'required|string',
+            'birthdate' => 'required|date',
+            'selected_schedule_id' => 'required|exists:appointment_schedules,id',
+            'selected_time_slot_id' => 'required|exists:appointment_slots,id',
 
-            'selected_type_ids'  => 'required|array|min:1',
+            'selected_type_ids' => 'required|array|min:1',
             'selected_type_ids.*' => 'exists:test_types,id',
         ];
     }

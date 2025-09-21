@@ -1,14 +1,4 @@
 <script setup>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-    import { Head } from '@inertiajs/vue3'
-    import { Drawer } from 'primevue'
-    import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref, computed, onMounted } from 'vue'
-    import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
-    import SearchInput from '@/Components/SearchInput.vue'
-    import { OPERATION_TYPES } from '@/Enums/Inventory'
-    import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
-    import AddButton from '@/Components/AddButton.vue'
 
     import {
         FwbTable,
@@ -122,36 +112,47 @@ const supplyUpdate = ref(null)
                         <SearchInput v-model="search" />
                     </div>
 
-                   <DataTable
-                    :value="filteredSupplies"
-                    tableStyle="min-width: 50rem"
-                    class="custom-datatable"
-                >
-                    <Column field="participants" header="Item"></Column>
-                    <Column field="brand_name" header="Brand Name"></Column>
-                    <Column field="unit" header="Unit"></Column>
-                    <Column field="quantity" header="Supplies Left"></Column>
-                    <Column field="manufacture_date" header="Manufacturing Date"></Column>
-                    <Column field="expiration_date" header="Expiration Date"></Column>
-                    <Column field="lot_number" header="Lot #"></Column>
-                    <Column header="Action">
-                     <template #body="slotProps">
+                   <fwb-table>
+                        <fwb-table-head>
+                        <fwb-table-head-cell>Item</fwb-table-head-cell>
+                        <fwb-table-head-cell>Brand Name</fwb-table-head-cell>
+                        <fwb-table-head-cell>Unit</fwb-table-head-cell>
+                        <fwb-table-head-cell>Supplies Left</fwb-table-head-cell>
+                        <fwb-table-head-cell>Manufacturing Date</fwb-table-head-cell>
+                        <fwb-table-head-cell>Expiration Date</fwb-table-head-cell>
+                        <fwb-table-head-cell>Lot #</fwb-table-head-cell>
+                        <fwb-table-head-cell>Action</fwb-table-head-cell>
+                        </fwb-table-head>
 
-                    <a :href="route('inventory.supply.batches', { id: slotProps.data.id })" title="View Batch"
-                        class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#1b4332]">
-                        <i class="pi pi-eye text-white-600 text-lg"></i>
-                    </a>
+                        <fwb-table-body>
+                            <fwb-table-row v-for="supply in supplies.data" :key="supply.id">
+                                <fwb-table-cell>{{ supply.participants }}</fwb-table-cell>
+                                <fwb-table-cell>{{ supply.brand_name }}</fwb-table-cell>
+                                <fwb-table-cell>{{ supply.unit }}</fwb-table-cell>
+                                <fwb-table-cell>{{ supply.quantity }}</fwb-table-cell>
+                                <fwb-table-cell>{{ supply.manufacture_date }}</fwb-table-cell>
+                                <fwb-table-cell>{{ supply.expiration_date }}</fwb-table-cell>
+                                <fwb-table-cell>{{ supply.lot_number }}</fwb-table-cell>
+                                <fwb-table-cell class="flex gap-2">
+                                <a
+                                    :href="route('inventory.supply.batches', { id: supply.id })"
+                                    title="View Batch"
+                                    class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#1b4332]"
+                                >
+                                    <i class="pi pi-eye text-white-600 text-lg"></i>
+                                </a>
 
-                    <button
-                    @click="openUpdateSupply(slotProps.data)"
-                    title="Update Supply"
-                        class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]">
-                        <i class="pi pi-th-large text-white-600 text-lg"></i>
-                    </button>
-
-                    </template>
-                    </Column>
-                </DataTable>
+                                <button
+                                    @click="openUpdateSupply(supply)"
+                                    title="Update Supply"
+                                    class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
+                                >
+                                    <i class="pi pi-th-large text-white-600 text-lg"></i>
+                                </button>
+                                </fwb-table-cell>
+                            </fwb-table-row>
+                        </fwb-table-body>
+                    </fwb-table>
                 </div>
             </div>
         </div>
@@ -172,7 +173,7 @@ const supplyUpdate = ref(null)
             class="!w-full sm:!w-80 lg:!w-[25rem]">
             <div class="flex flex-col gap-3">
 
-                <div v-for="log in props.inventory_logs" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
+                <div v-for="log in props.inventory_logs" :key="log.id" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
                     <h1>
                         Brand Name:
                         <br />

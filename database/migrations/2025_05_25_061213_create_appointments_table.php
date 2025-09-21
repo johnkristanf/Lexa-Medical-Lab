@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('gender');
             $table->date('date_of_birth');
-        $table->string('status');
+            $table->string('status');
 
-            $table->foreignId('schedule_id')->constrained('appointment_dates');
+            $table->foreignId('schedule_id')->constrained('appointment_schedules');
             $table->timestamps();
         });
     }

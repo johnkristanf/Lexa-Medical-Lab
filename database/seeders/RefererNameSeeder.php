@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Patient;
 use App\Models\Roles;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RefererNameSeeder extends Seeder

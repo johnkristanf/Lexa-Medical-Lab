@@ -38,7 +38,6 @@ class AuthServiceProvider extends ServiceProvider
                 : Response::deny('You are not authorized to manage medical.');
         });
 
-
         Gate::define('manage-inventory-supplies', function (User $user) {
             return in_array($user->role_id, [
                 Role::ADMIN->value,
@@ -47,6 +46,6 @@ class AuthServiceProvider extends ServiceProvider
                 ? Response::allow()
                 : Response::deny('You are not authorized to manage inventory supplies.');
         });
-        
+
     }
 }

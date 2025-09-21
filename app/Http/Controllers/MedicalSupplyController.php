@@ -9,38 +9,32 @@ use App\Models\Batch;
 use App\Models\Categories;
 use App\Models\InventoryLogs;
 use App\Models\MedicalSupplies;
-use App\Models\Patient;
-use App\Models\softdeletesupplies;
-use App\Models\SupplyRequest;
 use App\Models\Stock;
-use App\Models\Test;
-use App\Models\TestCategory;
-use App\Models\TestPurpose;
-use App\Models\TestRequest;
-use function Pest\Laravel\get;
+use App\Models\SupplyRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
+use function Pest\Laravel\get;
+
 class MedicalSupplyController extends Controller
 {
-
     public function printPDFReport()
     {
         $supplies = MedicalSupplies::with('batches')->get();
 
         // Pass data to a Blade view for rendering the PDF
         $pdf = Pdf::loadView('pdf.inventory_report', [
-            'supplies' => $supplies
+            'supplies' => $supplies,
         ])->setPaper('a4', 'landscape');
 
         return $pdf->stream('inventory_report.pdf');
     }
-
 
     public function renderAdminDashboard(Request $request)
     {
@@ -74,6 +68,7 @@ class MedicalSupplyController extends Controller
             ->get()
             ->filter(function ($supply) {
                 $critical = $supply->stocks->first()?->critical_stock ?? 10;
+
                 return $supply->quantity <= $critical;
             })
             ->values();
@@ -83,7 +78,7 @@ class MedicalSupplyController extends Controller
         $thresholdDate = Carbon::now()->addDays(30);
 
         $nearlyExpired = Batch::with('medicalSupply')
-            ->whereHas('medicalSupply', fn($q) => $q->whereNull('deleted_at'))
+            ->whereHas('medicalSupply', fn ($q) => $q->whereNull('deleted_at'))
             ->whereDate('expiration_date', '<=', $thresholdDate)
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
@@ -94,7 +89,6 @@ class MedicalSupplyController extends Controller
             'nearlyExpired' => $nearlyExpired,
         ]);
     }
-
 
     public function dashboardSupplyCreate(Request $request)
     {
@@ -128,16 +122,13 @@ class MedicalSupplyController extends Controller
         //     'nearlyExpired' => $nearlyExpired,
         // ]);
 
-        $inventoryLogs = InventoryLogs::with('medical_supplies')->get()
-            ->map(function ($log) {
-                $log->created_at = $log->created_at->format('d-m-Y');
-                return $log;
-            });
+        $inventoryLogs = InventoryLogs::with('medical_supplies')->get();
 
         $supplies = MedicalSupplies::with(['stocks', 'batches'])
             ->get()
             ->filter(function ($supply) {
                 $critical = $supply->stocks->first()?->critical_stock ?? 10;
+
                 return $supply->quantity <= $critical;
             })
             ->values();
@@ -145,7 +136,7 @@ class MedicalSupplyController extends Controller
         $thresholdDate = Carbon::now()->addDays(30);
 
         $nearlyExpired = Batch::with('medicalSupply')
-            ->whereHas('medicalSupply', fn($q) => $q->whereNull('deleted_at'))
+            ->whereHas('medicalSupply', fn ($q) => $q->whereNull('deleted_at'))
             ->whereDate('expiration_date', '<=', $thresholdDate)
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
@@ -157,11 +148,40 @@ class MedicalSupplyController extends Controller
         ]);
     }
 
+    public function mostUsedSupples(Request $request)
+    {
+        $filter = $request->get('filter', 'all');
+        Log::info("filter: ", [$filter]);
+
+        $query = InventoryLogs::select(
+            'medical_supplies.brand_name',
+            DB::raw('SUM(inventory_logs.total_quantity) as total_quantity')
+        )
+            ->join('medical_supplies', 'inventory_logs.supply_id', '=', 'medical_supplies.id')
+            ->groupBy('medical_supplies.brand_name')
+            ->orderByDesc('total_quantity');
+
+        // apply filters
+        if ($filter === 'day') {
+            $query->whereDate('inventory_logs.created_at', now()->toDateString());
+        } elseif ($filter === 'month') {
+            $query->whereMonth('inventory_logs.created_at', now()->month)
+                ->whereYear('inventory_logs.created_at', now()->year);
+        } elseif ($filter === 'year') {
+            $query->whereYear('inventory_logs.created_at', now()->year);
+        }
+        // "all" means no filter
+
+        $logs = $query->get();
+        return response()->json($logs);
+    }
+
+
     public function inventory(Request $request)
     {
         $searchQuery = $request->query('search');
 
-        Log::info("searchQuery inventory: ", [$searchQuery]);
+        Log::info('searchQuery inventory: ', [$searchQuery]);
 
         $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
             $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
@@ -170,48 +190,40 @@ class MedicalSupplyController extends Controller
                 $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
             })
             ->get();
-{
-    $nearlyExpired = MedicalSupplies::with(['batches' => function ($query) {
-        $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
-    }])
-        ->whereHas('batches', function ($query) {
-            $query->where('expiration_date', '<=', Carbon::now()->addDays(30));
-        })
-        ->get();
 
-    // ✅ Backend pagination
-    $supplies = MedicalSupplies::with(['batches', 'category'])
+        // ✅ Backend pagination
+        $supplies = MedicalSupplies::with(['batches', 'category'])
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
                     $q->where('participants', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
-                    ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
-                        $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
-                    });
+                        ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
+                        ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                            $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+                        });
                 });
             })
-            
-        ->paginate($request->input('perPage', 10))
-        ->withQueryString();
 
-    $inventoryLogs = InventoryLogs::with([
-        'medical_supplies' => function ($query) {
-            $query->select('id', 'brand_name', 'quantity');
-        }
-    ])->get();
+            ->paginate($request->input('perPage', 10))
+            ->withQueryString();
 
-    $supplyUpdate = MedicalSupplies::find($request->input('supply_id'));
-    $categories_supply = Categories::all();
+        $inventoryLogs = InventoryLogs::with([
+            'medical_supplies' => function ($query) {
+                $query->select('id', 'brand_name', 'quantity');
+            },
+        ])->get();
 
-    return Inertia::render('Inventory/Index', [
-        'supplies'       => $supplies,
-        'inventory_logs' => $inventoryLogs,
-        'nearlyExpired'  => $nearlyExpired,
-        'supplyUpdate'   => $supplyUpdate,
-        'categories'     => $categories_supply,
-        'filters'        => $request->only(['perPage', 'page', 'search'])
-    ]);
-}
+        $supplyUpdate = MedicalSupplies::find($request->input('supply_id'));
+        $categories_supply = Categories::all();
+
+        return Inertia::render('Inventory/Index', [
+            'supplies' => $supplies,
+            'inventory_logs' => $inventoryLogs,
+            'nearlyExpired' => $nearlyExpired,
+            'supplyUpdate' => $supplyUpdate,
+            'categories' => $categories_supply,
+            'filters' => $request->only(['perPage', 'page', 'search']),
+        ]);
+    }
 
     public function updateSupply(Request $request, $id)
     {
@@ -238,7 +250,6 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply quantity deducted successfully.');
     }
 
-
     public function suppliescreate(Request $request)
     {
         $supplies = MedicalSupplies::with('category')->get(); // fetch supplies with category
@@ -246,10 +257,9 @@ class MedicalSupplyController extends Controller
 
         return Inertia::render('Inventory/Supplies', [
             'supplies' => $supplies,
-            'categories' => $categories_supplies
+            'categories' => $categories_supplies,
         ]);
     }
-
 
     public function addStockSupply(Request $request, $id)
     {
@@ -269,7 +279,6 @@ class MedicalSupplyController extends Controller
         //     'batch_id' => $supply->batches->first()->id ?? null, // Use first batch or null if none exists
         //     'critical_stock' => $validated['critical_stock'] ?? 10,
         // ]);
-
 
         // InventoryLogs::create([
         //     'requester_name' => Auth::user()->name,
@@ -319,24 +328,21 @@ class MedicalSupplyController extends Controller
         ]);
     }
 
-
-
-
-
     public function stockSupplycreate(Request $request)
     {
         $supplies = MedicalSupplies::with('stocks', 'batches')->get();
+
         return Inertia::render('Inventory/Stock', [
-            'supplies' => $supplies
+            'supplies' => $supplies,
         ]);
     }
-
 
     public function batchNumbercreate(Request $request)
     {
         $supplies = MedicalSupplies::with('batches')->get();
+
         return Inertia::render('Inventory/Batches', [
-            'supplies' => $supplies
+            'supplies' => $supplies,
 
         ]);
     }
@@ -344,7 +350,7 @@ class MedicalSupplyController extends Controller
     public function store(Request $request)
     {
 
-        //THIS IS A RIGHT METHOD
+        // THIS IS A RIGHT METHOD
         $validated = $request->validate([
             'participants' => 'required|string|max:255',
             'brand_name' => 'required|string|max:255',
@@ -355,43 +361,40 @@ class MedicalSupplyController extends Controller
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
             'crtical_stock' => 'nullable|integer|min:0',
-            'category_id'       => 'required|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
 
         ]);
 
         $createdSupply = MedicalSupplies::create([
-            'participants'       => $validated['participants'],
-            'brand_name'         => $validated['brand_name'],
-            'unit'               => $validated['unit'],
-            'quantity'           => $validated['quantity'],
-            'manufacture_date'   => $validated['manufacture_date'],
-            'expiration_date'    => $validated['expiration_date'],
-            'lot_number'         => $validated['lot_number'],
-            'batch_number'     => $validated['batch_number'],
-            'category_id'       => $validated['category_id'],
+            'participants' => $validated['participants'],
+            'brand_name' => $validated['brand_name'],
+            'unit' => $validated['unit'],
+            'quantity' => $validated['quantity'],
+            'manufacture_date' => $validated['manufacture_date'],
+            'expiration_date' => $validated['expiration_date'],
+            'lot_number' => $validated['lot_number'],
+            'batch_number' => $validated['batch_number'],
+            'category_id' => $validated['category_id'],
 
         ]);
 
         $createdSupply->batches()->create([
-            'quantity'         => $validated['quantity'],
-            'batch_number'     => $validated['batch_number'],
+            'quantity' => $validated['quantity'],
+            'batch_number' => $validated['batch_number'],
             'manufacture_date' => $validated['manufacture_date'],
-            'expiration_date'  => $validated['expiration_date'],
+            'expiration_date' => $validated['expiration_date'],
         ]);
-
 
         // Log the inventory
         InventoryLogs::create([
             'requester_name' => Auth::user()->name,
             'operation_type' => Logs::ADDED,
             'total_quantity' => $validated['quantity'],
-            'supply_id'      => $createdSupply->id,
+            'supply_id' => $createdSupply->id,
         ]);
 
         return redirect()->back()->with('success', 'Supply and batch added successfully.');
     }
-
-
 
     public function requests()
     {
@@ -400,15 +403,14 @@ class MedicalSupplyController extends Controller
                 'medical_supplies' => function ($query) {
                     $query->select('medical_supplies.id', 'medical_supplies.participants', 'medical_supplies.brand_name', 'medical_supplies.unit')
                         ->withPivot('quantity');
-                }
+                },
             ])
             ->get();
 
         return Inertia::render('Inventory/Request', [
-            'medical_supply_requests' => $supplyRequest
+            'medical_supply_requests' => $supplyRequest,
         ]);
     }
-
 
     public function update(Request $request)
     {
@@ -418,7 +420,6 @@ class MedicalSupplyController extends Controller
             'request_id' => ['required', 'exists:supply_requests,id'],
         ]);
 
-
         $supplyRequest = SupplyRequest::with(['medical_supplies', 'users'])->find($validated['request_id']);
 
         $supplyRequest->release_datetime = $validated['release_datetime'];
@@ -426,16 +427,14 @@ class MedicalSupplyController extends Controller
         $supplyRequest->status = MedicalRequestStatus::RECEIVED->value;
         $supplyRequest->save();
 
-
         // THE AUTOMATED DEDUCTION AFTER SAVING STATUS
         foreach ($supplyRequest->medical_supplies as $medicalSupply) {
             $quantity = $medicalSupply->pivot->quantity;
 
-            Log::info("Pivot quantity" . $quantity);
+            Log::info('Pivot quantity'.$quantity);
 
             $medicalSupply->quantity -= $quantity;
             $medicalSupply->save();
-
 
             // LOG EACH OPERATION
             InventoryLogs::create([
@@ -449,8 +448,6 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply updated successfully.');
     }
 
-
-
     // MEDICAL STAFF SIDE METHODS
     public function inventorySupplyRequest()
     {
@@ -458,22 +455,18 @@ class MedicalSupplyController extends Controller
             ->with([
                 'requested_supply' => function ($query) {
                     $query->select('id', 'request_id', 'quantity', 'unit', 'item_description', 'unit_price', 'total_price');
-                }
+                },
             ])
             ->get();
 
-
-        Log::info("supplyRequest", [
-            'supplyRequest' => $supplyRequest
+        Log::info('supplyRequest', [
+            'supplyRequest' => $supplyRequest,
         ]);
-
-
 
         return Inertia::render('Medical/MedicalSupplyRequest', [
             'medical_supply_requests' => $supplyRequest,
         ]);
     }
-
 
     public function updateRequestStatus(Request $request)
     {
@@ -482,8 +475,7 @@ class MedicalSupplyController extends Controller
             'status_tag' => ['required', 'string', Rule::in(['pending', 'received'])],
         ]);
 
-        Log::info("Status: ", $validated);
-
+        Log::info('Status: ', $validated);
 
         $supplyRequest = SupplyRequest::findOrFail($validated['request_id']);
         $supplyRequest->status = (string) $validated['status_tag'];
@@ -491,7 +483,6 @@ class MedicalSupplyController extends Controller
 
         return back()->with('success', 'Supply request status updated successfully.');
     }
-
 
     public function medicalSupplyRequestCreate(Request $request)
     {
@@ -510,18 +501,17 @@ class MedicalSupplyController extends Controller
         $to = $validated['to'];
         $items = $validated['items'];
 
-
-        Log::info("Request Data", [
+        Log::info('Request Data', [
             'poNumber' => $poNumber,
             'to' => $to,
             'items' => $items,
         ]);
 
         $supplyRequest = SupplyRequest::create([
-            'to'        => $to,
+            'to' => $to,
             'po_number' => $poNumber,
-            'status'    => MedicalRequestStatus::PENDING->value,
-            'user_id'      => Auth::user()->id
+            'status' => MedicalRequestStatus::PENDING->value,
+            'user_id' => Auth::user()->id,
         ]);
 
         $supplyRequest->requested_supply()->createMany($validated['items']);
@@ -532,8 +522,9 @@ class MedicalSupplyController extends Controller
     public function CategoriesSupplycreate(Request $request)
     {
         $categories_supply = categories::all();
+
         return Inertia::render('Inventory/CategorySupply', [
-            'categories' => $categories_supply
+            'categories' => $categories_supply,
         ]);
     }
 
@@ -558,13 +549,13 @@ class MedicalSupplyController extends Controller
             ->get();
 
         return Inertia::render('Inventory/ArchiveSupplies', [
-            'arcvhivedSupplies' => $archive_supplies
+            'arcvhivedSupplies' => $archive_supplies,
         ]);
     }
 
     public function archiveSuppliesData($id)
     {
-        \DB::transaction(function () use ($id) {
+        DB::transaction(function () use ($id) {
 
             $supply = MedicalSupplies::with('batches')->findOrFail($id);
 

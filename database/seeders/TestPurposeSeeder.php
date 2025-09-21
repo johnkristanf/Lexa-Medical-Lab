@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\TestPurpose;
-use App\Models\TestRequest;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class TestPurposeSeeder extends Seeder

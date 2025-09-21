@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('status_id')->constrained('queue_statuses')->default(1);
             $table->foreignId('priority_type_id')->constrained('priority_types');
             $table->foreignId('counter_id')->nullable()->constrained('counters');
-            
+
             $table->timestamps();
         });
     }

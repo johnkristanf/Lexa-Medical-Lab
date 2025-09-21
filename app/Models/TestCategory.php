@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TestCategory extends Model
 {
     protected $guarded = ['id'];
+
     protected $table = 'test_category';
 
     public function testTypes()

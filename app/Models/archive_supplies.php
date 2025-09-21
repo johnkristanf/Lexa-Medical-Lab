@@ -2,11 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\MedicalSupplies;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Batch;
-
-
 
 class archive_supplies extends Model
 {
@@ -14,6 +10,7 @@ class archive_supplies extends Model
         'medical_supplies_id',
         'batch_id',
     ];
+
     protected $table = 'archive_supplies';
 
     public function medical_supply()

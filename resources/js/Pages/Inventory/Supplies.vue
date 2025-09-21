@@ -13,7 +13,7 @@
         supplies: Array,
         inventory_logs: Array,
         supplyUpdate: Object,
-        categories: Array
+        categories: Array,
     })
 
     const toggles = reactive({
@@ -34,20 +34,16 @@
         if (!selectedCategory.value) {
             return props.supplies
         }
-        return props.supplies.filter(
-            supply => supply.category_id === Number(selectedCategory.value)
-        )
+        return props.supplies.filter((supply) => supply.category_id === Number(selectedCategory.value))
     })
 
     //  Dropdown state
     const open = ref(false)
-    const search = ref("")
+    const search = ref('')
 
     const filteredCategories = computed(() => {
         if (!search.value) return props.categories
-        return props.categories.filter(c =>
-            c.name.toLowerCase().includes(search.value.toLowerCase())
-        )
+        return props.categories.filter((c) => c.name.toLowerCase().includes(search.value.toLowerCase()))
     })
 
     function selectCategory(id) {
@@ -63,9 +59,7 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Medical Supplies
-            </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Medical Supplies</h2>
         </template>
 
         <div>
@@ -80,7 +74,12 @@
                                 @click="open = !open"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 text-left text-sm focus:ring-2 focus:ring-green-500 focus:outline-none"
                             >
-                                {{ selectedCategory ? props.categories.find(c => c.id === Number(selectedCategory))?.name : "All Categories" }}
+                                {{
+                                    selectedCategory
+                                        ? props.categories.find((c) => c.id === Number(selectedCategory))
+                                              ?.name
+                                        : 'All Categories'
+                                }}
                             </button>
 
                             <div
@@ -137,7 +136,7 @@
                                     title="View Batch"
                                     class="bg-[#70e000] px-3 py-1 rounded text-white hover:bg-[#1b4332]"
                                 >
-                                    <i class="pi pi-eye text-white-600 text-lg"></i>
+                                    View
                                 </a>
 
                                 <button
@@ -145,7 +144,7 @@
                                     title="Update Supply"
                                     class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
                                 >
-                                    <i class="pi pi-th-large text-white-600 text-lg"></i>
+                                    Deduct
                                 </button>
                             </template>
                         </Column>
@@ -167,63 +166,17 @@
             @close="toggles.showAddSupplyModal = false"
         />
 
-        <!-- DRAWER FOR INVENTORY LOGS -->
-        <Drawer
-            v-model:visible="toggles.showInventoryDrawer"
-            header="Inventory Logs"
-            position="right"
-            class="!w-full sm:!w-80 lg:!w-[25rem]"
-        >
-            <div class="flex flex-col gap-3">
-                <div
-                    v-for="log in props.inventory_logs"
-                    class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
-                >
-                    <h1>
-                        Brand Name:
-                        <br />
-                        - {{ log.medical_supplies.brand_name }}
-                    </h1>
-                    <h1>
-                        Current Quantity:
-                        <br />
-                        - {{ log.medical_supplies.quantity }}
-                    </h1>
-
-                    <div class="flex flex-col gap-2">
-                        <h1>Operation Type:</h1>
-                        <span
-                            class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
-                            :class="{
-                                'bg-green-100 text-green-800':
-                                    log.operation_type === OPERATION_TYPES.ADDED,
-                                'bg-red-100 text-yellow-800':
-                                    log.operation_type === OPERATION_TYPES.DEDUCTED,
-                            }"
-                        >
-                            {{ log.operation_type }}
-                        </span>
-                    </div>
-
-                    <h1>
-                        Total Quantity {{ log.operation_type.toUpperCase() }}:
-                        <br />
-                        {{ log.total_quantity }}
-                    </h1>
-                </div>
-            </div>
-        </Drawer>
     </AuthenticatedLayout>
 </template>
 
 <style scoped>
-.custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
-  background-color: #208b3a;
-  color: white;
-}
+    .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
+        background-color: #208b3a;
+        color: white;
+    }
 
-.custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
-  background-color: #ffffff;
-  color: #374151;
-}
+    .custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
+        background-color: #ffffff;
+        color: #374151;
+    }
 </style>

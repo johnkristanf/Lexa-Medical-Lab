@@ -2,26 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Logs;
-use DateTime;
-use App\Models\Test;
-use Inertia\Inertia;
-use App\Models\Queues;
-use App\Models\Patient;
-use App\Models\TestType;
 use App\Events\QueueUpdate;
-use App\Models\QueueStatus;
-use App\Models\TestPurpose;
-use App\Models\Appointments;
-use App\Models\TestCategory;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\ResultEmailReminder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
+use App\Models\Patient;
+use App\Models\Queues;
+use App\Models\QueueStatus;
+use App\Models\Test;
+use App\Models\TestCategory;
+use App\Models\TestPurpose;
+use App\Models\TestType;
+use Barryvdh\DomPDF\Facade\Pdf;
+use DateTime;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-
+use Inertia\Inertia;
 
 class MedicalStaffController extends Controller
 {
@@ -40,15 +38,14 @@ class MedicalStaffController extends Controller
         }])
             ->where('status_id', $statusID)
             ->get()
-            ->sortBy(fn($queue) => $queue->priority_types->priority_level)
+            ->sortBy(fn ($queue) => $queue->priority_types->priority_level)
             ->values();
 
         return Inertia::render('Medical/Queue', [
             'queue_statuses' => $queueStatuses,
-            'queues' => $queues
+            'queues' => $queues,
         ]);
     }
-
 
     public function updateStatus(Request $request)
     {
@@ -62,25 +59,26 @@ class MedicalStaffController extends Controller
         $queue->save();
 
         broadcast(new QueueUpdate($queue->id));
+
         return back();
     }
 
-    //Dashboard Data items For Medical staff
+    // Dashboard Data items For Medical staff
 
     public function medicalAppointmentPage(Request $request)
     {
         $searchQuery = $request->query('search');
-        Log::info("searchQuery medical: ", [$searchQuery]);
+        Log::info('searchQuery medical: ', [$searchQuery]);
         $appointments = Appointments::with(['schedule', 'test_types.test_category'])
             ->when($searchQuery, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('appointment_number', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere(
-                        DB::raw("CONCAT(first_name, ' ', middle_name, ' ', last_name)"),
-                        'like',
-                        "%{$search}%"
-                    );
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere(
+                            DB::raw("CONCAT(first_name, ' ', middle_name, ' ', last_name)"),
+                            'like',
+                            "%{$search}%"
+                        );
                 });
             })
             ->latest()
@@ -97,7 +95,7 @@ class MedicalStaffController extends Controller
         ]);
     }
 
-    //Patient Details
+    // Patient Details
     public function patientDetailscreate(Request $request)
     {
         $searchQuery = $request->query('search');
@@ -109,14 +107,13 @@ class MedicalStaffController extends Controller
                     'like',
                     "%{$search}%"
                 );
-            })
+        })
             ->get();
 
         $testTypesPurpose = TestPurpose::all();
         $patientUpdate = Patient::find($request->input('id'));
         // $testTypesRequest = TestRequest::all();
         $testCategory = TestCategory::with('testTypes')->get();
-
 
         return Inertia::render('Patient/PatientDetails', [
             'patients' => $patientsDetails,
@@ -142,24 +139,24 @@ class MedicalStaffController extends Controller
         ]);
 
         Patient::create($validated);
+
         return redirect()->back()->with('success', 'Patient details added successfully.');
     }
 
     public function testCategoryCreate(Request $request)
     {
         $searchQuery = $request->query('search');
-        Log::info("searchQuery: ", [$searchQuery]);
+        Log::info('searchQuery: ', [$searchQuery]);
         $testCategory = TestCategory::with('testTypes')
             ->when($searchQuery, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
             ->get();
 
-                Log::info("testCategory: ", [$testCategory]);
+        Log::info('testCategory: ', [$testCategory]);
 
-            
         return Inertia::render('TestCategory/TestCategory', [
-            'test_category' => $testCategory
+            'test_category' => $testCategory,
         ]);
     }
 
@@ -175,7 +172,7 @@ class MedicalStaffController extends Controller
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
             'contact_number' => 'required|string|max:15',
-            'email' => 'required|email|max:255|unique:patients,email,' . $patient->id,
+            'email' => 'required|email|max:255|unique:patients,email,'.$patient->id,
         ]);
 
         $patient->update($validated);
@@ -238,19 +235,18 @@ class MedicalStaffController extends Controller
         $orNumber = (string) random_int(10000, 99999);
 
         $test = Test::create([
-            'referer_fullname'     => $validated['referer_fullname'],
-            'doctor_license_no'    => $validated['doctor_license_no'],
-            'test_schedule'        => $validated['test_schedule'],
-            'total_price'          => $validated['total_price'],
-            'or_number'            => $orNumber,
-            'purpose_id'           => $validated['purpose_id'],
-            'patient_id'           => $validated['patient_id'],
-            'category_id'          => $validated['category_id'],
-            'selected_test_types'  => json_encode($validated['selected_test_types']),
+            'referer_fullname' => $validated['referer_fullname'],
+            'doctor_license_no' => $validated['doctor_license_no'],
+            'test_schedule' => $validated['test_schedule'],
+            'total_price' => $validated['total_price'],
+            'or_number' => $orNumber,
+            'purpose_id' => $validated['purpose_id'],
+            'patient_id' => $validated['patient_id'],
+            'category_id' => $validated['category_id'],
+            'selected_test_types' => json_encode($validated['selected_test_types']),
         ]);
 
         $testID = $test->id;
-
 
         // INSERT PATIENT TEST TO THE PIVOT TABLE
         $patient = Patient::find($validated['patient_id']);
@@ -268,10 +264,9 @@ class MedicalStaffController extends Controller
         })->get();
 
         return Inertia::render('Test/TestDetails', [
-            'testDetails' => $testDetails
+            'testDetails' => $testDetails,
         ]);
     }
-
 
     public function testDetailsByID(string $patientID, string $testID)
     {
@@ -295,11 +290,10 @@ class MedicalStaffController extends Controller
             'test_results.*.result' => 'nullable|string|max:255',
         ]);
 
-        Log::info("CHECK DATA: ", [
+        Log::info('CHECK DATA: ', [
             'patientID' => $patientID,
-            '$request' => $request
+            '$request' => $request,
         ]);
-
 
         foreach ($request->test_results as $item) {
             DB::table('patient_test_type')
@@ -315,7 +309,6 @@ class MedicalStaffController extends Controller
         return back()->with('success', 'Test Results Updated.');
     }
 
-
     public function print($testID)
     {
         $testDetail = Test::findOrFail($testID);
@@ -325,9 +318,8 @@ class MedicalStaffController extends Controller
         $testPatient = $this->testDetailsByID($testDetail->patient_id, $testID);
         $testTypes = $testPatient->test_types ?? collect();
 
-
         $dob = new DateTime($patientDetails->date_of_birth);
-        $today = new DateTime();
+        $today = new DateTime;
         $age = $dob->diff($today)->y;
 
         return Pdf::loadView('pdf.test-detail', compact(
@@ -343,9 +335,8 @@ class MedicalStaffController extends Controller
 
     public function sendEmailResultReminder(Request $request)
     {
-
-        Mail::to('patient@gmail.com')->send(new ResultEmailReminder());
-
+        Log::info("request->get('email'): ", [$request->get('email')]);
+        Mail::to($request->get('email'))->send(new ResultEmailReminder);
         return back()->with('success', 'Reminder email sent.');
     }
 }

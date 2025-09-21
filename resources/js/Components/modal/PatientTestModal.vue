@@ -100,7 +100,7 @@
         fetchTestById(props.patientID, props.testID)
     })
 
-    const testResultsTableHeaders = ['Test Name', 'Results', 'Reference Range']
+    const testResultsTableHeaders = ['Test Name', 'Results', 'Reference Range', 'Unit']
 </script>
 
 <template>
@@ -215,6 +215,10 @@
                                                 <!-- Reference Range -->
                                                 <fwb-table-cell class="!text-left">
                                                     {{ test.reference_range }}
+                                                </fwb-table-cell>
+
+                                                <fwb-table-cell class="!text-left">
+                                                    {{ test.unit ? test.unit : 'N/A' }}
                                                 </fwb-table-cell>
                                             </fwb-table-row>
                                         </fwb-table-body>

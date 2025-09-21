@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Test extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'test';
 
+    protected $table = 'test';
 
     public function test_purpose()
     {
@@ -26,7 +26,7 @@ class Test extends Model
         return $this->belongsTo(Patient::class, 'category_id');
     }
 
-    public function testTypes()
+    public function test_types()
     {
         return $this->belongsToMany(TestType::class, 'patient_test_type')
             ->withPivot(['patient_id', 'results'])

@@ -4,19 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppoinmentScheduleRequest;
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Mail\AppointmentConfirmationMail;
 use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
-use App\Models\TestCategory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
-use App\Mail\AppointmentConfirmationMail;
 use App\Models\AppointmentSlots;
-use Illuminate\Support\Facades\Mail;
+use App\Models\TestCategory;
 use Carbon\Carbon;
-use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Support\Facades\App;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
@@ -41,18 +39,18 @@ class AppointmentController extends Controller
     {
 
         $validated = $request->validated();
-        Log::info("validated appointmebnt data", [$validated]);
+        Log::info('validated appointmebnt data', [$validated]);
 
         DB::transaction(function () use ($validated) {
             $appointment = Appointments::create([
-                'first_name'     => $validated['first_name'],
-                'middle_name'    => $validated['middle_name'],
-                'last_name'      => $validated['last_name'],
-                'email'          => $validated['email'],
-                'gender'         => $validated['gender'],
-                'date_of_birth'  => $validated['birthdate'],
-                'status'         => 'pending',
-                'schedule_id'    => $validated['selected_schedule_id'],
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'gender' => $validated['gender'],
+                'date_of_birth' => $validated['birthdate'],
+                'status' => 'pending',
+                'schedule_id' => $validated['selected_schedule_id'],
             ]);
 
             // MAKE THE SELECTED TIME SLOT TO UNAVAILABLE
@@ -65,8 +63,6 @@ class AppointmentController extends Controller
             Mail::to($appointment->email)
                 ->queue(new AppointmentConfirmationMail($appointment));
         });
-
-
 
         return redirect()
             ->back()
@@ -82,12 +78,12 @@ class AppointmentController extends Controller
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->whereRaw(
                     "LOWER(CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)) LIKE ?",
-                    ['%' . strtolower($searchQuery) . '%']
+                    ['%'.strtolower($searchQuery).'%']
                 )
-                ->orWhereRaw(
-                    "LOWER(email) LIKE ?",
-                    ['%' . strtolower($searchQuery) . '%']
-                );
+                    ->orWhereRaw(
+                        'LOWER(email) LIKE ?',
+                        ['%'.strtolower($searchQuery).'%']
+                    );
             })
             ->latest()
             ->get();
@@ -129,13 +125,13 @@ class AppointmentController extends Controller
     public function sendEmailDetails(Request $request)
     {
         $data = $request->only(['appointment_id', 'email', 'appointment_number', 'schedule', 'message']);
-        Log::info("data", [$data]);
-        
+        Log::info('data', [$data]);
+
         $recipient = $data['email'];
         Mail::to($recipient)->send(new AppointmentConfirmationMail($data));
 
         Appointments::where('id', $data['appointment_id'])->update([
-            'appointment_number' => $data['appointment_number']
+            'appointment_number' => $data['appointment_number'],
         ]);
 
         return redirect()

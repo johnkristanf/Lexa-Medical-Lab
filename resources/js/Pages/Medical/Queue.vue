@@ -5,6 +5,17 @@
     import Popover from 'primevue/popover'
     import { ref, watch } from 'vue'
 
+    import {
+        FwbTable,
+        FwbTableBody,
+        FwbTableCell,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableRow,
+        FwbButton,
+        FwbDropdown
+    } from 'flowbite-vue'
+
     // QUEUE DATA PROPS
     const props = defineProps({
         queue_statuses: Array,
@@ -66,6 +77,14 @@
             },
         )
     }
+
+
+
+    const queueTableHeaders = [
+        'Queue Number',
+        'Priority Label',
+        'Actions'
+    ]
 </script>
 
 <template>
@@ -86,70 +105,61 @@
                     class="custom-select-button"
                 />
             </div>
-            <DataTable :value="props.queues" tableStyle="min-width: 50rem" class="custom-datatable">
-                <Column field="queue_number" header="Queue Number"></Column>
-                <Column header="Priority Label">
-                    <template #body="{ data }">
-                        {{ data.priority_types?.name }} ({{ data.priority_types?.code }})
-                    </template>
-                </Column>
+            <fwb-table>
+                <fwb-table-head>
+                    <fwb-table-head-cell
+                        v-for="(header, index) in queueTableHeaders"
+                        :key="index"
+                        class="bg-green-600 text-white"
+                    >
+                        {{ header }}
+                    </fwb-table-head-cell>
+                </fwb-table-head>
 
+                <fwb-table-body>
+                    <fwb-table-row
+                        v-for="queue in props.queues"
+                        :key="queue.id"
+                    >
+                        <fwb-table-cell>{{ queue.queue_number }}</fwb-table-cell>
+                        <fwb-table-cell>
+                        {{ queue.priority_types?.name }} ({{ queue.priority_types?.code }})
+                        </fwb-table-cell>
 
-                <Column header="Actions">
-                    <template #body="{ data }">
-
-
-                        <div v-if="data.status_id < 3">
-                            <!-- CHANGE STATUS BUTTON -->
-                            <h1
-                                @click="(event) => toggle(event, $refs['popover_' + data.id])"
-                                class="min-w-48 text-green-600 hover:cursor-pointer hover:underline"
-                            >
-                                Update Status
-                            </h1>
-
-                            <!-- POPOVER FOR CHANGING STATUS -->
-                            <Popover :ref="'popover_' + data.id">
-                                <div class="flex flex-col gap-4">
-                                    <div>
-                                        <span class="font-medium block mb-2">Queue Status</span>
-                                        <ul class="list-none p-0 m-0 flex flex-col">
-                                            <li
-                                                v-for="queueStatus in props.queue_statuses.filter(
-                                                    (s) => s.id === data.status_id + 1,
-                                                )"
-                                                :key="queueStatus.id"
-                                                class="flex items-center gap-2 px-2 py-3 hover:bg-emphasis cursor-pointer rounded-border"
-                                                @click="
-                                                    updateStatus({
-                                                        queue_id: data.id,
-                                                        updated_status_id: queueStatus.id,
-                                                        popoverInstance:
-                                                            $refs['popover_' + data.id],
-                                                    })
-                                                "
-                                            >
-                                                <div>
-                                                    <span class="font-medium">
-                                                        {{ queueStatus.name }}
-                                                    </span>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </Popover>
+                        <fwb-table-cell>
+                        <div v-if="queue.status_id < 3">
+                            <!-- DROPDOWN FOR STATUS UPDATE -->
+                            <FwbDropdown text="Update Status" placement="bottom-start">
+                            <ul class="py-1 text-sm text-gray-700">
+                                <li
+                                v-for="queueStatus in props.queue_statuses.filter(
+                                    (s) => s.id === queue.status_id + 1
+                                )"
+                                :key="queueStatus.id"
+                                @click="
+                                    updateStatus({
+                                    queue_id: queue.id,
+                                    updated_status_id: queueStatus.id,
+                                    })
+                                "
+                                class="cursor-pointer px-4 py-2 hover:bg-gray-100"
+                                >
+                                {{ queueStatus.name }}
+                                </li>
+                            </ul>
+                            </FwbDropdown>
                         </div>
 
                         <span
                             v-else
                             class="inline-block px-2 py-1 text-sm font-bold rounded-md bg-green-100 text-green-800"
                         >
-                           This Patient is already Served
+                            This Patient is already Served
                         </span>
-                    </template>
-                </Column>
-            </DataTable>
+                        </fwb-table-cell>
+                    </fwb-table-row>
+                </fwb-table-body>
+            </fwb-table>
         </div>
     </AuthenticatedLayout>
 </template>

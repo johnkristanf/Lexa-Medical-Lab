@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Roles;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AdminSeeder extends Seeder
@@ -18,7 +17,7 @@ class AdminSeeder extends Seeder
             'name' => 'Administrator',
             'email' => 'admin@admin',
             'password' => bcrypt('admin123'),
-            'role_id' => Roles::ADMIN
+            'role_id' => Roles::ADMIN,
         ]);
     }
 }
