@@ -15,6 +15,7 @@
 
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
+import AddButton from '@/Components/AddButton.vue'
 
     const props = defineProps({
         medical_supply_requests: Array,
@@ -84,9 +85,9 @@
                 <div class="card p-8 h-full">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-6">
-                        <fwb-button color="green" @click="modals.showRequestModal = true">
+                        <AddButton color="green" @click="modals.showRequestModal = true">
                             Request Supply
-                        </fwb-button>
+                        </AddButton>
 
                         <!-- SEARCH INPUT -->
                         <SearchInput />
@@ -178,14 +179,13 @@
                                         </transition>
                                     </Menu>
 
-                                    <fwb-button
-                                        color="green"
+                                    <AddButton
                                         @click="
                                             handleShowRequestedMedicalSupply(data.requested_supply)
                                         "
                                     >
                                         View Requested Supply
-                                    </fwb-button>
+                                    </AddButton>
                                 </div>
 
                                 <div v-else>

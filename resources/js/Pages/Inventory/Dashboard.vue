@@ -74,23 +74,14 @@
 
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
             <!-- ✅ Low/Critical Stock -->
-            <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
-                <h2 class="text-center mb-6 text-2xl font-bold">Nearly Out of Stock</h2>
-
-                <!-- Notification count badge -->
-                <div v-if="props.supplies.length > 0" class="text-center mb-4">
-                    <span
-                        class="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold"
-                    >
-                        {{ props.supplies.length }} Critical Item(s)
-                    </span>
-                </div>
+            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Out of Stock Medical Supplies</h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
                         <thead>
-                            <tr>
-                                <th class="border-b border-white py-2">Product Name</th>
+                            <tr class="bg-green-600 text-white">
+                                <th class="border-b border-white py-2">Brand Name</th>
                                 <th class="border-b border-white py-2">Current Stock</th>
                                 <th class="border-b border-white py-2">Critical Stock</th>
                                 <th class="border-b border-white py-2">Status</th>
@@ -129,23 +120,14 @@
             </div>
 
             <!-- ✅ Nearly Expired Items -->
-            <div class="flex-1 bg-[#ced4da] text-black p-6 rounded-lg shadow-lg">
-                <h2 class="text-center mb-6 text-2xl font-bold">Nearly Expired</h2>
-
-                <!-- Notification count badge -->
-                <div v-if="props.supplies.length > 0" class="text-center mb-4">
-                    <span
-                        class="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold"
-                    >
-                        {{ props.supplies.length }} Nearly Expired Item(s)
-                    </span>
-                </div>
+            <div class="flex-1  text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Expired Medical Supplies</h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
                         <thead>
-                            <tr>
-                                <th class="border-b border-white py-2">Product Name</th>
+                            <tr class="bg-green-600 text-white">
+                                <th class="border-b border-white py-2">Brand Name</th>
                                 <th class="border-b border-white py-2">Expiration Date</th>
                                 <th class="border-b border-white py-2">Batch Number</th>
                                 <th class="border-b border-white py-2">Days Left</th>
@@ -155,7 +137,6 @@
                             <tr
                                 v-for="batch in props.nearlyExpired"
                                 :key="batch.id"
-                                :class="daysLeft(batch.expiration_date) <= 30 ? 'bg-[#ced4da]' : ''"
                             >
                                 <td class="py-2 px-4">{{ batch.medical_supply?.brand_name ?? 'N/A' }}</td>
                                 <td class="py-2 px-4">{{ formatDate(batch.expiration_date) }}</td>
@@ -168,7 +149,7 @@
                                         }"
                                         class="px-2 py-1 rounded text-xs"
                                     >
-                                        {{ daysLeft(batch.expiration_date) }} days
+                                        {{ daysLeft(batch.expiration_date) }}
                                     </span>
                                 </td>
                             </tr>

@@ -72,6 +72,7 @@
                             <div class="flex flex-col gap-5 isolate lg:px-8 mt-5">
                                 <div
                                     v-for="supplies in props.supplies_requested"
+                                    :key="supplies.id"
                                     class="border-2 border-gray-300 p-3 rounded-md"
                                 >
                                     <div class="flex flex-col justify-between text-md">

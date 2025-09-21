@@ -1,13 +1,7 @@
 <script setup>
     import { formatDate } from '@/helpers/formatter'
     import { generateRandomNumberString } from '@/helpers/random_num'
-    import {
-        TransitionRoot,
-        TransitionChild,
-        Dialog,
-        DialogPanel,
-        DialogTitle,
-    } from '@headlessui/vue'
+    import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 
     import { FwbCard } from 'flowbite-vue'
     import Toast from 'primevue/toast'
@@ -42,8 +36,7 @@
                 email: props.selectedAppointmentEmail,
                 appointment_number: appointmentNumber,
                 schedule: scheduleFormatted,
-                message:
-                    'Your appointment has been booked. Please bring your ID and vaccination card.',
+                message: 'Your appointment has been booked. Please bring your ID and vaccination card.',
             },
             {
                 onSuccess: () => {
@@ -95,10 +88,7 @@
                         <DialogPanel
                             class="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Appointment Details
 
                                 <p class="text-gray-500 text-sm">
@@ -114,16 +104,12 @@
 
                                     <h1 class="text-lg flex flex-col">
                                         Schedule:
-                                        <span class="text-2xl">
-                                            - {{ formatDate(selectedSchedule) }}
-                                        </span>
+                                        <span class="text-2xl">- {{ formatDate(selectedSchedule) }}</span>
                                     </h1>
 
                                     <h1 class="text-lg flex flex-col">
                                         Send To:
-                                        <span class="text-2xl">
-                                            - {{ selectedAppointmentEmail }}
-                                        </span>
+                                        <span class="text-2xl">- {{ selectedAppointmentEmail }}</span>
                                     </h1>
                                 </div>
 
@@ -139,8 +125,7 @@
                                             <strong>Appointment Number</strong>
                                             .
                                             <br />
-                                            You may take a picture or screenshot of the appointment
-                                            code.
+                                            You may take a picture or screenshot of the appointment code.
                                             <br />
                                             Please bring a valid
                                             <strong>Government-issued ID</strong>
@@ -149,17 +134,13 @@
                                             .
                                         </p>
 
-                                        <h6 class="font-semibold text-gray-800">
-                                            Important Reminders:
-                                        </h6>
-                                        <ul
-                                            class="list-disc list-inside text-sm text-gray-700 space-y-1"
-                                        >
+                                        <h6 class="font-semibold text-gray-800">Important Reminders:</h6>
+                                        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
                                             <li>Prepare your Appointment Code upon arrival.</li>
                                             <li>Do not share your appointment code with anyone.</li>
                                             <li>
-                                                Only the security guard or in-charge DRMC personnel
-                                                will ask for your code.
+                                                Only the security guard or in-charge DRMC personnel will ask
+                                                for your code.
                                             </li>
                                             <li><strong>No face mask, NO ENTRY.</strong></li>
                                             <li>
@@ -167,10 +148,7 @@
                                                 <strong>30 minutes before</strong>
                                                 your scheduled appointment.
                                             </li>
-                                            <li>
-                                                Observe social distancing and always wear your face
-                                                mask.
-                                            </li>
+                                            <li>Observe social distancing and always wear your face mask.</li>
                                         </ul>
 
                                         <p class="text-sm text-gray-700">Thank you.</p>
@@ -178,13 +156,21 @@
                                 </fwb-card>
                             </div>
 
-                            <div class="mt-8 flex justify-end">
+                            <div class="mt-8 flex flex-col gap-3 justify-end">
                                 <button
                                     type="button"
-                                    class="w-full inline-flex justify-center rounded-md border border-transparent bg-green-200 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                                    class="w-full inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:opacity-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                                     @click="sendEmail()"
                                 >
                                     Send
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="w-full inline-flex justify-center rounded-md border border-transparent bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:opacity-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                                    @click="closeModal()"
+                                >
+                                    Cancel
                                 </button>
                             </div>
                         </DialogPanel>

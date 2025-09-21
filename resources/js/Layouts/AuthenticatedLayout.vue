@@ -35,7 +35,7 @@
             permitted: permissions.value?.can_manage_medical,
         },
         {
-            name: 'Test Category',
+            name: 'Test Catalog',
             route_name: 'test.category.create',
             permitted: permissions.value?.can_manage_medical,
         },
