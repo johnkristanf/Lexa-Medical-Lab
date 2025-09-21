@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\MedicalStaffController;
 use App\Http\Controllers\QueueController;
 use Illuminate\Support\Facades\Route;
 

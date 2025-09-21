@@ -94,7 +94,7 @@
                                 </p>
                         <form @submit.prevent="submitForm" class="w-full max-w-sm mx-auto space-y-4">
                         <div>
-                            <label for="name" class="block text-sm font-semibold text-gray-900">Test Type Name</label>
+                            <label for="name" class="block text-sm font-semibold text-gray-900">Name</label>
                             <input id="name" ref="nameInput" v-model="form.name" type="text" class="form-input" required />
                             <p v-if="form.errors.name" class="text-sm text-red-500 mt-1">{{ form.errors.name }}</p>
                         </div>
@@ -103,6 +103,13 @@
                             <label for="reference_range" class="block text-sm font-semibold text-gray-900">Reference Range</label>
                             <input id="reference_range" v-model="form.reference_range" type="text" class="form-input" required />
                             <p v-if="form.errors.reference_range" class="text-sm text-red-500 mt-1">{{ form.errors.reference_range }}</p>
+                        </div>
+
+
+                         <div>
+                            <label for="price" class="block text-sm font-semibold text-gray-900">Unit</label>
+                            <input id="price" v-model="form.unit" type="text" class="form-input" required />
+                            <p v-if="form.errors.unit" class="text-sm text-red-500 mt-1">{{ form.errors.unit }}</p>
                         </div>
 
                         <div>

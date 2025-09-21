@@ -15,7 +15,7 @@ import { reactive, onMounted } from 'vue'
 import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
 import SearchInput from '@/Components/SearchInput.vue'
 import { OPERATION_TYPES } from '@/Enums/Inventory'
-import ItemData from '@/Components/ItemData.vue'
+import ItemData from '@/Components/MostUsedSupplies.vue'
 import { useToast } from 'primevue/usetoast'
 
 const props = defineProps({

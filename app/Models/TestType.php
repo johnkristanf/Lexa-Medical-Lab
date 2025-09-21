@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class TestType extends Model
 {
     protected $guarded = ['id'];
+
     protected $table = 'test_types';
 
     public function test_category(): BelongsTo
@@ -25,7 +26,6 @@ class TestType extends Model
             'type_id'           // foreign key on pivot table for related model
         );
     }
-
 
     public function patients()
     {

@@ -52,7 +52,7 @@ class User extends Authenticatable
     protected $with = [
         'roles'
     ];
-    
+
     public function roles(): BelongsTo
     {
         return $this->belongsTo(Roles::class, 'role_id');
@@ -68,7 +68,7 @@ class User extends Authenticatable
 
             Roles::ADMIN => route('admin.dashboard', absolute: false),
             Roles::MEDICAL => route('medical.appointments', absolute: false),
-            Roles::INVENTORY => route('inventory.supplies', absolute: false),
+            Roles::INVENTORY => route('inventory.dashboard', absolute: false),
             default => route('unauthorized', absolute: false),
         };
     }

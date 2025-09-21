@@ -6,6 +6,5 @@
     "tabWidth": 4,
     "useTabs": false,
     "bracketSameLine": false,
-    "printWidth": 100
+    "printWidth": 110
   }
-  

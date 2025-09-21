@@ -2,9 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\Appointments;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -20,7 +18,6 @@ class AppointmentConfirmationMail extends Mailable
     {
         $this->data = $data;
     }
-
 
     public function build()
     {

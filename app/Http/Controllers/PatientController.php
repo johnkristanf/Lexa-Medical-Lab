@@ -23,20 +23,20 @@ class PatientController extends Controller
             'address',
             'contact_number',
             'email',
-            ])->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->whereRaw(
-                    "LOWER(CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)) LIKE ?",
-                    ['%' . strtolower($searchQuery) . '%']
-                );
-            })
-        ->get();
+        ])->when($searchQuery, function ($query) use ($searchQuery) {
+            $query->whereRaw(
+                "LOWER(CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)) LIKE ?",
+                ['%'.strtolower($searchQuery).'%']
+            );
+        })
+            ->get();
 
-        Log::info("Patient: ", [
-            'patients' => $patients
+        Log::info('Patient: ', [
+            'patients' => $patients,
         ]);
 
         return Inertia::render('Admin/Patients', [
-            'patients' => $patients
+            'patients' => $patients,
         ]);
     }
 }

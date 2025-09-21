@@ -37,14 +37,14 @@
 
     // EMAIL DETAILS MODAL REFS
     const showEmailAppointmentModal = ref(false)
-    const selectedSchedule = ref()
+    const selectedEmail = ref()
 
     const patientUpdate = ref(null)
     const showUpdatePatientDetails = ref(false)
 
-    const openEmailAppointmentDetails = (schedule) => {
+    const openEmailAppointmentDetails = (email) => {
         showEmailAppointmentModal.value = true
-        selectedSchedule.value = schedule
+        selectedEmail.value = email
     }
 
     const openUpdatePatientDetails = (patient) => {
@@ -65,7 +65,7 @@
     })
 
     const showTestModal = (patient_id) => {
-        ;(patientID.value = patient_id), (togglesTestModal.showTestModal = true)
+        (patientID.value = patient_id), (togglesTestModal.showTestModal = true)
         console.log('sa patient ni', patientID.value)
     }
 
@@ -142,7 +142,7 @@
                                         </button>
 
                                         <button
-                                            @click="openEmailAppointmentDetails(patient)"
+                                            @click="openEmailAppointmentDetails(patient.email)"
                                             class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
                                             Send Email
@@ -197,7 +197,7 @@
         />
         <EmailResultReminder
             v-if="showEmailAppointmentModal"
-            :selectedSchedule="selectedSchedule"
+            :email="selectedEmail"
             @close="showEmailAppointmentModal = false"
         />
 
