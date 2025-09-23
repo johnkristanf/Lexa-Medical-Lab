@@ -17,7 +17,7 @@
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
     import DangerButton from '@/Components/DangerButton.vue'
-import AddButton from '@/Components/AddButton.vue'
+    import AddButton from '@/Components/AddButton.vue'
 
     const props = defineProps({
         supplies: Array,

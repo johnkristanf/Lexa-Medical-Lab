@@ -8,6 +8,14 @@
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
+    import {
+        FwbTable,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableBody,
+        FwbTableRow,
+        FwbTableCell,
+    } from 'flowbite-vue'
 
     const props = defineProps({
         supplies: Array,
@@ -52,6 +60,16 @@
     }
 
     const sampleOperationType = 'added'
+    const tableHeaders = [
+        { key: 'participants', label: 'Item' },
+        { key: 'brand_name', label: 'Brand Name' },
+        { key: 'unit', label: 'Unit' },
+        { key: 'quantity', label: 'Supplies Left' },
+        { key: 'manufacture_date', label: 'Manufacturing Date' },
+        { key: 'expiration_date', label: 'Expiration Date' },
+        { key: 'lot_number', label: 'Lot #' },
+        { key: 'action', label: 'Action', custom: true },
+    ]
 </script>
 
 <template>
@@ -117,38 +135,49 @@
                         <SearchInput />
                     </div>
 
-                    <DataTable
-                        :value="filteredSupplies"
-                        tableStyle="min-width: 50rem"
-                        class="custom-datatable"
-                    >
-                        <Column field="participants" header="Item"></Column>
-                        <Column field="brand_name" header="Brand Name"></Column>
-                        <Column field="unit" header="Unit"></Column>
-                        <Column field="quantity" header="Supplies Left"></Column>
-                        <Column field="manufacture_date" header="Manufacturing Date"></Column>
-                        <Column field="expiration_date" header="Expiration Date"></Column>
-                        <Column field="lot_number" header="Lot #"></Column>
-                        <Column header="Action">
-                            <template #body="slotProps">
-                                <a
-                                    :href="route('inventory.supply.batches', { id: slotProps.data.id })"
-                                    title="View Batch"
-                                    class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75"
-                                >
-                                    View
-                                </a>
+                    <FwbTable class="w-full min-w-[50rem]">
+                        <!-- Table Head -->
+                        <FwbTableHead>
+                            <FwbTableHeadCell
+                                v-for="(header, index) in tableHeaders"
+                                :key="index"
+                                class="bg-green-600 text-white"
+                            >
+                                {{ header.label }}
+                            </FwbTableHeadCell>
+                        </FwbTableHead>
 
-                                <button
-                                    @click="openUpdateSupply(slotProps.data)"
-                                    title="Update Supply"
-                                    class="bg-green-600 px-3 h-[28px] ml-[8px] rounded text-white hover:opacity-75"
-                                >
-                                    Deduct
-                                </button>
-                            </template>
-                        </Column>
-                    </DataTable>
+                        <!-- Table Body -->
+                        <FwbTableBody>
+                            <FwbTableRow v-for="supply in filteredSupplies" :key="supply.id">
+                                <FwbTableCell v-for="(header, index) in tableHeaders" :key="index">
+                                    <!-- Default fields -->
+                                    <template v-if="!header.custom">
+                                        {{ supply[header.key] || 'N/A' }}
+                                    </template>
+
+                                    <!-- Action column -->
+                                    <template v-else-if="header.key === 'action'">
+                                        <a
+                                            :href="route('inventory.supply.batches', { id: supply.id })"
+                                            title="View Batch"
+                                            class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75"
+                                        >
+                                            View
+                                        </a>
+
+                                        <button
+                                            @click="openUpdateSupply(supply)"
+                                            title="Update Supply"
+                                            class="bg-green-600 px-3 h-[28px] ml-[8px] rounded text-white hover:opacity-75"
+                                        >
+                                            Deduct
+                                        </button>
+                                    </template>
+                                </FwbTableCell>
+                            </FwbTableRow>
+                        </FwbTableBody>
+                    </FwbTable>
                 </div>
             </div>
         </div>
@@ -165,7 +194,6 @@
             :categories="categories"
             @close="toggles.showAddSupplyModal = false"
         />
-
     </AuthenticatedLayout>
 </template>
 

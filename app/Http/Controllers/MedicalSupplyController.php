@@ -92,35 +92,7 @@ class MedicalSupplyController extends Controller
 
     public function dashboardSupplyCreate(Request $request)
     {
-        // $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
-        //     ->get()
-        //     ->filter(function ($supply) {
-        //         $critical = $supply->stocks->first()?->critical_stock ?? 10;
-        //         return $supply->quantity <= $critical;
-        //     })
-        //     ->values(); // Reset index
 
-        // $inventoryLogs = InventoryLogs::with('medical_supplies')->get()
-        //     ->map(function ($log) {
-        //         $log->created_at = $log->created_at->format('d-m-Y');
-        //         return $log;
-        //     });
-
-        // $thresholdDate = Carbon::now()->addDays(30);
-
-        // $nearlyExpired = Batch::with('medicalSupply')
-        //     ->whereHas('medicalSupply', function ($query) {
-        //         $query->whereNull('deleted_at');
-        //     })
-        //     ->whereDate('expiration_date', '<=', $thresholdDate)
-        //     ->whereDate('expiration_date', '>=', Carbon::today())
-        //     ->get();
-
-        // return Inertia::render('Inventory/Dashboard', [
-        //     'supplies' => $lowStockSupplies, // now only low/critical stock items
-        //     'inventory_logs' => $inventoryLogs,
-        //     'nearlyExpired' => $nearlyExpired,
-        // ]);
 
         $inventoryLogs = InventoryLogs::with('medical_supplies')->get();
 
@@ -170,7 +142,6 @@ class MedicalSupplyController extends Controller
         } elseif ($filter === 'year') {
             $query->whereYear('inventory_logs.created_at', now()->year);
         }
-        // "all" means no filter
 
         $logs = $query->get();
         return response()->json($logs);
@@ -191,7 +162,6 @@ class MedicalSupplyController extends Controller
             })
             ->get();
 
-        // ✅ Backend pagination
         $supplies = MedicalSupplies::with(['batches', 'category'])
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
@@ -263,33 +233,7 @@ class MedicalSupplyController extends Controller
 
     public function addStockSupply(Request $request, $id)
     {
-        // $supply = MedicalSupplies::findOrFail($id);
 
-        // $validated = $request->validate([
-        //     'quantity' => 'required|integer|min:1',
-        //     'critical_stock' => 'nullable|integer|min:0',
-        // ]);
-
-        // $supply->quantity += $validated['quantity'];
-        // $supply->save();
-
-        // // Save to critical_stocks table if provided
-        // Stock::create([
-        //     'medical_supply_id' => $supply->id,
-        //     'batch_id' => $supply->batches->first()->id ?? null, // Use first batch or null if none exists
-        //     'critical_stock' => $validated['critical_stock'] ?? 10,
-        // ]);
-
-        // InventoryLogs::create([
-        //     'requester_name' => Auth::user()->name,
-        //     'operation_type' => Logs::ADDED,
-        //     'total_quantity' => $validated['quantity'],
-        //     'supply_id' => $supply->id,
-        // ]);
-
-        // return redirect()->back()->with([
-        //     'success' => 'Stock added and critical stock updated.',
-        // ]);
         $supply = MedicalSupplies::findOrFail($id);
 
         $validated = $request->validate([
@@ -522,9 +466,11 @@ class MedicalSupplyController extends Controller
     public function CategoriesSupplycreate(Request $request)
     {
         $categories_supply = categories::all();
+        $updateCategory = categories::find($request->input('id'));
 
         return Inertia::render('Inventory/CategorySupply', [
             'categories' => $categories_supply,
+            'updateCategory' => $updateCategory
         ]);
     }
 
@@ -566,7 +512,7 @@ class MedicalSupplyController extends Controller
                         'batch_id' => $batch->id,
                     ]);
 
-                    $batch->delete(); // soft delete
+                    $batch->delete();
                 }
             } else {
                 archive_supplies::create([
@@ -580,5 +526,26 @@ class MedicalSupplyController extends Controller
         });
 
         return back()->with('success', 'Supply archived successfully.');
+    }
+
+    public function updateCategory(Request $request, Categories $category){
+
+        $validate = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255'
+        ]);
+
+        $category->update($validate);
+
+        return redirect()->back()->with('success', 'Update Category Successfully');
+
+    }
+
+    public function deleteCategory($id)
+    {
+        $delete = Categories::findorFail($id);
+        $delete->delete();
+
+        return redirect()->back()->back('success', 'Deleted Category Successfully');
     }
 }
