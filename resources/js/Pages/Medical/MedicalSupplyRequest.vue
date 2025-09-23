@@ -1,6 +1,13 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-
+    import {
+        FwbTable,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableBody,
+        FwbTableRow,
+        FwbTableCell,
+    } from 'flowbite-vue'
     import { Column, DataTable } from 'primevue'
     import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
     import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/20/solid'
@@ -12,10 +19,9 @@
     import SearchInput from '@/Components/SearchInput.vue'
     import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModal.vue'
     import { REQUEST_STATUS } from '@/Enums/Inventory'
-
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-import AddButton from '@/Components/AddButton.vue'
+    import AddButton from '@/Components/AddButton.vue'
 
     const props = defineProps({
         medical_supply_requests: Array,
@@ -65,18 +71,18 @@ import AddButton from '@/Components/AddButton.vue'
         })
     }
 
+    const tableHeaders = ['PO #', 'To', 'Status', 'Actions']
+
     onMounted(() => {
         console.log('medical_supply_requests: ', props.medical_supply_requests)
     })
 </script>
 
 <template>
-<Head title="Supply Request" />
+    <Head title="Supply Request" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Medical Supply Request
-            </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Medical Supply Request</h2>
         </template>
 
         <!-- DATA TABLE FOR SUPPLIES -->
@@ -93,116 +99,121 @@ import AddButton from '@/Components/AddButton.vue'
                         <SearchInput />
                     </div>
 
-                    <DataTable
-                        :value="props.medical_supply_requests"
-                        class="custom-datatable"
-                        scrollable
-                        scrollHeight="flex"
-                    >
-                        <Column field="po_number" header="PO #"></Column>
-                        <Column field="to" header="To"></Column>
+                    <FwbTable>
+                        <!-- Table Head -->
+                        <FwbTableHead>
+                            <FwbTableHeadCell
+                                v-for="(header, index) in tableHeaders"
+                                :key="index"
+                                class="bg-green-600 text-white"
+                            >
+                                {{ header }}
+                            </FwbTableHeadCell>
+                        </FwbTableHead>
 
-                        <Column field="status" header="Status">
-                            <template #body="{ data }">
-                                <span
-                                    class="inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
-                                    :class="{
-                                        'bg-green-100 text-green-800':
-                                            data.status === REQUEST_STATUS.RECEIVED,
-                                        'bg-yellow-100 text-yellow-800':
-                                            data.status === REQUEST_STATUS.PENDING,
-                                    }"
-                                >
-                                    {{ data.status }}
-                                </span>
-                            </template>
-                        </Column>
+                        <!-- Table Body -->
+                        <FwbTableBody>
+                            <FwbTableRow v-for="req in props.medical_supply_requests" :key="req.id">
+                                <!-- PO Number -->
+                                <FwbTableCell>{{ req.po_number }}</FwbTableCell>
 
-                        <Column header="Actions">
-                            <template #body="{ data }">
-                                <div v-if="data.status != REQUEST_STATUS.RECEIVED" class="flex items-center gap-3">
-                                    <!-- MENU DROPDOWN FOR STATUS UPDATE -->
-                                    <Menu as="div" class="relative inline-block text-left">
-                                        <div>
-                                            <MenuButton
-                                                class="inline-flex w-full justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:opacity-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                            >
-                                                Update Status
-                                                <ChevronDownIcon
-                                                    class="-mr-1 ml-2 h-5 w-5 text-green-200 hover:text-green-100"
-                                                    aria-hidden="true"
-                                                />
-                                            </MenuButton>
-                                        </div>
+                                <!-- To -->
+                                <FwbTableCell>{{ req.to }}</FwbTableCell>
 
-                                        <transition
-                                            enter-active-class="transition duration-100 ease-out"
-                                            enter-from-class="transform scale-95 opacity-0"
-                                            enter-to-class="transform scale-100 opacity-100"
-                                            leave-active-class="transition duration-75 ease-in"
-                                            leave-from-class="transform scale-100 opacity-100"
-                                            leave-to-class="transform scale-95 opacity-0"
-                                        >
-                                            <MenuItems
-                                                class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
-                                            >
-                                                <div class="px-1 py-1">
-                                                    <MenuItem
-                                                        v-for="(status, index) in statuses"
-                                                        :key="index"
-                                                        v-slot="{ active }"
-                                                    >
-                                                        <button
-                                                            :class="[
-                                                                active
-                                                                    ? 'bg-green-500 text-white'
-                                                                    : 'text-gray-900',
-                                                                'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                                            ]"
-                                                            @click="
-                                                                () =>
-                                                                    updateStatus(
-                                                                        data.id,
-                                                                        status.tag,
-                                                                    )
-                                                            "
-                                                        >
-                                                            <CheckIcon
-                                                                class="mr-2 h-5 w-5 text-green-400"
-                                                                aria-hidden="true"
-                                                            />
-                                                            {{ status.name }}
-                                                        </button>
-                                                    </MenuItem>
-                                                </div>
-                                            </MenuItems>
-                                        </transition>
-                                    </Menu>
-
-                                    <AddButton
-                                        @click="
-                                            handleShowRequestedMedicalSupply(data.requested_supply)
-                                        "
+                                <!-- Status -->
+                                <FwbTableCell>
+                                    <span
+                                        class="inline-block px-2 py-1 !text-left text-sm font-bold uppercase rounded-md"
+                                        :class="{
+                                            'bg-green-100 text-green-800':
+                                                req.status === REQUEST_STATUS.RECEIVED,
+                                            'bg-yellow-100 text-yellow-800':
+                                                req.status === REQUEST_STATUS.PENDING,
+                                        }"
                                     >
-                                        View Requested Supply
-                                    </AddButton>
-                                </div>
+                                        {{ req.status }}
+                                    </span>
+                                </FwbTableCell>
 
-                                <div v-else>
-                                    <h1 class="text-green-600"></h1>
-                                </div>
-                            </template>
-                        </Column>
-                    </DataTable>
+                                <!-- Actions -->
+                                <FwbTableCell>
+                                    <div
+                                        v-if="req.status !== REQUEST_STATUS.RECEIVED"
+                                        class="flex !text-left items-center gap-3"
+                                    >
+                                        <!-- Status Menu -->
+                                        <Menu as="div" class="relative inline-block text-left">
+                                            <div>
+                                                <MenuButton
+                                                    class="inline-flex w-full justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:opacity-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                                >
+                                                    Update Status
+                                                    <ChevronDownIcon
+                                                        class="-mr-1 ml-2 h-5 w-5 text-green-200"
+                                                        aria-hidden="true"
+                                                    />
+                                                </MenuButton>
+                                            </div>
+
+                                            <transition
+                                                enter-active-class="transition duration-100 ease-out"
+                                                enter-from-class="transform scale-95 opacity-0"
+                                                enter-to-class="transform scale-100 opacity-100"
+                                                leave-active-class="transition duration-75 ease-in"
+                                                leave-from-class="transform scale-100 opacity-100"
+                                                leave-to-class="transform scale-95 opacity-0"
+                                            >
+                                                <MenuItems
+                                                    class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
+                                                >
+                                                    <div class="px-1 py-1">
+                                                        <MenuItem
+                                                            v-for="(status, index) in statuses"
+                                                            :key="index"
+                                                            v-slot="{ active }"
+                                                        >
+                                                            <button
+                                                                :class="[
+                                                                    active
+                                                                        ? 'bg-green-500 text-white'
+                                                                        : 'text-gray-900',
+                                                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                                                ]"
+                                                                @click="updateStatus(req.id, status.tag)"
+                                                            >
+                                                                <CheckIcon
+                                                                    class="mr-2 h-5 w-5 text-green-400"
+                                                                    aria-hidden="true"
+                                                                />
+                                                                {{ status.name }}
+                                                            </button>
+                                                        </MenuItem>
+                                                    </div>
+                                                </MenuItems>
+                                            </transition>
+                                        </Menu>
+
+                                        <!-- View Requested Supply -->
+                                        <button
+                                            class="px-4 py-2 text-xs font-medium text-green-200 bg-green-600 rounded hover:opacity-75"
+                                            @click="handleShowRequestedMedicalSupply(req.requested_supply)"
+                                        >
+                                            View Requested Supply
+                                        </button>
+                                    </div>
+                                    <div v-else class="!text-left">
+                                        <span class="text-green-600">Completed</span>
+                                    </div>
+                                </FwbTableCell>
+                            </FwbTableRow>
+                        </FwbTableBody>
+                    </FwbTable>
                 </div>
             </div>
         </div>
 
         <!-- REQUEST SUPPLY MODAL -->
-        <RequestSupplyModal
-            v-if="modals.showRequestModal"
-            @close="modals.showRequestModal = false"
-        />
+        <RequestSupplyModal v-if="modals.showRequestModal" @close="modals.showRequestModal = false" />
 
         <!-- VIEW REQUESTED SUPPLY MODAL -->
         <ViewRequestedSupplyModal

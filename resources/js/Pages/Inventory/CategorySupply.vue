@@ -1,6 +1,6 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-    import { Head } from '@inertiajs/vue3'
+    import { Head, router } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
     import { reactive, ref } from 'vue'
@@ -9,17 +9,35 @@
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
     import SelectButton from 'primevue/selectbutton'
     import CategoryModal from '@/Components/modal/CategoryModal.vue'
-import AddButton from '@/Components/AddButton.vue'
+    import AddButton from '@/Components/AddButton.vue'
+    import UpdateCategories from '@/Components/modal/UpdateCategories.vue'
+    import {
+        FwbTable,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableBody,
+        FwbTableRow,
+        FwbTableCell,
+    } from 'flowbite-vue'
 
     const props = defineProps({
         inventory_logs: Array,
         categories: Array,
+        categoryUpdate: Array,
     })
 
     const toggles = reactive({
         showCategoryModal: false,
         showInventoryDrawer: false,
     })
+
+    const categoryUpdate = ref(null)
+    const showCategoryUpdate = ref(false)
+
+    const openCategoryUpdate = (category) => {
+        categoryUpdate.value = category
+        showCategoryUpdate.value = true
+    }
 
     const showUpdateSupply = ref(false)
     const supplyUpdate = ref(null)
@@ -33,6 +51,22 @@ import AddButton from '@/Components/AddButton.vue'
     console.log('inventory_logs: ', props.inventory_logs)
 
     const sampleOperationType = 'added'
+
+    function DeletedCategory(id) {
+        if (confirm('Are you sure you want to delete this category?')) {
+            router.delete(route('delete.category', id), {
+                onSuccess: () => {
+                    console.log('Category deleted successfully')
+                },
+            })
+        }
+    }
+
+    const headers = [
+        { key: 'name', label: 'Category Name' },
+        { key: 'description', label: 'Description' },
+        { key: 'action', label: 'Action' },
+    ]
 </script>
 
 <template>
@@ -64,14 +98,46 @@ import AddButton from '@/Components/AddButton.vue'
                         <SearchInput />
                     </div>
 
-                    <DataTable
-                        :value="props.categories"
-                        tableStyle="min-width:10rem"
-                        class="custom-datatable"
-                    >
-                        <Column field="name" header="Category Name"></Column>
-                        <Column field="description" header="Description"></Column>
-                    </DataTable>
+                    <FwbTable>
+                        <!-- Table Head -->
+                        <FwbTableHead>
+                            <FwbTableHeadCell
+                                v-for="header in headers"
+                                :key="header.key"
+                                class="bg-green-600 text-white"
+                            >
+                                {{ header.label }}
+                            </FwbTableHeadCell>
+                        </FwbTableHead>
+
+                        <FwbTableBody>
+                            <FwbTableRow v-for="category in props.categories" :key="category.id">
+                                <FwbTableCell v-for="header in headers" :key="header.key" class="!text-left">
+                                    <template v-if="header.key === 'action'">
+                                        <div class="flex gap-2">
+                                            <button
+                                                class="px-4 py-2 text-xs font-medium text-green-200 bg-green-600 rounded hover:opacity-75"
+                                                @click="openCategoryUpdate(category)"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                class="px-2 py-1 text-xs font-medium text-green-200 bg-red-600 rounded hover:opacity-75"
+                                                @click="DeletedCategory(category.id)"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    <!-- Normal cells -->
+                                    <template v-else>
+                                        {{ category[header.key] }}
+                                    </template>
+                                </FwbTableCell>
+                            </FwbTableRow>
+                        </FwbTableBody>
+                    </FwbTable>
                 </div>
             </div>
         </div>
@@ -82,8 +148,15 @@ import AddButton from '@/Components/AddButton.vue'
             @close="showUpdateSupply = false"
         />
 
+        <UpdateCategories
+            v-if="showCategoryUpdate"
+            :updateCategory="categoryUpdate"
+            @close="showCategoryUpdate = false"
+        />
+
         <!-- ADD SUPLY MODAL -->
         <AddSupplyModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
+
         <CategoryModal v-if="toggles.showCategoryModal" @close="toggles.showCategoryModal = false" />
 
         <!-- DRAWER FOR INVENTORY LOGS -->
@@ -96,6 +169,7 @@ import AddButton from '@/Components/AddButton.vue'
             <div class="flex flex-col gap-3">
                 <div
                     v-for="log in props.inventory_logs"
+                    :key="log.props.inventory_logs"
                     class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
                 >
                     <h1>

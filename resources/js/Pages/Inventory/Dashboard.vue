@@ -32,7 +32,7 @@
         if (props.nearlyExpired.length > 0) {
             toast.add({
                 severity: 'warn',
-                summary: 'Critical Stock Alert',
+                summary: 'Expiration Alert',
                 detail: `${props.nearlyExpired.length} item(s) nearly expired.`,
                 life: 5000,
             })
@@ -75,7 +75,9 @@
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
             <!-- ✅ Low/Critical Stock -->
             <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
-                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Out of Stock Medical Supplies</h2>
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
+                    Nearly Out of Stock Medical Supplies
+                </h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
@@ -120,8 +122,10 @@
             </div>
 
             <!-- ✅ Nearly Expired Items -->
-            <div class="flex-1  text-black p-6 rounded-lg shadow-2xl">
-                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Expired Medical Supplies</h2>
+            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
+                    Nearly Expired Medical Supplies
+                </h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
@@ -134,10 +138,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr
-                                v-for="batch in props.nearlyExpired"
-                                :key="batch.id"
-                            >
+                            <tr v-for="batch in props.nearlyExpired" :key="batch.id">
                                 <td class="py-2 px-4">{{ batch.medical_supply?.brand_name ?? 'N/A' }}</td>
                                 <td class="py-2 px-4">{{ formatDate(batch.expiration_date) }}</td>
                                 <td class="py-2 px-4">{{ batch.batch_number }}</td>

@@ -41,6 +41,14 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::get('/category/supplies/data/create', [MedicalSupplyController::class, 'CategoriesSupplycreate'])
         ->name('category.supplies.create');
 
+    // UPDATE CATEGORIES
+     Route::put('/update/category/{category}', [MedicalSupplyController::class, 'updateCategory'])
+        ->name('update.category');
+
+    // DELETE CATEGORY
+    Route::delete('/delete/category/{id}', [MedicalSupplyController::class, 'deleteCategory'])
+        ->name('delete.category');
+
     // STORED DATA CATEGORY SUPPLY
     Route::post('/category/store/data', [MedicalSupplyController::class, 'categoriesStoreData'])
         ->name('categories.store.data');

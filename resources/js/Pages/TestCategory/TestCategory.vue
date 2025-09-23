@@ -46,26 +46,12 @@
         }
     }
 
-    function test(categoryq) {
-        category.value = categoryq
+    function test(category) {
+        category.value = category
         testTypesToggle.showAddTestTypesModal = true
-        // console.log(testTypesToggle.showAddTestTypesModal)
     }
 
-    // function openInventoryDrawer() {
-    //     toggles.showInventoryDrawer = true
-    // }
 
-    // function closeInventoryDrawer() {
-    //     toggles.showInventoryDrawer = false
-    // }
-    // }
-
-    // function openTestModal(id) {
-    //     console.log(id)
-    //     testTypesToggle.showAddTestTypesModal = true
-    //     category_id = id;
-    // }
 
     const categoryTableHeaders = ['Category Name', 'Created At', 'Updated At', 'Actions']
 </script>
@@ -83,15 +69,10 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <AddButton @click="toggles.showAddSupplyModal = true">
-                            Add Category
-                        </AddButton>
+                        <AddButton @click="toggles.showAddSupplyModal = true">Add Category</AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput
-                            route="test.category.create"
-                            placeholder="Search Category Name"
-                        />
+                        <SearchInput route="test.category.create" placeholder="Search Category Name" />
                     </div>
 
                     <fwb-table hoverable>
@@ -109,10 +90,7 @@
                         <!-- Table Body -->
                         <fwb-table-body>
                             <template v-if="test_category && test_category.length > 0">
-                                <fwb-table-row
-                                    v-for="(category, index) in props.test_category"
-                                    :key="index"
-                                >
+                                <fwb-table-row v-for="(category, index) in props.test_category" :key="index">
                                     <!-- Category Name -->
                                     <fwb-table-cell>{{ category.name }}</fwb-table-cell>
 
@@ -171,10 +149,7 @@
         </div>
 
         <!-- ADD SUPLY MODAL -->
-        <TestCategoryModal
-            v-if="toggles.showAddSupplyModal"
-            @close="toggles.showAddSupplyModal = false"
-        />
+        <TestCategoryModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
 
         <TestTypesModal
             v-if="testTypesToggle.showAddTestTypesModal"
@@ -210,10 +185,8 @@
                         <span
                             class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
                             :class="{
-                                'bg-green-100 text-green-800':
-                                    log.operation_type === OPERATION_TYPES.ADDED,
-                                'bg-red-100 text-yellow-800':
-                                    log.operation_type === OPERATION_TYPES.DEDUCTED,
+                                'bg-green-100 text-green-800': log.operation_type === OPERATION_TYPES.ADDED,
+                                'bg-red-100 text-yellow-800': log.operation_type === OPERATION_TYPES.DEDUCTED,
                             }"
                         >
                             {{ log.operation_type }}

@@ -9,6 +9,14 @@
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
     import StockModal from '@/Components/modal/StockModal.vue'
+    import {
+        FwbTable,
+        FwbTableHead,
+        FwbTableHeadCell,
+        FwbTableBody,
+        FwbTableRow,
+        FwbTableCell,
+    } from 'flowbite-vue'
 
     const props = defineProps({
         supplies: Array,
@@ -24,35 +32,41 @@
 
     const search = ref('')
 
-        const showStockModal = ref(false)
-        const addStock = ref(null)
+    const showStockModal = ref(false)
+    const addStock = ref(null)
 
-       const openStockModal = (stock) => {
+    const openStockModal = (stock) => {
         console.log('Opening StockModal with:', stock)
         addStock.value = stock
         showStockModal.value = true
     }
     const filteredSupplies = computed(() => {
-    if (!search.value) {
-        return props.supplies
-    }
+        if (!search.value) {
+            return props.supplies
+        }
 
-    return props.supplies.filter(item => {
-        const brand = item.brand_name?.toLowerCase() || ''
-        const quantity = String(item.quantity || '').toLowerCase()
-        const critical = String(item.stocks?.[0]?.critical_stock || '').toLowerCase()
-        const batch = item.batches?.[0]?.batch_number?.toLowerCase() || ''
+        return props.supplies.filter((item) => {
+            const brand = item.brand_name?.toLowerCase() || ''
+            const quantity = String(item.quantity || '').toLowerCase()
+            const critical = String(item.stocks?.[0]?.critical_stock || '').toLowerCase()
+            const batch = item.batches?.[0]?.batch_number?.toLowerCase() || ''
 
-        return (
-            brand.includes(search.value.toLowerCase()) ||
-            quantity.includes(search.value.toLowerCase()) ||
-            critical.includes(search.value.toLowerCase()) ||
-            batch.includes(search.value.toLowerCase())
-        )
+            return (
+                brand.includes(search.value.toLowerCase()) ||
+                quantity.includes(search.value.toLowerCase()) ||
+                critical.includes(search.value.toLowerCase()) ||
+                batch.includes(search.value.toLowerCase())
+            )
+        })
     })
-})
 
-
+    const tableHeaders = [
+        { key: 'brand_name', label: 'Brand Name' },
+        { key: 'quantity', label: 'Stock' },
+        { key: 'critical_stock', label: 'Critical Stock', custom: true },
+        { key: 'batch_number', label: 'Product Batch #', custom: true },
+        { key: 'action', label: 'Action', custom: true },
+    ]
 
     console.log('supplies: ', props.supplies)
     console.log('inventory_logs: ', props.inventory_logs)
@@ -65,9 +79,7 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Medical Supply Stock
-            </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Medical Supply Stock</h2>
         </template>
 
         <div>
@@ -90,54 +102,60 @@
                         <SearchInput v-model="search" />
                     </div>
 
-                   <DataTable
-                    :value="filteredSupplies"
-                    tableStyle="min-width: 50rem"
-                    class="custom-datatable"
-                >
-                    <Column field="brand_name" header="Brand Name"></Column>
-                    <Column field="quantity" header="Stock"></Column>
-                    <Column header="Critical Stock">
-                    <template #body="{ data }">
-                        {{ data.stocks[0]?.critical_stock ?? 'N/A' }}
-                    </template>
-                    </Column>
-                    <Column field="batches" header="Product Batch #">
-                <template #body="{ data }">
-                    {{ data.batches[0]?.batch_number ?? 'N/A' }}
-                </template>
-                </Column>
-                    <Column header="Action">
-                     <template #body="slotProps">
+                    <FwbTable class="w-full min-w-[50rem]">
+                        <!-- Table Head -->
+                        <FwbTableHead>
+                            <FwbTableHeadCell
+                                v-for="(header, index) in tableHeaders"
+                                :key="index"
+                                class="bg-green-600 text-white"
+                            >
+                                {{ header.label }}
+                            </FwbTableHeadCell>
+                        </FwbTableHead>
 
-                       <button
-                   @click="openStockModal(slotProps.data)"
-                    title="Update Supply"
-                        class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]">
-                        <i class="pi pi-th-large text-white-600 text-lg"></i>
-                    </button>
+                        <!-- Table Body -->
+                        <FwbTableBody>
+                            <FwbTableRow v-for="supply in filteredSupplies" :key="supply.id">
+                                <!-- Loop cells -->
+                                <FwbTableCell v-for="(header, index) in tableHeaders" :key="index">
+                                    <!-- Normal fields -->
+                                    <template v-if="!header.custom">
+                                        {{ supply[header.key] }}
+                                    </template>
 
-                    </template>
-                    </Column>
-                </DataTable>
+                                    <!-- Critical Stock -->
+                                    <template v-else-if="header.key === 'critical_stock'">
+                                        {{ supply.stocks?.[0]?.critical_stock ?? 'N/A' }}
+                                    </template>
+
+                                    <!-- Batch Number -->
+                                    <template v-else-if="header.key === 'batch_number'">
+                                        {{ supply.batches?.[0]?.batch_number ?? 'N/A' }}
+                                    </template>
+
+                                    <!-- Action -->
+                                    <template v-else-if="header.key === 'action'">
+                                        <button
+                                            @click="openStockModal(supply)"
+                                            title="Update Supply"
+                                            class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
+                                        >
+                                            <i class="pi pi-th-large text-white text-lg"></i>
+                                        </button>
+                                    </template>
+                                </FwbTableCell>
+                            </FwbTableRow>
+                        </FwbTableBody>
+                    </FwbTable>
                 </div>
             </div>
         </div>
 
-        <StockModal
-            v-if="showStockModal"
-            :addStock="addStock"
-            @close="showStockModal = false"
-            />
-
-
+        <StockModal v-if="showStockModal" :addStock="addStock" @close="showStockModal = false" />
 
         <!-- ADD SUPLY MODAL -->
-        <AddSupplyModal
-            v-if="toggles.showAddSupplyModal"
-            @close="toggles.showAddSupplyModal = false"
-        />
-
+        <AddSupplyModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
 
         <!-- DRAWER FOR INVENTORY LOGS -->
         <Drawer
@@ -147,8 +165,11 @@
             class="!w-full sm:!w-80 lg:!w-[25rem]"
         >
             <div class="flex flex-col gap-3">
-
-                <div v-for="log in props.inventory_logs" class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md">
+                <div
+                    v-for="log in props.inventory_logs"
+                    :key="log.id"
+                    class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
+                >
                     <h1>
                         Brand Name:
                         <br />
@@ -165,10 +186,8 @@
                         <span
                             class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
                             :class="{
-                                'bg-green-100 text-green-800':
-                                    log.operation_type === OPERATION_TYPES.ADDED,
-                                'bg-red-100 text-yellow-800':
-                                    log.operation_type === OPERATION_TYPES.DEDUCTED,
+                                'bg-green-100 text-green-800': log.operation_type === OPERATION_TYPES.ADDED,
+                                'bg-red-100 text-yellow-800': log.operation_type === OPERATION_TYPES.DEDUCTED,
                             }"
                         >
                             {{ log.operation_type }}
@@ -186,18 +205,14 @@
     </AuthenticatedLayout>
 </template>
 
-
 <style scoped>
+    .custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
+        background-color: #208b3a;
+        color: white;
+    }
 
-
-.custom-datatable ::v-deep(.p-datatable-thead > tr > th) {
-  background-color: #208b3a;
-  color: white;
-}
-
-.custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
-  background-color: #ffffff;
-  color: #374151;
-}
+    .custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
+        background-color: #ffffff;
+        color: #374151;
+    }
 </style>
-
