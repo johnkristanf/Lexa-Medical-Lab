@@ -49,10 +49,7 @@
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Requested Medical Supply
                             </DialogTitle>
 
@@ -61,12 +58,10 @@
                             </DialogDescription>
 
                             <!-- PRINT REQUEST BUTTON -->
-                            <fwb-button
-                                color="green"
-                                @click="handleShowRequestedMedicalSupply(data.requested_supply)"
-                                class="absolute top-5 right-6"
-                            >
-                                Print Request
+                            <fwb-button color="green" class="absolute top-5 right-6">
+                                <a color="green" :href="route('supply.request.print')" target="_blank">
+                                    Print Request
+                                </a>
                             </fwb-button>
 
                             <div class="flex flex-col gap-5 isolate lg:px-8 mt-5">

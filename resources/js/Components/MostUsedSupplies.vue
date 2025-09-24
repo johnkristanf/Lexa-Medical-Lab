@@ -15,9 +15,36 @@
             formatter: function (val, opts) {
                 return opts.w.globals.labels[opts.seriesIndex] + ': ' + val.toFixed(1) + '%'
             },
+            style: {
+                fontSize: '18px',
+                fontWeight: 'bold',
+                colors: ['#fff'], // make text white for contrast
+            },
+            dropShadow: {
+                enabled: true,
+                top: 1,
+                left: 1,
+                blur: 1,
+                color: '#000',
+                opacity: 0.7,
+            },
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -25, // move labels closer or farther inside
+                    minAngleToShowLabel: 15, // avoid clutter if slice is too small
+                },
+            },
+        },
+        legend: {
+            position: 'right',
+            labels: {
+                colors: '#fff', // white legend text for dark mode
+            },
         },
         tooltip: {
-            enabled: false, // 🚫 disables hover tooltips
+            enabled: false,
         },
     })
 
@@ -34,8 +61,8 @@
             series.value = data.map((item) => Number(item.total_quantity))
 
             chartOptions.value = {
-                ...chartOptions.value, // keep existing options (colors, legend, etc.)
-                labels: data.map((item) => item.brand_name), // reassign labels
+                ...chartOptions.value,
+                labels: data.map((item) => item.brand_name),
             }
         } catch (error) {
             console.error('Error fetching chart data:', error)

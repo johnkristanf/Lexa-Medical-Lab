@@ -83,6 +83,9 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::get('/inventory/print', [MedicalSupplyController::class, 'printPDFReport'])
         ->name('inventory.print');
 
+    Route::get('/supply/requqst/print', [MedicalSupplyController::class, 'printRequestSupplyPDF'])
+        ->name('supply.request.print');
+
     // UPDATE REQUEST ENDPOINT
     Route::put('/update/supply/request', [MedicalSupplyController::class, 'update'])
         ->name('update.supply.request');
