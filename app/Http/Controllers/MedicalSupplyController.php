@@ -9,18 +9,19 @@ use App\Models\Batch;
 use App\Models\Categories;
 use App\Models\InventoryLogs;
 use App\Models\MedicalSupplies;
+use App\Models\RequestedSupply;
 use App\Models\Stock;
 use App\Models\SupplyRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use function Pest\Laravel\get;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-
-use function Pest\Laravel\get;
 
 class MedicalSupplyController extends Controller
 {
@@ -34,6 +35,19 @@ class MedicalSupplyController extends Controller
         ])->setPaper('a4', 'landscape');
 
         return $pdf->stream('inventory_report.pdf');
+    }
+
+
+    public function printRequestSupplyPDF()
+    {
+        $supplies_requested = RequestedSupply::all();
+
+        // Pass data to a Blade view for rendering the PDF
+        $pdf = Pdf::loadView('pdf.request_supply_report', [
+            'supplies_requested' => $supplies_requested,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream('request_supply_report.pdf');
     }
 
     public function renderAdminDashboard(Request $request)
