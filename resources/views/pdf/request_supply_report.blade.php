@@ -89,6 +89,13 @@
 
 <body>
     <div class="header">
+        @if (isset($logobase) && $logobase)
+            <img src="{{ $logobase }}" alt="Lexa Medical Laboratory Logo">
+        @else
+            <div style="height: 60px; margin-bottom: 10px; font-weight: bold; font-size: 16px; color: #74c69d;">
+                LEXA MEDICAL LABORATORY
+            </div>
+        @endif
         <h1>Supply Request Report</h1>
         <p>Generated on {{ date('F j, Y') }}</p>
     </div>

@@ -96,7 +96,7 @@
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput route="inventory.supply.request" placeholder="Search Supplies" />
                     </div>
 
                     <FwbTable>

@@ -132,7 +132,7 @@
                             </div>
                         </div>
 
-                        <SearchInput />
+                        <SearchInput route="supplies.create.page" placeholder="Search Supplies" />
                     </div>
 
                     <FwbTable class="w-full min-w-[50rem]">

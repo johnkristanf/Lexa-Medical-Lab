@@ -68,7 +68,7 @@
             <div class="card p-8">
                 <!-- TABLE HEADER ACTIONS -->
                 <div class="w-full flex justify-end gap-3 mb-4">
-                    <SearchInput v-model="search" />
+                    <SearchInput route="archive.supplies.create" placeholder="Search Supplies" />
                 </div>
 
                 <FwbTable class="w-full min-w-[50rem]">

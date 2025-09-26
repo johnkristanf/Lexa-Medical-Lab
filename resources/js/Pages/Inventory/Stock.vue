@@ -99,7 +99,7 @@
                         </fwb-button> -->
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput v-model="search" />
+                        <SearchInput route="medical.stock.create" placeholder="Search Supplies" />
                     </div>
 
                     <FwbTable class="w-full min-w-[50rem]">

@@ -95,7 +95,7 @@
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput />
+                        <SearchInput route="category.supplies.create" placeholder="Search Category" />
                     </div>
 
                     <FwbTable>

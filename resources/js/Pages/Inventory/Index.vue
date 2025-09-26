@@ -110,7 +110,7 @@
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput v-model="search" />
+                        <SearchInput route="inventory.supplies" placeholder="Search Supplies" />
                     </div>
 
                     <fwb-table>
