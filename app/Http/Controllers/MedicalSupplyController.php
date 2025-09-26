@@ -29,54 +29,32 @@ class MedicalSupplyController extends Controller
     {
         $supplies = MedicalSupplies::with('batches')->get();
 
-        // Pass data to a Blade view for rendering the PDF
+        $logobaselexa = $this->getLogolexaInventoryPDF();
+
         $pdf = Pdf::loadView('pdf.inventory_report', [
             'supplies' => $supplies,
+            'logobaselexa'=>$logobaselexa
         ])->setPaper('a4', 'landscape');
 
         return $pdf->stream('inventory_report.pdf');
     }
 
-
-    public function printRequestSupplyPDF()
+     private function getLogolexaInventoryPDF()
     {
-        $supplies_requested = RequestedSupply::all();
+        $logoPath = public_path('img/lexa-logo-removedbg.png');
 
-        // Pass data to a Blade view for rendering the PDF
-        $pdf = Pdf::loadView('pdf.request_supply_report', [
-            'supplies_requested' => $supplies_requested,
-        ])->setPaper('a4', 'landscape');
+        if (file_exists($logoPath)) {
+            $imageData = base64_encode(file_get_contents($logoPath));
+            $mimeType = mime_content_type($logoPath);
+            return 'data:' . $mimeType . ';base64,' . $imageData;
+        }
 
-        return $pdf->stream('request_supply_report.pdf');
+        return null;
     }
 
     public function renderAdminDashboard(Request $request)
     {
-        // $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
-        //     ->get()
-        //     ->filter(function ($supply) {
-        //         $critical = $supply->stocks->first()?->critical_stock ?? 10;
-        //         return $supply->quantity <= $critical;
-        //     })
-        //     ->values(); // Reset index
 
-        // $inventoryLogs = InventoryLogs::with('medical_supplies:id,brand_name,quantity')->get();
-
-        // $thresholdDate = Carbon::now()->addDays(30);
-
-        // $nearlyExpired = Batch::with('medicalSupply')
-        //     ->whereHas('medicalSupply', function ($query) {
-        //         $query->whereNull('deleted_at');
-        //     })
-        //     ->whereDate('expiration_date', '<=', $thresholdDate)
-        //     ->whereDate('expiration_date', '>=', Carbon::today())
-        //     ->get();
-
-        // return Inertia::render('Admin/ItemDashboard', [
-        //     'supplies' => $lowStockSupplies, // now only low/critical stock items
-        //     'inventory_logs' => $inventoryLogs,
-        //     'nearlyExpired' => $nearlyExpired,
-        // ]);
 
         $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
             ->get()
@@ -236,7 +214,23 @@ class MedicalSupplyController extends Controller
 
     public function suppliescreate(Request $request)
     {
-        $supplies = MedicalSupplies::with('category')->get(); // fetch supplies with category
+        $searchQuery = $request->query('search');
+
+        $supplies = MedicalSupplies::with(['category'])
+        ->when($searchQuery, function ($query) use ($searchQuery) {
+        $query->where(function ($q) use ($searchQuery) {
+            $q->where('participants', 'LIKE', "%{$searchQuery}%")
+              ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
+              ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                  $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+              })
+              ->orWhereHas('category', function ($categoryQuery) use ($searchQuery) {
+                  $categoryQuery->where('name', 'LIKE', "%{$searchQuery}%");
+              });
+        });
+    })
+    ->get();
+
         $categories_supplies = Categories::with('medical_supplies')->get();
 
         return Inertia::render('Inventory/Supplies', [
@@ -288,7 +282,16 @@ class MedicalSupplyController extends Controller
 
     public function stockSupplycreate(Request $request)
     {
-        $supplies = MedicalSupplies::with('stocks', 'batches')->get();
+
+        $searchQuery = $request->query('search');
+        $supplies = MedicalSupplies::with(['stocks', 'batches', 'category'])
+         ->when($searchQuery, function ($query) use ($searchQuery) {
+        $query->where('brand_name', 'LIKE', "%{$searchQuery}%")
+              ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                  $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+              });
+    })
+    ->get();
 
         return Inertia::render('Inventory/Stock', [
             'supplies' => $supplies,
@@ -407,15 +410,25 @@ class MedicalSupplyController extends Controller
     }
 
     // MEDICAL STAFF SIDE METHODS
-    public function inventorySupplyRequest()
+    public function inventorySupplyRequest(Request $request)
     {
-        $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status')
-            ->with([
-                'requested_supply' => function ($query) {
-                    $query->select('id', 'request_id', 'quantity', 'unit', 'item_description', 'unit_price', 'total_price');
-                },
-            ])
-            ->get();
+        $searchQuery = $request->query('search');
+
+            $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status')
+        ->with([
+            'requested_supply' => function ($query) {
+                $query->select('id', 'request_id', 'quantity', 'unit', 'item_description', 'unit_price', 'total_price');
+            },
+        ])
+        ->when($searchQuery, function ($query) use ($searchQuery) {
+            $query->where('to', 'LIKE', "%{$searchQuery}%")
+                ->orWhere('po_number', 'LIKE', "%{$searchQuery}%")
+                ->orWhere('status', 'LIKE', "%{$searchQuery}%")
+                ->orWhereHas('requested_supply', function ($subQuery) use ($searchQuery) {
+                    $subQuery->where('item_description', 'LIKE', "%{$searchQuery}%");
+                });
+        })
+        ->get();
 
         Log::info('supplyRequest', [
             'supplyRequest' => $supplyRequest,
@@ -479,7 +492,14 @@ class MedicalSupplyController extends Controller
 
     public function CategoriesSupplycreate(Request $request)
     {
-        $categories_supply = categories::all();
+        $searchQuery = $request->query('search');
+
+        $categories_supply = Categories::when($searchQuery, function ($query) use ($searchQuery) {
+        $query->where('name', 'LIKE', "%{$searchQuery}%")
+                ->orWhere('description', 'LIKE', "%{$searchQuery}%");
+    })
+    ->get();
+
         $updateCategory = categories::find($request->input('id'));
 
         return Inertia::render('Inventory/CategorySupply', [
@@ -505,8 +525,15 @@ class MedicalSupplyController extends Controller
 
     public function archiveSuppliescreate(Request $request)
     {
-        $archive_supplies = archive_supplies::with(['batches', 'medical_supply'])
-            ->get();
+        $searchQuery = $request->query('search');
+
+    $archive_supplies = archive_supplies::with(['batches', 'medical_supply'])
+        ->when($searchQuery, function ($query) use ($searchQuery) {
+            $query->whereHas('medical_supply', function ($supplyQuery) use ($searchQuery) {
+                $supplyQuery->where('brand_name', 'LIKE', "%{$searchQuery}%");
+            });
+        })
+        ->get();
 
         return Inertia::render('Inventory/ArchiveSupplies', [
             'arcvhivedSupplies' => $archive_supplies,
@@ -561,5 +588,32 @@ class MedicalSupplyController extends Controller
         $delete->delete();
 
         return redirect()->back()->back('success', 'Deleted Category Successfully');
+    }
+
+     public function printRequestSupplyPDF()
+    {
+        $supplies_requested = RequestedSupply::all();
+
+        $logobase = $this->logoBase();
+
+        $pdf = Pdf::loadView('pdf.request_supply_report', [
+            'supplies_requested' => $supplies_requested,
+            'logobase' => $logobase
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream('request_supply_report.pdf');
+    }
+
+    private function logoBase()
+    {
+        $logoPath = public_path('img/lexa-logo-removedbg.png');
+
+        if (file_exists($logoPath)) {
+            $imageData = base64_encode(file_get_contents($logoPath));
+            $mimeType = mime_content_type($logoPath);
+            return 'data:' . $mimeType . ';base64,' . $imageData;
+        }
+
+        return null;
     }
 }

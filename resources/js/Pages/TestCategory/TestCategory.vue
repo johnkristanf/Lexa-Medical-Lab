@@ -46,12 +46,10 @@
         }
     }
 
-    function test(category) {
-        category.value = category
+    function test(categoryq) {
+        category.value = categoryq
         testTypesToggle.showAddTestTypesModal = true
     }
-
-
 
     const categoryTableHeaders = ['Category Name', 'Created At', 'Updated At', 'Actions']
 </script>
@@ -167,6 +165,7 @@
             <div class="flex flex-col gap-3">
                 <div
                     v-for="log in props.inventory_logs"
+                    :key="log.id"
                     class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
                 >
                     <h1>
