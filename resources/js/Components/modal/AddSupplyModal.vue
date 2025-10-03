@@ -85,10 +85,7 @@
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Add Medical Supply
                             </DialogTitle>
 
@@ -157,10 +154,7 @@
                                                 class="form-input"
                                                 required
                                             />
-                                            <p
-                                                v-if="form.errors.unit"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
+                                            <p v-if="form.errors.unit" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.unit }}
                                             </p>
                                         </div>
@@ -179,10 +173,7 @@
                                                 class="form-input"
                                                 required
                                             />
-                                            <p
-                                                v-if="form.errors.quantity"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
+                                            <p v-if="form.errors.quantity" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.quantity }}
                                             </p>
                                         </div>
@@ -316,7 +307,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Supply
+                                            Submit
                                         </button>
 
                                         <button

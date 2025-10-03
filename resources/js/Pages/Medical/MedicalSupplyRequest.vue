@@ -8,13 +8,10 @@
         FwbTableRow,
         FwbTableCell,
     } from 'flowbite-vue'
-    import { Column, DataTable } from 'primevue'
     import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
     import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/20/solid'
-    import { useForm } from '@inertiajs/vue3'
-    import { Head } from '@inertiajs/vue3'
-    import { FwbButton } from 'flowbite-vue'
-    import { onMounted, reactive, ref } from 'vue'
+    import { useForm, Head, router } from '@inertiajs/vue3'
+    import { onMounted, reactive, ref, watch } from 'vue'
     import RequestSupplyModal from '@/Components/modal/RequestSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import ViewRequestedSupplyModal from '@/Components/modal/ViewRequestedSupplyModal.vue'
@@ -24,18 +21,16 @@
     import AddButton from '@/Components/AddButton.vue'
 
     const props = defineProps({
-        medical_supply_requests: Array,
+        medical_supply_requests: Object,
     })
 
     const toast = useToast()
 
-    // MODAL STATE HOLDER
     const modals = reactive({
         showRequestModal: false,
         showSupplyRequestedModal: false,
     })
 
-    // SHOWING REQUESTED MEDICAL SUPPLY TOGGLER AND DATA HANDLER
     const selectedRequestMedicalSupply = ref({})
 
     const handleShowRequestedMedicalSupply = (data) => {
@@ -45,21 +40,14 @@
 
     const statuses = [{ name: 'Received', tag: 'received' }]
 
-    // STATUS UPDATE FORM
     const form = useForm({
         request_id: 0,
         status_tag: '',
     })
 
     const updateStatus = (request_id, status_tag) => {
-        console.log('request_id: ', request_id)
-        console.log('status_tag: ', status_tag)
-
         form.request_id = request_id
         form.status_tag = status_tag
-
-        console.log('form data status: ', form.data())
-
         form.post(route('update.request.status'), {
             onSuccess: () => {
                 toast.add({
@@ -73,6 +61,36 @@
 
     const tableHeaders = ['PO #', 'To', 'Status', 'Actions']
 
+    // Pagination + search
+    const perPage = ref(props.medical_supply_requests.per_page || 10)
+    const search = ref('')
+
+    watch(perPage, (value) => {
+        router.get(
+            route('inventory.supply.request'),
+            { perPage: value, page: 1, search: search.value },
+            { preserveState: true, replace: true },
+        )
+    })
+
+    function doSearch(value) {
+        search.value = value
+        router.get(
+            route('inventory.supply.request'),
+            { search: value, perPage: perPage.value },
+            { preserveState: true, replace: true },
+        )
+    }
+
+    function goToPage(url) {
+        if (!url) return
+        router.get(
+            url,
+            { perPage: perPage.value, search: search.value },
+            { preserveState: true, replace: true },
+        )
+    }
+
     onMounted(() => {
         console.log('medical_supply_requests: ', props.medical_supply_requests)
     })
@@ -85,7 +103,6 @@
             <h2 class="text-xl font-semibold leading-tight text-gray-800">Medical Supply Request</h2>
         </template>
 
-        <!-- DATA TABLE FOR SUPPLIES -->
         <div>
             <div class="mx-auto max-w-7xl h-screen sm:px-6 lg:px-8">
                 <div class="card p-8 h-full">
@@ -95,12 +112,16 @@
                             Request Supply
                         </AddButton>
 
-                        <!-- SEARCH INPUT -->
-                        <SearchInput route="inventory.supply.request" placeholder="Search Supplies" />
+                        <SearchInput
+                            v-model="search"
+                            @update:value="doSearch"
+                            route="inventory.supply.request"
+                            placeholder="Search Supplies"
+                        />
                     </div>
 
+                    <!-- TABLE -->
                     <FwbTable>
-                        <!-- Table Head -->
                         <FwbTableHead>
                             <FwbTableHeadCell
                                 v-for="(header, index) in tableHeaders"
@@ -111,9 +132,8 @@
                             </FwbTableHeadCell>
                         </FwbTableHead>
 
-                        <!-- Table Body -->
                         <FwbTableBody>
-                            <FwbTableRow v-for="req in props.medical_supply_requests" :key="req.id">
+                            <FwbTableRow v-for="req in medical_supply_requests.data" :key="req.id">
                                 <!-- PO Number -->
                                 <FwbTableCell>{{ req.po_number }}</FwbTableCell>
 
@@ -145,12 +165,11 @@
                                         <Menu as="div" class="relative inline-block text-left">
                                             <div>
                                                 <MenuButton
-                                                    class="inline-flex w-full justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:opacity-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                                    class="inline-flex w-full justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:opacity-75 focus:outline-none"
                                                 >
                                                     Update Status
                                                     <ChevronDownIcon
                                                         class="-mr-1 ml-2 h-5 w-5 text-green-200"
-                                                        aria-hidden="true"
                                                     />
                                                 </MenuButton>
                                             </div>
@@ -183,7 +202,6 @@
                                                             >
                                                                 <CheckIcon
                                                                     class="mr-2 h-5 w-5 text-green-400"
-                                                                    aria-hidden="true"
                                                                 />
                                                                 {{ status.name }}
                                                             </button>
@@ -208,6 +226,89 @@
                             </FwbTableRow>
                         </FwbTableBody>
                     </FwbTable>
+
+                    <!-- PAGINATION WITH PER PAGE -->
+                    <div
+                        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4"
+                    >
+                        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full">
+                            <div class="flex items-center gap-4">
+                                <p class="text-sm text-gray-700">
+                                    Showing
+                                    <span class="font-medium">{{ medical_supply_requests.from }}</span>
+                                    to
+                                    <span class="font-medium">{{ medical_supply_requests.to }}</span>
+                                    of
+                                    <span class="font-medium">{{ medical_supply_requests.total }}</span>
+                                    results
+                                </p>
+
+                                <div class="flex items-center gap-2">
+                                    <label for="perPage" class="text-sm text-gray-700">Per page:</label>
+                                    <select
+                                        id="perPage"
+                                        v-model="perPage"
+                                        class="rounded-md border-gray-300 text-sm focus:border-green-500 focus:ring-green-500"
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <nav
+                                    class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                                    aria-label="Pagination"
+                                >
+                                    <!-- Previous -->
+                                    <button
+                                        :disabled="!medical_supply_requests.prev_page_url"
+                                        @click="goToPage(medical_supply_requests.prev_page_url)"
+                                        class="relative inline-flex items-center gap-1 rounded-l-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-gray-300"
+                                        :class="
+                                            medical_supply_requests.prev_page_url
+                                                ? 'text-gray-700 hover:bg-gray-50'
+                                                : 'text-gray-400 cursor-not-allowed opacity-50'
+                                        "
+                                    >
+                                        Previous
+                                    </button>
+
+                                    <!-- Page Numbers -->
+                                    <button
+                                        v-for="link in medical_supply_requests.links.slice(1, -1).slice(0, 5)"
+                                        :key="link.label"
+                                        @click="link.url && goToPage(link.url)"
+                                        :class="[
+                                            'relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300',
+                                            link.active
+                                                ? 'z-10 bg-green-600 text-white'
+                                                : 'text-gray-900 hover:bg-gray-50',
+                                        ]"
+                                    >
+                                        {{ link.label }}
+                                    </button>
+
+                                    <!-- Next -->
+                                    <button
+                                        :disabled="!medical_supply_requests.next_page_url"
+                                        @click="goToPage(medical_supply_requests.next_page_url)"
+                                        class="relative inline-flex items-center gap-1 rounded-r-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-gray-300"
+                                        :class="
+                                            medical_supply_requests.next_page_url
+                                                ? 'text-gray-700 hover:bg-gray-50'
+                                                : 'text-gray-400 cursor-not-allowed opacity-50'
+                                        "
+                                    >
+                                        Next
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -225,9 +326,3 @@
         <Toast />
     </AuthenticatedLayout>
 </template>
-
-<!-- <style scoped>
-    .p-datatable {
-        background-color: green;
-    }
-</style> -->

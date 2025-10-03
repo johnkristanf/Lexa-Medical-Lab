@@ -212,32 +212,38 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply quantity deducted successfully.');
     }
 
-    public function suppliescreate(Request $request)
-    {
-        $searchQuery = $request->query('search');
+   public function suppliescreate(Request $request)
+{
+    $searchQuery = $request->query('search');
+    $categoryId = $request->query('category');
 
-        $supplies = MedicalSupplies::with(['category'])
+    $supplies = MedicalSupplies::with(['category'])
         ->when($searchQuery, function ($query) use ($searchQuery) {
-        $query->where(function ($q) use ($searchQuery) {
-            $q->where('participants', 'LIKE', "%{$searchQuery}%")
-              ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
-              ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
-                  $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
-              })
-              ->orWhereHas('category', function ($categoryQuery) use ($searchQuery) {
-                  $categoryQuery->where('name', 'LIKE', "%{$searchQuery}%");
-              });
-        });
-    })
-    ->get();
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('participants', 'LIKE', "%{$searchQuery}%")
+                  ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
+                  ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                      $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+                  })
+                  ->orWhereHas('category', function ($categoryQuery) use ($searchQuery) {
+                      $categoryQuery->where('name', 'LIKE', "%{$searchQuery}%");
+                  });
+            });
+        })
+        ->when($categoryId, function ($query) use ($categoryId) {
+            $query->where('category_id', $categoryId);
+        })
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
-        $categories_supplies = Categories::with('medical_supplies')->get();
+    $categories_supplies = Categories::with('medical_supplies')->get();
 
-        return Inertia::render('Inventory/Supplies', [
-            'supplies' => $supplies,
-            'categories' => $categories_supplies,
-        ]);
-    }
+    return Inertia::render('Inventory/Supplies', [
+        'supplies' => $supplies,
+        'categories' => $categories_supplies,
+    ]);
+}
+
 
     public function addStockSupply(Request $request, $id)
     {
@@ -291,22 +297,32 @@ class MedicalSupplyController extends Controller
                   $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
               });
     })
-    ->get();
+    ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
         return Inertia::render('Inventory/Stock', [
             'supplies' => $supplies,
         ]);
     }
 
-    public function batchNumbercreate(Request $request)
-    {
-        $supplies = MedicalSupplies::with('batches')->get();
+   public function batchNumbercreate(Request $request)
+{
+    $searchQuery = $request->query('search');
+    Log::info('searchQuery batch number: ', [$searchQuery]);
 
-        return Inertia::render('Inventory/Batches', [
-            'supplies' => $supplies,
+    $supplies = MedicalSupplies::with('batches')
+        ->when($searchQuery, function ($query) use ($searchQuery) {
+            $query->where('brand_name', 'LIKE', "%{$searchQuery}%")
+                  ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                      $batchQuery->where('batch_number', 'LIKE', "%{$searchQuery}%");
+                  });
+        })
+        ->get();
 
-        ]);
-    }
+    return Inertia::render('Inventory/Batches', [
+        'supplies' => $supplies,
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -362,7 +378,11 @@ class MedicalSupplyController extends Controller
         $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'remarks', 'release_datetime')
             ->with([
                 'medical_supplies' => function ($query) {
-                    $query->select('medical_supplies.id', 'medical_supplies.participants', 'medical_supplies.brand_name', 'medical_supplies.unit')
+                    $query->select('medical_supplies.id',
+                    'medical_supplies.participants',
+                    'medical_supplies.brand_name',
+                    'medical_supplies.unit'
+                    )
                         ->withPivot('quantity');
                 },
             ])
@@ -428,7 +448,8 @@ class MedicalSupplyController extends Controller
                     $subQuery->where('item_description', 'LIKE', "%{$searchQuery}%");
                 });
         })
-        ->get();
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
         Log::info('supplyRequest', [
             'supplyRequest' => $supplyRequest,
@@ -498,7 +519,8 @@ class MedicalSupplyController extends Controller
         $query->where('name', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('description', 'LIKE', "%{$searchQuery}%");
     })
-    ->get();
+    ->paginate($request->input('perPage',10))
+    ->withQueryString();
 
         $updateCategory = categories::find($request->input('id'));
 
@@ -533,7 +555,8 @@ class MedicalSupplyController extends Controller
                 $supplyQuery->where('brand_name', 'LIKE', "%{$searchQuery}%");
             });
         })
-        ->get();
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
         return Inertia::render('Inventory/ArchiveSupplies', [
             'arcvhivedSupplies' => $archive_supplies,
@@ -563,7 +586,7 @@ class MedicalSupplyController extends Controller
             }
 
             InventoryLogs::where('supply_id', $supply->id)->delete();
-            $supply->delete(); // soft delete
+            $supply->delete();
         });
 
         return back()->with('success', 'Supply archived successfully.');
