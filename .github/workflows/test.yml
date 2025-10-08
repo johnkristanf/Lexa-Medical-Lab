@@ -1,7 +1,13 @@
 name: Lexa Medical Lab Testing
+
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: write        # allows repository-dispatch
+  actions: write
+
 
 jobs:
     test: 
