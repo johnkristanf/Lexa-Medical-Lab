@@ -44,13 +44,23 @@ jobs:
                     ctype
                 coverage: xdebug
 
-
             - name: Setup Node.js
               uses: actions/setup-node@v3
               with:
                 node-version: '22'
                 cache: 'npm'
 
+
+            - name: Install NPM Dependencies
+              if: ${{ success() }}
+              run: npm ci
+              
+
+            - name: Build Vue Assets
+              if: ${{ success() }}
+              run: npm run build
+
+              
             - name: Copy .env
               run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
@@ -84,15 +94,6 @@ jobs:
             
             - name: Run test
               run: php artisan test --stop-on-failure
-
-           
-            - name: Install NPM Dependencies
-              if: ${{ success() }}
-              run: npm ci
-              
-            - name: Build Vue Assets
-              if: ${{ success() }}
-              run: npm run build
 
 
             - name: Trigger build workflow on successful test
