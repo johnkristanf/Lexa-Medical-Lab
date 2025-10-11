@@ -52,20 +52,46 @@ jobs:
                 cache: 'npm'
 
             - name: Copy .env
-              run: cp .env.example .env
+              run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+            - name: Update .env for CI database
+              run: |
+                sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
+                sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+                sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env
+                sed -i 's/DB_DATABASE=.*/DB_DATABASE=test_db/' .env
+                sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
+                sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=password/' .env
 
             - name: Install PHP Dependencies
               run: composer install --prefer-dist --no-progress --no-suggest
 
-
-            - name: Install NPM Dependencies
-              run: npm ci
-
-
             - name: Generate Application Key
               run: php artisan key:generate
 
+
+            - name: Wait for MySQL to be ready
+              run: |
+                for i in {1..10}; do
+                  mysqladmin ping -h127.0.0.1 -uroot -ppassword --silent && break
+                  echo "Waiting for MySQL... ($i)"
+                  sleep 5
+                done
+
+            - name: Run migrations
+              run: php artisan migrate --force
+
+            
+            - name: Run test
+              run: php artisan test --stop-on-failure
+
+           
+            - name: Install NPM Dependencies
+              if: ${{ success() }}
+              run: npm ci
+              
             - name: Build Vue Assets
+              if: ${{ success() }}
               run: npm run build
 
 
