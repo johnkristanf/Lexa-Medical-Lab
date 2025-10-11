@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Roles;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,11 +10,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class RoleFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Roles::class;
+
     public function definition(): array
     {
         $roles = ['admin', 'medical_staff', 'inventory_officer'];
