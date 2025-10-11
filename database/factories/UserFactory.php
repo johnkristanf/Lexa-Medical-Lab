@@ -29,6 +29,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'role_id' => Roles::inRandomOrder()->first()->id
+                ?? Roles::factory()->create()->id,
         ];
     }
 
