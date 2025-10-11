@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
 
@@ -15,5 +17,7 @@ test('new users can register', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+
+    $authenticatedUserRoleID = auth()->user()->role_id;
+    $response->assertRedirect(Auth::user()->getIndexRoute($authenticatedUserRoleID));
 });
