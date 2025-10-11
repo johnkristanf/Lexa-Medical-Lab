@@ -17,9 +17,6 @@
         roles: Array,
     })
 
-    onMounted(() => {
-        console.log('roles: ', props.roles)
-    })
 
     // TOAST INITIALIZATION
     const toast = useToast()
@@ -109,12 +106,9 @@
             return
         }
 
-        console.log('Submitting User:', formData.value)
-
         router.post(route('admin.user.add'), formData.value, {
             preserveScroll: true,
             onSuccess: (page) => {
-                console.log('page', page)
                 if (page.props.flash?.success) {
                     toast.add({
                         severity: 'success',

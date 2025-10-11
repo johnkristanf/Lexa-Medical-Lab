@@ -8,8 +8,8 @@ test('registration screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
-test('new users can register', function () {
-    $response = $this->post('/register', [
+test('admin adds new user', function () {
+    $response = $this->post(route('admin.user.add'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
