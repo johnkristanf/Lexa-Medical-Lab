@@ -43,20 +43,12 @@ class QueueController extends Controller
     public function getNewQueueNumber($priorityTypeID)
     {
 
-        // DONT GET CONNFUSED IF IT RETURNS NULL ON EARLY MORNING CAUSE IT FETCHES DATA
-        // IN DAILY
-        Log::info('ID: '.$priorityTypeID);
-
         $lastQueue = Queues::where(function ($query) use ($priorityTypeID) {
             $query->whereDate('created_at', now()->toDateString())
                 ->where('priority_type_id', $priorityTypeID);
         })
             ->orderBy('created_at', 'desc')
             ->first();
-
-        Log::info('Queue Data: ', [
-            'lastQueue' => $lastQueue,
-        ]);
 
         // DEFAULT NUMBER
         $nextNumber = 1;
@@ -66,7 +58,6 @@ class QueueController extends Controller
             // FROM SC-01
             $splittedQueueNumber = explode('-', $lastQueue->queue_number);
 
-            Log::info('splittedQueueNumber', $splittedQueueNumber);
             if (count($splittedQueueNumber) > 1) {
                 // Convert "01" to 1, then add 1 to get 2
                 $currentNumber = (int) $splittedQueueNumber[1];
@@ -96,18 +87,11 @@ class QueueController extends Controller
             'status_id' => 1, // DEFAULT TO WAITING
         ]);
 
-        Log::info('queue', [
-            'queue Data bago ni' => $queue,
-        ]);
-
         if ($queue) {
             broadcast(new QueueUpdate($queue->id));
         }
 
         $waitingCount = Queues::where('status_id', 1)->count();
-
-        Log::info('queue->queue_number'.$queue->queue_number);
-        Log::info('queue->created_at'.$queue->created_at);
 
         return redirect()->route('queue.create')->with([
             'success' => 'Successful Queue Insertion!',
