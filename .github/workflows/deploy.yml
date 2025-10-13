@@ -5,7 +5,7 @@ on:
 
 jobs:
     deploy:
-        runs-on: ubuntu-latest 
+        runs-on: ubuntu-latest
 
         steps:
             - name: Checkout code
@@ -14,7 +14,7 @@ jobs:
             - name: Create Production Env
               run: |
                 cat <<'EOF' > .env.production
-                    APP_NAME="Jarvis Designs"
+                    APP_NAME="Lexa Medical Laboratory"
                     APP_KEY=${{ secrets.APP_KEY }}
                     APP_URL=https://lexa-medical-laboratory.it.com
 
@@ -47,7 +47,14 @@ jobs:
                     PUSHER_APP_ID=${{ secrets.PUSHER_APP_ID }}
                     PUSHER_APP_KEY=${{ secrets.PUSHER_APP_KEY }}
                     PUSHER_APP_SECRET=${{ secrets.PUSHER_APP_SECRET }}
+                    PUSHER_SCHEME="https"
                     PUSHER_APP_CLUSTER="ap1"
+
+
+                    VITE_APP_NAME=${APP_NAME}
+                    VITE_PUSHER_APP_KEY=${PUSHER_APP_KEY}
+                    VITE_PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}
+                    VITE_PUSHER_SCHEME=${PUSHER_SCHEME}
 
 
                     MAIL_MAILER=smtp
@@ -64,6 +71,9 @@ jobs:
                     SENTRY_LARAVEL_DSN=${{ secrets.SENTRY_LARAVEL_DSN }}
                     SENTRY_TRACES_SAMPLE_RATE=${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
                 EOF
+
+
+            - name: 
 
 
             - name: 🚀 Deploy on EC2 via SSH
@@ -93,7 +103,7 @@ jobs:
                     echo "Starting containers..."
                     docker compose --env-file .env.production up -d --remove-orphans
 
-   
 
 
-        
+
+

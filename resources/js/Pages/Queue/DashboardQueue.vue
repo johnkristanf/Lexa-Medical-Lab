@@ -23,7 +23,6 @@
     // })
 
     onMounted(() => {
-        // CHECK REVERB SERVER CONNECTION
         window.Echo.connector.pusher.connection.bind('connected', () => {
             console.log('✅ Echo connected successfully to the server.')
         })
@@ -68,18 +67,12 @@
 
                 <template #title>
                     <div class="flex flex-col gap-1">
-                        <!-- QUEUE NUMBER -->
                         <h1>{{ queue.queue_number }}</h1>
 
-                        <!-- PRIORITY LEVEL -->
-                        <!-- <h1>Priority Level: {{ queue.priority_types.priority_level }}</h1> -->
                     </div>
                 </template>
 
-                <!-- PATIENT NAME -->
-                <!-- <template #subtitle>
-                    <h1 class="text-2xl">{{ queue.name }}</h1>
-                </template> -->
+
 
                 <template #content>
                     <!-- PRIORITY TYPE NAME AND CODE -->
