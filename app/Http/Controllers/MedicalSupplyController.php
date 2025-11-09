@@ -352,7 +352,7 @@ class MedicalSupplyController extends Controller
             'lot_number' => $validated['lot_number'],
             'batch_number' => $validated['batch_number'],
             'category_id' => $validated['category_id'],
-
+3
         ]);
 
         $createdSupply->batches()->create([

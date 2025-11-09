@@ -62,7 +62,7 @@
                         <fwb-table-cell>{{ formatDate(patient.date_of_birth) }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>
-                        <fwb-table-cell>{{ patient.email ?? 'N/A' }}</fwb-table-cell>
+                        <fwb-table-cell class="!text-left">{{ patient.email ?? 'N/A' }}</fwb-table-cell>
                     </fwb-table-row>
                 </template>
 

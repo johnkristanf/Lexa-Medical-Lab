@@ -29,11 +29,13 @@
             permitted: permissions.value?.can_manage_medical,
         },
         { name: 'Queue', route_name: 'patient.queue', permitted: permissions.value?.can_manage_medical },
+
         {
             name: 'Patients',
             route_name: 'patient.details.create',
             permitted: permissions.value?.can_manage_medical,
         },
+
         {
             name: 'Test Catalog',
             route_name: 'test.category.create',
@@ -63,6 +65,7 @@
             route_name: 'inventory.supply.request',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
+
         {
             name: 'Stock',
             route_name: 'medical.stock.create',
@@ -83,6 +86,13 @@
         {
             name: 'Laboratory Test',
             route_name: 'test.details.create',
+            permitted: permissions.value?.can_manage_medical,
+        },
+
+        // IMAGE IDENTIFICATION
+        {
+            name: 'Scan Image',
+            route_name: 'scan.page',
             permitted: permissions.value?.can_manage_medical,
         },
     ])

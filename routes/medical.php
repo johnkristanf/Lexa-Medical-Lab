@@ -37,6 +37,9 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
         Route::get('/create', [MedicalStaffController::class, 'testCategoryCreate'])
             ->name('test.category.create');
 
+        Route::get('/scan/image', [MedicalStaffController::class, 'ImageIdenticationPage'])
+            ->name('scan.page');
+
         Route::post('/store', [MedicalStaffController::class, 'testCategoryStore'])
             ->name('test.category.submit');
 

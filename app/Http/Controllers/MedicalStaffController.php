@@ -177,6 +177,7 @@ class MedicalStaffController extends Controller
 
         $patient->update($validated);
 
+
         return redirect()->back()->with('success', 'Patient details updated successfully.');
     }
 
@@ -354,5 +355,14 @@ class MedicalStaffController extends Controller
     {
         Mail::to($request->get('email'))->send(new ResultEmailReminder);
         return back()->with('success', 'Reminder email sent.');
+    }
+
+    public function ImageIdenticationPage(Request $request){
+
+         return Inertia::render('Patient/ScannerPage', [
+
+        ]);
+
+
     }
 }
