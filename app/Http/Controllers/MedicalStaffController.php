@@ -248,7 +248,7 @@ class MedicalStaffController extends Controller
 
         $testID = $test->id;
 
-        // INSERT PATIENT TEST TO THE PIVOT TABLE
+        // INSERT PATIENT TEST TO THE PIVOT TABLE 123123123213123
         $patient = Patient::find($validated['patient_id']);
         $patient->test_types()->attach($validated['selected_test_types'], [
             'test_id' => $testID,
@@ -352,7 +352,7 @@ class MedicalStaffController extends Controller
 
     public function sendEmailResultReminder(Request $request)
     {
-        Mail::to($request->get('email'))->send(new ResultEmailReminder);
+        Mail::to($request->get('email'))->queue(new ResultEmailReminder);
         return back()->with('success', 'Reminder email sent.');
     }
 }
