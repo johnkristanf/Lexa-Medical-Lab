@@ -8,7 +8,6 @@
         DialogDescription,
     } from '@headlessui/vue'
 
-
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
@@ -16,25 +15,23 @@
     // TOAST INITIALIZATION
     const toast = useToast()
 
-
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
     function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        result += characters[randomIndex];
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        let result = ''
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length)
+            result += characters[randomIndex]
+        }
+        return result
     }
-    return result;
-}
-
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
-        patient_id:generateRandomString(10),
+        patient_id: generateRandomString(10),
         first_name: '',
         middle_name: '',
         last_name: '',
@@ -43,7 +40,6 @@
         address: '',
         contact_number: '',
         email: '',
-
     })
 
     // FORM SUBMISSION
@@ -56,15 +52,13 @@
                     life: 3000,
                 })
 
-                closeModal();
+                closeModal()
             },
         }) // replace with your actual route
     }
-
-
 </script>
 
-<template >
+<template>
     <TransitionRoot appear :show="true">
         <Dialog as="div" @close="closeModal" class="relative z-10">
             <TransitionChild
@@ -93,10 +87,7 @@
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Add Patient Details
                             </DialogTitle>
 
@@ -108,120 +99,115 @@
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
                                         <div>
-                                        <label
-                                            for="first_name"
-                                            class="block text-sm font-semibold text-gray-900"
-                                        >
-                                            First Name
-                                        </label>
-                                        <input
-                                            id="first_name"
-                                            v-model="form.first_name"
-                                            type="text"
-                                            class="form-input"
-                                            required
-                                        />
-                                        <p
-                                            v-if="form.errors.first_name"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.first_name }}
-                                        </p>
-                                    </div>
+                                            <label
+                                                for="first_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                First Name
+                                            </label>
+                                            <input
+                                                id="first_name"
+                                                v-model="form.first_name"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.first_name"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.first_name }}
+                                            </p>
+                                        </div>
 
-                                    <div>
-                                        <label
-                                            for="patient_id"
-                                            class="block text-sm font-semibold text-gray-900"
-                                        >
-                                            Patient ID
-                                        </label>
-                                        <input
-                                            disabled
-                                            id="patient_id"
-                                            v-model="form.patient_id"
-                                            type="text"
-                                            class="form-input"
-                                            required
-                                        />
-                                        <p
-                                            v-if="form.errors.patient_id"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.patient_id }}
-                                        </p>
-                                    </div>
+                                        <div>
+                                            <label
+                                                for="patient_id"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Patient ID
+                                            </label>
+                                            <input
+                                                disabled
+                                                id="patient_id"
+                                                v-model="form.patient_id"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.patient_id"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.patient_id }}
+                                            </p>
+                                        </div>
 
-                                    <div>
-                                        <label
-                                            for="middle_name"
-                                            class="block text-sm font-semibold text-gray-900"
-                                        >
-                                            Middle Name
-                                        </label>
-                                        <input
-                                            id="middle_name"
-                                            v-model="form.middle_name"
-                                            type="text"
-                                            class="form-input"
-                                            required
-                                        />
-                                        <p
-                                            v-if="form.errors.middle_name"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.middle_name }}
-                                        </p>
-                                    </div>
+                                        <div>
+                                            <label
+                                                for="middle_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Middle Name
+                                            </label>
+                                            <input
+                                                id="middle_name"
+                                                v-model="form.middle_name"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.middle_name"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.middle_name }}
+                                            </p>
+                                        </div>
 
-                                    <!-- GENDER moved here -->
-                                    <div>
-                                        <label
-                                            for="gender"
-                                            class="block text-sm font-semibold text-gray-900"
-                                        >
-                                            Sex
-                                        </label>
-                                        <select
-                                            id="gender"
-                                            v-model="form.gender"
-                                            class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-black"
-                                        >
-                                            <option value="" disabled class="text-black">Select gender</option>
-                                            <option value="MALE" class="text-black">MALE</option>
-                                            <option value="FEMALE" class="text-black">FEMALE</option>
-                                        </select>
-                                        <p
-                                            v-if="form.errors.gender"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.gender }}
-                                        </p>
-                                    </div>
+                                        <!-- GENDER moved here -->
+                                        <div>
+                                            <label
+                                                for="gender"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Sex
+                                            </label>
+                                            <select
+                                                id="gender"
+                                                v-model="form.gender"
+                                                class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-black"
+                                            >
+                                                <option value="" disabled class="text-black">
+                                                    Select sex type
+                                                </option>
+                                                <option value="MALE" class="text-black">MALE</option>
+                                                <option value="FEMALE" class="text-black">FEMALE</option>
+                                            </select>
+                                            <p v-if="form.errors.gender" class="text-sm text-red-500 mt-1">
+                                                {{ form.errors.gender }}
+                                            </p>
+                                        </div>
 
-                                    <!-- LAST NAME moved after gender -->
-                                    <div>
-                                        <label
-                                            for="last_name"
-                                            class="block text-sm font-semibold text-gray-900"
-                                        >
-                                            Last Name
-                                        </label>
-                                        <input
-                                            id="last_name"
-                                            v-model="form.last_name"
-                                            type="text"
-                                            class="form-input"
-                                            required
-                                        />
-                                        <p
-                                            v-if="form.errors.last_name"
-                                            class="text-sm text-red-500 mt-1"
-                                        >
-                                            {{ form.errors.last_name }}
-                                        </p>
-                                    </div>
-
+                                        <!-- LAST NAME moved after gender -->
+                                        <div>
+                                            <label
+                                                for="last_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Last Name
+                                            </label>
+                                            <input
+                                                id="last_name"
+                                                v-model="form.last_name"
+                                                type="text"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p v-if="form.errors.last_name" class="text-sm text-red-500 mt-1">
+                                                {{ form.errors.last_name }}
+                                            </p>
+                                        </div>
 
                                         <div>
                                             <label
@@ -257,10 +243,7 @@
                                                 type="text"
                                                 class="form-input"
                                             />
-                                            <p
-                                                v-if="form.errors.address"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
+                                            <p v-if="form.errors.address" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.address }}
                                             </p>
                                         </div>
@@ -299,10 +282,7 @@
                                                 type="text"
                                                 class="form-input"
                                             />
-                                            <p
-                                                v-if="form.errors.email"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
+                                            <p v-if="form.errors.email" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.email }}
                                             </p>
                                         </div>
@@ -313,7 +293,9 @@
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-green-600 hover:bg-green-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
@@ -325,7 +307,9 @@
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >

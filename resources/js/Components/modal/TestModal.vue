@@ -128,10 +128,7 @@
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Conduct Test
                             </DialogTitle>
 
@@ -165,16 +162,10 @@
                                                 >
                                                     Sharmlane Faith Patches,RMT
                                                 </option>
-                                                <option
-                                                    value="Jane R. Moldez, RMT"
-                                                    class="text-black"
-                                                >
+                                                <option value="Jane R. Moldez, RMT" class="text-black">
                                                     Jane R. Moldez, RMT
                                                 </option>
-                                                <option
-                                                    value="Jill R. Albino, RMT"
-                                                    class="text-black"
-                                                >
+                                                <option value="Jill R. Albino, RMT" class="text-black">
                                                     Jill R. Albino, RMT
                                                 </option>
                                             </select>
@@ -318,9 +309,7 @@
                                         <!-- checkbox when selecting a category -->
                                         <div class="sm:col-span-2" v-if="filteredTestTypes.length">
                                             <div class="space-y-2 mt-2">
-                                                <label
-                                                    class="block text-sm font-semibold text-gray-900"
-                                                >
+                                                <label class="block text-sm font-semibold text-gray-900">
                                                     Select Test Type
                                                 </label>
 
@@ -343,14 +332,10 @@
                                                             <input
                                                                 type="checkbox"
                                                                 :value="type.id"
-                                                                v-model.number="
-                                                                    form.selected_test_types
-                                                                "
+                                                                v-model.number="form.selected_test_types"
                                                                 class="form-checkbox"
                                                             />
-                                                            <span
-                                                                class="ml-2 text-sm text-gray-700"
-                                                            >
+                                                            <span class="ml-2 text-sm text-gray-700">
                                                                 {{ type.name }}
                                                             </span>
                                                         </label>

@@ -107,8 +107,10 @@ class MedicalStaffController extends Controller
                     'like',
                     "%{$search}%"
                 );
+
         })
-            ->get();
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         $testTypesPurpose = TestPurpose::all();
         $patientUpdate = Patient::find($request->input('id'));
@@ -134,7 +136,7 @@ class MedicalStaffController extends Controller
             'gender' => 'required|string|max:10',
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:15',
+            'contact_number' => 'required|string|max:11',
             'email' => 'required|email|max:255|unique:patients,email',
         ]);
 
@@ -151,6 +153,7 @@ class MedicalStaffController extends Controller
             ->when($searchQuery, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
+            ->orderBy('created_at', 'desc')
             ->get();
 
         Log::info('testCategory: ', [$testCategory]);
@@ -171,7 +174,7 @@ class MedicalStaffController extends Controller
             'gender' => 'required|string|max:10',
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:15',
+            'contact_number' => 'required|string|max:11',
             'email' => 'required|email|max:255|unique:patients,email,'.$patient->id,
         ]);
 
@@ -352,7 +355,7 @@ class MedicalStaffController extends Controller
 
     public function sendEmailResultReminder(Request $request)
     {
-        Mail::to($request->get('email'))->queue(new ResultEmailReminder);
+        Mail::to($request->get('email'))->send(new ResultEmailReminder);
         return back()->with('success', 'Reminder email sent.');
     }
 }
