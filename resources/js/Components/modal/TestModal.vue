@@ -56,7 +56,7 @@
     const totalPrice = computed(() => {
         return filteredTestTypes.value
             .filter((type) => form.selected_test_types.includes(type.id))
-            .reduce((sum, type) => sum + parseFloat(type.price || 0), 0)
+            .reduce((sum, type) => sum + parseInt(type.price || 0), 0)
             .toFixed(2)
     })
 

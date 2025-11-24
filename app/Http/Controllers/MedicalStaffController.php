@@ -228,7 +228,7 @@ class MedicalStaffController extends Controller
             'referer_fullname' => 'required|string|max:255',
             'doctor_license_no' => 'required|string|max:255',
             'test_schedule' => 'required|date',
-            'total_price' => 'required|numeric',
+            'total_price' => 'required|integer',
             'purpose_id' => 'required|integer',
             'patient_id' => 'required|integer',
             'category_id' => 'required|integer',
