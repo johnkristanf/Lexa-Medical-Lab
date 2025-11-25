@@ -228,7 +228,7 @@ class MedicalStaffController extends Controller
             'referer_fullname' => 'required|string|max:255',
             'doctor_license_no' => 'required|string|max:255',
             'test_schedule' => 'required|date',
-            'total_price' => 'required|integer',
+            'total_price' => 'required|string',
             'purpose_id' => 'required|integer',
             'patient_id' => 'required|integer',
             'category_id' => 'required|integer',
@@ -237,11 +237,14 @@ class MedicalStaffController extends Controller
 
         $orNumber = (string) random_int(10000, 99999);
 
+        // Convert the total_price string to integer before insertion
+        $totalPriceInt = (int) preg_replace('/[^\d]/', '', $validated['total_price']);
+
         $test = Test::create([
             'referer_fullname' => $validated['referer_fullname'],
             'doctor_license_no' => $validated['doctor_license_no'],
             'test_schedule' => $validated['test_schedule'],
-            'total_price' => $validated['total_price'],
+            'total_price' => $totalPriceInt,
             'or_number' => $orNumber,
             'purpose_id' => $validated['purpose_id'],
             'patient_id' => $validated['patient_id'],

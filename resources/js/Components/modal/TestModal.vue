@@ -33,7 +33,7 @@
         referer_fullname: '',
         doctor_license_no: '',
         test_schedule: '',
-        total_price: -1,
+        total_price: '',
         purpose_id: '',
         patient_id: props.patientID,
         category_id: '',
@@ -72,7 +72,7 @@
         }
 
         form.selected_test_types = form.selected_test_types.map(Number)
-        form.total_price = Number(totalPrice.value)
+        form.total_price =totalPrice.value
 
         console.log('Submitting form data:', form.data())
         form.post(route('test.submit'), {
