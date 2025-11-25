@@ -31,7 +31,6 @@
         patientUpdate: Array,
     })
 
-
     const showAddScheduleModal = ref(false)
     const showSchedulesModal = ref(false)
 
@@ -100,7 +99,10 @@
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput route="patient.details.create" placeholder="Search Patient ID, Name, Email" />
+                        <SearchInput
+                            route="patient.details.create"
+                            placeholder="Search Patient ID, Name, Email"
+                        />
                     </div>
 
                     <fwb-table hoverable>
@@ -160,10 +162,7 @@
 
                             <template v-else>
                                 <fwb-table-row>
-                                    <fwb-table-cell
-                                        colspan="5"
-                                        class="text-center bg-gray-100 text-gray-500"
-                                    >
+                                    <fwb-table-cell colspan="5" class="text-center bg-gray-100 text-gray-500">
                                         No patient records found.
                                     </fwb-table-cell>
                                 </fwb-table-row>
@@ -175,10 +174,7 @@
         </div>
 
         <!-- ADD SUPLY MODAL -->
-        <PatientDetailsModal
-            v-if="toggles.showAddSupplyModal"
-            @close="toggles.showAddSupplyModal = false"
-        />
+        <PatientDetailsModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
 
         <UpdatePatientDetails
             v-if="showUpdatePatientDetails"
@@ -230,10 +226,8 @@
                         <span
                             class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
                             :class="{
-                                'bg-green-100 text-green-800':
-                                    log.operation_type === OPERATION_TYPES.ADDED,
-                                'bg-red-100 text-yellow-800':
-                                    log.operation_type === OPERATION_TYPES.DEDUCTED,
+                                'bg-green-100 text-green-800': log.operation_type === OPERATION_TYPES.ADDED,
+                                'bg-red-100 text-yellow-800': log.operation_type === OPERATION_TYPES.DEDUCTED,
                             }"
                         >
                             {{ log.operation_type }}
