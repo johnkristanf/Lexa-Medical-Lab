@@ -21,6 +21,7 @@
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
     import AddButton from '@/Components/AddButton.vue'
+import { generateRandomNumberString } from '@/helpers/random_num'
 
     // COMPONENT PROPS
     const props = defineProps({
@@ -62,11 +63,15 @@
             `/admin/appointments/${id}/status`,
             {
                 status,
+                patient_id: generateRandomNumberString(10),
                 first_name: appointment.first_name,
                 middle_name: appointment.middle_name,
                 last_name: appointment.last_name,
                 email: appointment?.email ?? '',
-                phone: appointment?.phone ?? ''
+                phone: appointment?.phone ?? '',
+                date_of_birth: appointment?.date_of_birth ?? '',
+                gender: appointment?.gender ?? '',
+                address: appointment?.address ?? ''
             },
 
             {

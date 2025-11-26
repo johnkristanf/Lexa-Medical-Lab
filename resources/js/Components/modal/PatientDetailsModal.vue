@@ -1,4 +1,5 @@
 <script setup>
+    import { generateRandomNumberString } from '@/helpers/random_num'
     import {
         TransitionRoot,
         TransitionChild,
@@ -19,19 +20,11 @@
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-    function generateRandomString(length) {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        let result = ''
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length)
-            result += characters[randomIndex]
-        }
-        return result
-    }
+
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
-        patient_id: generateRandomString(10),
+        patient_id: generateRandomNumberString(10),
         first_name: '',
         middle_name: '',
         last_name: '',

@@ -109,8 +109,8 @@ class MedicalStaffController extends Controller
                 );
 
         })
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $testTypesPurpose = TestPurpose::all();
         $patientUpdate = Patient::find($request->input('id'));
@@ -342,7 +342,6 @@ class MedicalStaffController extends Controller
             ->stream('combined-details.pdf');
     }
 
-
     private function getLogoAsBase64()
     {
         $logoPath = public_path('img/lexa-logo-removedbg.png');
@@ -350,7 +349,8 @@ class MedicalStaffController extends Controller
         if (file_exists($logoPath)) {
             $imageData = base64_encode(file_get_contents($logoPath));
             $mimeType = mime_content_type($logoPath);
-            return 'data:' . $mimeType . ';base64,' . $imageData;
+
+            return 'data:'.$mimeType.';base64,'.$imageData;
         }
 
         return null;
@@ -359,6 +359,7 @@ class MedicalStaffController extends Controller
     public function sendEmailResultReminder(Request $request)
     {
         Mail::to($request->get('email'))->send(new ResultEmailReminder);
+
         return back()->with('success', 'Reminder email sent.');
     }
 }

@@ -1,10 +1,11 @@
 export function generateRandomNumberString(length) {
     if (length <= 0) return '';
 
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
-        const digit = Math.floor(Math.random() * 10);
-        result += digit.toString();
+        const idx = Math.floor(Math.random() * chars.length);
+        result += chars[idx];
     }
     return result;
 }

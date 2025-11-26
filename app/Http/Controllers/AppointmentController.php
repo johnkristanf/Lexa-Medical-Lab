@@ -8,6 +8,7 @@ use App\Mail\AppointmentConfirmationMail;
 use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
 use App\Models\AppointmentSlots;
+use App\Models\Patient;
 use App\Models\TestCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -48,6 +49,7 @@ class AppointmentController extends Controller
                 'last_name' => $validated['last_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
+                'address' => $validated['address'],
                 'gender' => $validated['gender'],
                 'date_of_birth' => $validated['birthdate'],
                 'status' => 'pending',
@@ -103,17 +105,37 @@ class AppointmentController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|string|in:pending,arrived',
+            'patient_id' => 'sometimes|string',
             'first_name' => 'sometimes|string',
             'middle_name' => 'sometimes|nullable|string',
             'last_name' => 'sometimes|string',
             'email' => 'sometimes|nullable|email',
             'phone' => 'sometimes|nullable|string',
+            'address' => 'sometimes|nullable|string',
+            'gender' => 'sometimes|string',
+            'date_of_birth' => 'sometimes|date|date_format:Y-m-d',
         ]);
 
-        Log::info("validated: ", $validated);
+        Log::info('validated: ', $validated);
 
-        // $appointment->status = $request->status;
-        // $appointment->save();
+        // Create a new Patient record using the validated data
+        Patient::create([
+            'patient_id' => $validated['patient_id'] ?? '',
+
+            'first_name' => $validated['first_name'] ?? '',
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'] ?? '',
+
+            'gender' => $validated['gender'] ?? '',
+            'date_of_birth' => $validated['date_of_birth'] ?? '',
+
+            'address' => $validated['address'] ?? '',
+            'contact_number' => $validated['phone'] ?? '',
+            'email' => $validated['email'] ?? null,
+        ]);
+
+        // DELETE EXISTING APPOINTMENT
+        $appointment->delete();
 
         return back()->with('success', 'Status updated successfully.');
     }

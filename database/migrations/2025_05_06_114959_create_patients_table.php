@@ -19,12 +19,12 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('gender');
             $table->date('date_of_birth');
-            $table->string('address');
-            $table->string('contact_number');
+            $table->string('address')->nullable();
+            $table->string('contact_number')->nullable();
             $table->string('email')->nullable();
             $table->timestamps();
         });
-    }  
+    }
 
     /**
      * Reverse the migrations.

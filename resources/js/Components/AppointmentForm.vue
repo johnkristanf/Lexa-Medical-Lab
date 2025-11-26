@@ -103,6 +103,20 @@
                     </p>
                 </div>
 
+                <div class="col-span-3">
+                    <label for="address" class="block text-sm text-gray-900">Address</label>
+                    <input
+                        id="address"
+                        v-model="form.address"
+                        type="text"
+                        class="form-input"
+                        required
+                    />
+                    <p v-if="form.errors.address" class="text-sm text-red-500 mt-1">
+                        {{ form.errors.address }}
+                    </p>
+                </div>
+
                 <!-- GENDER INPUT FORM -->
                 <div class="col-span-3">
                     <label for="gender" class="block text-sm text-gray-900">Sex</label>
