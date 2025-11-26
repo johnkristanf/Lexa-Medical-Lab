@@ -31,6 +31,7 @@
         middle_name: '',
         last_name: '',
         email: '', // MAKE THIS NULLABLE IN THE BACKEND PARA SA MGA ARTE NA PANEL
+        phone: '',
         gender: '',
         birthdate: '',
         selected_schedule_id: -1,

@@ -56,15 +56,23 @@
     }
 
     function updateStatus(id, status) {
+        const appointment = props.appointments.find((a) => a.id === id)
+
         router.put(
             `/admin/appointments/${id}/status`,
-            { status },
+            {
+                status,
+                first_name: appointment.first_name,
+                middle_name: appointment.middle_name,
+                last_name: appointment.last_name,
+                email: appointment?.email ?? '',
+                phone: appointment?.phone ?? ''
+            },
 
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     // Immediately update the status locally so UI changes
-                    const appointment = props.appointments.find((a) => a.id === id)
                     if (appointment) {
                         appointment.status = status
                     }
@@ -73,7 +81,7 @@
         )
     }
 
-    const headers = ['Appointment #', 'Full Name', 'Email', 'Status', 'Schedule', 'Actions']
+    const headers = ['Appointment #', 'Full Name', 'Email', 'Phone Number', 'Status', 'Schedule', 'Actions']
 </script>
 
 <template>
@@ -81,7 +89,7 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-gray-800 leading-tight">Appointments</h2>
+            <h2 class="text-xl font-semibold text-gray-800 leading-tight">Patient Appointments</h2>
         </template>
 
         <div>
@@ -120,6 +128,10 @@
                                     </fwb-table-cell>
                                     <fwb-table-cell>
                                         {{ appointment.email ?? 'N/A' }}
+                                    </fwb-table-cell>
+
+                                    <fwb-table-cell>
+                                        {{ appointment.phone ?? 'N/A' }}
                                     </fwb-table-cell>
                                     <fwb-table-cell>
                                         <fwb-badge

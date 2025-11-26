@@ -81,6 +81,28 @@
                     </p>
                 </div>
 
+                <div class="col-span-3">
+                    <label for="phone" class="block text-sm text-gray-900">Phone Number</label>
+                    <div class="flex">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                            +63
+                        </span>
+                        <input
+                            id="phone"
+                            v-model="form.phone"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            class="form-input rounded-l-none"
+                            placeholder="9123456789"
+                            required
+                        />
+                    </div>
+                    <p v-if="form.errors.phone" class="text-sm text-red-500 mt-1">
+                        {{ form.errors.phone }}
+                    </p>
+                </div>
+
                 <!-- GENDER INPUT FORM -->
                 <div class="col-span-3">
                     <label for="gender" class="block text-sm text-gray-900">Sex</label>

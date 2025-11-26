@@ -47,6 +47,7 @@ class AppointmentController extends Controller
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
                 'email' => $validated['email'],
+                'phone' => $validated['phone'],
                 'gender' => $validated['gender'],
                 'date_of_birth' => $validated['birthdate'],
                 'status' => 'pending',
@@ -100,12 +101,19 @@ class AppointmentController extends Controller
 
     public function updateStatus(Appointments $appointment, Request $request)
     {
-        $request->validate([
-            'status' => 'required',
+        $validated = $request->validate([
+            'status' => 'required|string|in:pending,arrived',
+            'first_name' => 'sometimes|string',
+            'middle_name' => 'sometimes|nullable|string',
+            'last_name' => 'sometimes|string',
+            'email' => 'sometimes|nullable|email',
+            'phone' => 'sometimes|nullable|string',
         ]);
 
-        $appointment->status = $request->status;
-        $appointment->save();
+        Log::info("validated: ", $validated);
+
+        // $appointment->status = $request->status;
+        // $appointment->save();
 
         return back()->with('success', 'Status updated successfully.');
     }
