@@ -64,7 +64,7 @@
     })
 
     const showTestModal = (patient_id) => {
-        (patientID.value = patient_id), (togglesTestModal.showTestModal = true)
+        ;(patientID.value = patient_id), (togglesTestModal.showTestModal = true)
         console.log('sa patient ni', patientID.value)
     }
 
@@ -94,6 +94,14 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
+                        <button
+                            class="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded hover:opacity-75"
+                        >
+                            <a class="text-white-600" :href="route('patient.report')" target="_blank">
+                                Print Reports
+                            </a>
+                        </button>
+
                         <AddButton color="green" @click="toggles.showAddSupplyModal = true">
                             Add Patient
                         </AddButton>

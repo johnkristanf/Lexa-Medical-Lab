@@ -1,6 +1,6 @@
 <script setup>
     import ApexChart from 'vue3-apexcharts'
-    import { ref, computed, watch, onMounted } from 'vue'
+    import { ref, watch, onMounted } from 'vue'
     import axios from 'axios'
 
     const filterType = ref('all')
@@ -18,7 +18,7 @@
             style: {
                 fontSize: '18px',
                 fontWeight: 'bold',
-                colors: ['#fff'], // make text white for contrast
+                colors: ['#fff'],
             },
             dropShadow: {
                 enabled: true,
@@ -32,15 +32,15 @@
         plotOptions: {
             pie: {
                 dataLabels: {
-                    offset: -25, // move labels closer or farther inside
-                    minAngleToShowLabel: 15, // avoid clutter if slice is too small
+                    offset: -25,
+                    minAngleToShowLabel: 15,
                 },
             },
         },
         legend: {
             position: 'right',
             labels: {
-                colors: '#fff', // white legend text for dark mode
+                colors: '#fff',
             },
         },
         tooltip: {
@@ -56,24 +56,35 @@
                 params: { filter: filterType.value },
             })
 
-            console.log('data: ', data)
+            console.log('Chart API Data:', data)
 
-            series.value = data.map((item) => Number(item.total_quantity))
+            // ⭐ Prevent undefined values
+            const safeLabels = data.map((item) => item.name ?? 'Unknown')
+            const safeSeries = data.map((item) => Number(item.total_quantity ?? 0))
 
+            // ⭐ Ensure lengths match
+            if (safeLabels.length !== safeSeries.length) {
+                console.warn('Label and series count mismatch. Fixing...')
+            }
+
+            // ⭐ Update chart
             chartOptions.value = {
                 ...chartOptions.value,
-                labels: data.map((item) => item.brand_name),
+                labels: safeLabels,
             }
+
+            series.value = safeSeries
         } catch (error) {
             console.error('Error fetching chart data:', error)
+
+            // Fail-safe so ApexCharts won't break
+            chartOptions.value.labels = ['No Data']
+            series.value = [1]
         }
     }
 
-    // fetch on mount
     onMounted(fetchChartData)
-
-    // re-fetch when filter changes
-    watch(filterType, () => fetchChartData())
+    watch(filterType, fetchChartData)
 </script>
 
 <template>

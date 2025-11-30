@@ -11,16 +11,14 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {generateBatchNumber} from '@/helpers/batch_random_num'
+    import { generateBatchNumber } from '@/helpers/batch_random_num'
 
     // TOAST INITIALIZATION
     const toast = useToast()
 
-
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
-
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
@@ -29,21 +27,19 @@
     })
 
     // FORM SUBMISSION
-   function submitForm() {
-    form.post(route('categories.store.data'), {
-        onSuccess: () => {
-            toast.add({
-                severity: 'success',
-                summary: 'Medical Supply Addition Successful',
-                life: 3000,
-            })
+    function submitForm() {
+        form.post(route('categories.store.data'), {
+            onSuccess: () => {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medical Supply Addition Successful',
+                    life: 3000,
+                })
 
-            closeModal();
-        },
-    })
-}
-
-
+                closeModal()
+            },
+        })
+    }
 </script>
 
 <template>
@@ -75,10 +71,7 @@
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
                                 Create Category
                             </DialogTitle>
 
@@ -102,15 +95,12 @@
                                                 type="text"
                                                 class="form-input"
                                             />
-                                            <p
-                                                v-if="form.errors.name"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
+                                            <p v-if="form.errors.name" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.name }}
                                             </p>
                                         </div>
 
-                                         <div class="sm:col-span-2">
+                                        <div class="sm:col-span-2">
                                             <label
                                                 for="lot_number"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -127,7 +117,7 @@
                                                 v-if="form.errors.description"
                                                 class="text-sm text-red-500 mt-1"
                                             >
-                                                {{ form.errors.description}}
+                                                {{ form.errors.description }}
                                             </p>
                                         </div>
                                     </div>
@@ -137,11 +127,13 @@
                                             type="submit"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 text-center text-sm font-semibold text-white ',
-                                                form.processing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-green-600 hover:bg-green-500',
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Category
+                                            Submit
                                         </button>
 
                                         <button
@@ -149,7 +141,9 @@
                                             @click="closeModal"
                                             :class="[
                                                 'block w-full rounded-md  px-3.5 py-2.5 mt-3  text-center text-sm  font-semibold text-white',
-                                                form.processing ? 'bg-gray-400' : 'bg-gray-900 hover:bg-gray-500',
+                                                form.processing
+                                                    ? 'bg-gray-400'
+                                                    : 'bg-gray-900 hover:bg-gray-500',
                                             ]"
                                             :disabled="form.processing"
                                         >

@@ -362,4 +362,32 @@ class MedicalStaffController extends Controller
 
         return back()->with('success', 'Reminder email sent.');
     }
+
+    public function printPatientReport(){
+
+        $patients_report = Patient::all();
+        $logoLexa = $this->logoLexa();
+
+        $pdf = Pdf::loadView('pdf.patient_report', [
+            'patients'=> $patients_report,
+            'logoLexa'=> $logoLexa
+        ])->setPaper('a4', 'landscape');
+
+
+        return $pdf->stream('patient_report.pdf');
+
+    }
+
+     private function logoLexa()
+    {
+        $logoPath = public_path('img/lexa-logo-removedbg.png');
+
+        if (file_exists($logoPath)) {
+            $imageData = base64_encode(file_get_contents($logoPath));
+            $mimeType = mime_content_type($logoPath);
+            return 'data:' . $mimeType . ';base64,' . $imageData;
+        }
+
+        return null;
+    }
 }

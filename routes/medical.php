@@ -27,6 +27,9 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::get('/medical/appointments', [MedicalStaffController::class, 'medicalAppointmentPage'])
         ->name('medical.appointments');
 
+         Route::get('/patient/report', [MedicalStaffController::class, 'printPatientReport'])
+        ->name('patient.report');
+
     // SEND EMAIL REMINDER FOR RESULTS
     Route::post('/medical/result/send-email', [MedicalStaffController::class, 'sendEmailResultReminder'])
         ->name('result.send');

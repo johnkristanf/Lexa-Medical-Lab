@@ -112,18 +112,19 @@ class MedicalSupplyController extends Controller
         ]);
     }
 
-    public function mostUsedSupples(Request $request)
+     public function mostUsedSupples(Request $request)
     {
-        $filter = $request->get('filter', 'all');
-        Log::info("filter: ", [$filter]);
+    $filter = $request->get('filter', 'all');
 
-        $query = InventoryLogs::select(
-            'medical_supplies.brand_name',
-            DB::raw('SUM(inventory_logs.total_quantity) as total_quantity')
-        )
-            ->join('medical_supplies', 'inventory_logs.supply_id', '=', 'medical_supplies.id')
-            ->groupBy('medical_supplies.brand_name')
-            ->orderByDesc('total_quantity');
+    $query = InventoryLogs::select(
+        'categories.name',
+        DB::raw('SUM(inventory_logs.total_quantity) as total_quantity')
+    )
+        ->join('medical_supplies', 'inventory_logs.supply_id', '=', 'medical_supplies.id')
+        ->join('categories', 'medical_supplies.category_id', '=', 'categories.id')
+        ->where('inventory_logs.operation_type', 'DEDUCTED')
+        ->groupBy('categories.name')
+        ->orderByDesc('total_quantity');
 
         // apply filters
         if ($filter === 'day') {
@@ -135,8 +136,7 @@ class MedicalSupplyController extends Controller
             $query->whereYear('inventory_logs.created_at', now()->year);
         }
 
-        $logs = $query->get();
-        return response()->json($logs);
+        return response()->json($query->get());
     }
 
 
@@ -616,4 +616,7 @@ class MedicalSupplyController extends Controller
 
         return null;
     }
+
+
+
 }
