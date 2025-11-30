@@ -54,10 +54,7 @@
 <template>
     <GuestLayout :noMaxWidth="true" dynamicBgColor="bg-transparent">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
-            <Card
-                v-for="queue in props.queues"
-                style="width: 20rem; overflow: hidden; height: 19rem"
-            >
+            <Card v-for="queue in props.queues" style="width: 20rem; overflow: hidden; height: 19rem">
                 <!-- BUSSINESS LOGO IMAGE HEADER -->
                 <template #header>
                     <div class="p-8">
@@ -68,11 +65,8 @@
                 <template #title>
                     <div class="flex flex-col gap-1">
                         <h1>{{ queue.queue_number }}</h1>
-
                     </div>
                 </template>
-
-
 
                 <template #content>
                     <!-- PRIORITY TYPE NAME AND CODE -->

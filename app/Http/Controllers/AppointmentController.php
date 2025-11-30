@@ -9,7 +9,10 @@ use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
 use App\Models\AppointmentSlots;
 use App\Models\Patient;
+use App\Models\PriorityTypes;
+use App\Models\Queues;
 use App\Models\TestCategory;
+use App\Services\QueueService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +22,9 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+
+    public function __construct(protected QueueService $queueService){}
+
     public function index()
     {
         $testCategories = TestCategory::with('testTypes')
@@ -30,17 +36,22 @@ class AppointmentController extends Controller
             ->latest()
             ->get();
 
+        $priorityTypes = PriorityTypes::select('id', 'name', 'code')->get();
+
+
         return Inertia::render('Appointment/Index', [
             'test_categories' => $testCategories,
             'appointment_schedules' => $schedules,
+            'priority_types' => $priorityTypes
         ]);
     }
 
     public function store(StoreAppointmentRequest $request)
     {
+        Log::info('request', [$request]);
 
         $validated = $request->validated();
-        Log::info('validated appointmebnt data', [$validated]);
+        Log::info('VALIDATE', [$validated]);
 
         DB::transaction(function () use ($validated) {
             $appointment = Appointments::create([
@@ -50,7 +61,10 @@ class AppointmentController extends Controller
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
                 'address' => $validated['address'],
-                'gender' => $validated['gender'],
+
+                'gender' => $validated['gender']['name'],
+                'priority_id' => $validated['priority_type']['id'],
+
                 'date_of_birth' => $validated['birthdate'],
                 'status' => 'pending',
                 'schedule_id' => $validated['selected_schedule_id'],
@@ -116,26 +130,46 @@ class AppointmentController extends Controller
             'date_of_birth' => 'sometimes|date|date_format:Y-m-d',
         ]);
 
-        Log::info('validated: ', $validated);
+        Log::info('appointment: ', [$appointment]);
+        Log::info('validated: ', [$validated]);
 
-        // Create a new Patient record using the validated data
-        Patient::create([
-            'patient_id' => $validated['patient_id'] ?? '',
+        DB::transaction(function () use ($validated, $appointment) {
+            // Fix: Properly retrieve the PriorityTypes model by its primary key using findOrFail
+            $priorityType = PriorityTypes::findOrFail($appointment->priority_id);
 
-            'first_name' => $validated['first_name'] ?? '',
-            'middle_name' => $validated['middle_name'] ?? null,
-            'last_name' => $validated['last_name'] ?? '',
+            // Create a new Patient record using the validated data
+            Patient::create([
+                'patient_id' => $validated['patient_id'] ?? '',
 
-            'gender' => $validated['gender'] ?? '',
-            'date_of_birth' => $validated['date_of_birth'] ?? '',
+                'first_name' => $validated['first_name'] ?? '',
+                'middle_name' => $validated['middle_name'] ?? null,
+                'last_name' => $validated['last_name'] ?? '',
 
-            'address' => $validated['address'] ?? '',
-            'contact_number' => $validated['phone'] ?? '',
-            'email' => $validated['email'] ?? null,
-        ]);
+                'gender' => $validated['gender'] ?? '',
+                'date_of_birth' => $validated['date_of_birth'] ?? '',
 
-        // DELETE EXISTING APPOINTMENT
-        $appointment->delete();
+                'address' => $validated['address'] ?? '',
+                'contact_number' => $validated['phone'] ?? '',
+                'email' => $validated['email'] ?? null,
+
+                'priority_id' => $priorityType->id,
+                'transaction_type' => Patient::APPOINMENT
+            ]);
+
+            // MAGKA PROBLEMA SIYA PAG WLA PAJUY UNOD ANG QUEUE MAG FAIL ANG WHERE CONDITION
+            $queueNumber = $this->queueService->getNewQueueNumber($priorityType->id);
+            $formmattedQueueNumber = $priorityType->code . '-' . $queueNumber;
+
+            // Add the appointment patient to the queue
+            Queues::create([
+                'priority_type_id' => $appointment->priority_id,
+                'queue_number' => $formmattedQueueNumber,
+                'is_appointment' => true
+            ]);
+
+            // DELETE EXISTING APPOINTMENT
+            $appointment->delete();
+        });
 
         return back()->with('success', 'Status updated successfully.');
     }

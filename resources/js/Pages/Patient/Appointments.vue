@@ -98,7 +98,7 @@ import { generateRandomNumberString } from '@/helpers/random_num'
         </template>
 
         <div>
-            <div class="h-full mx-auto max-w-8xl sm:px-6 lg:px-8">
+            <div class="h-[70vh] mx-auto max-w-8xl sm:px-6 lg:px-8 ">
                 <div class="h-full card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">

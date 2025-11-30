@@ -3,15 +3,17 @@
     import { ref } from 'vue'
 
     import Select from 'primevue/select'
+    import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
+    import InputLabel from '@/Components/InputLabel.vue'
+    import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
     const props = defineProps({
         form: Object,
+        genders: Array,
+        priority_types: Array,
     })
 
-    const genders = ref([
-        { name: 'Male', tag: 'male' },
-        { name: 'Female', tag: 'female' },
-    ])
+    
 </script>
 
 <template>
@@ -55,13 +57,7 @@
 
                 <div>
                     <label for="last_name" class="block text-sm text-gray-900">Last Name</label>
-                    <input
-                        id="last_name"
-                        v-model="form.last_name"
-                        type="text"
-                        class="form-input"
-                        required
-                    />
+                    <input id="last_name" v-model="form.last_name" type="text" class="form-input" required />
                     <p v-if="form.errors.first_name" class="text-sm text-red-500 mt-1">
                         {{ form.errors.first_name }}
                     </p>
@@ -69,13 +65,7 @@
 
                 <div class="col-span-3">
                     <label for="email" class="block text-sm text-gray-900">Email</label>
-                    <input
-                        id="email"
-                        v-model="form.email"
-                        type="email"
-                        class="form-input"
-                        required
-                    />
+                    <input id="email" v-model="form.email" type="email" class="form-input" required />
                     <p v-if="form.errors.email" class="text-sm text-red-500 mt-1">
                         {{ form.errors.email }}
                     </p>
@@ -84,7 +74,9 @@
                 <div class="col-span-3">
                     <label for="phone" class="block text-sm text-gray-900">Phone Number</label>
                     <div class="flex">
-                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        <span
+                            class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                        >
                             +63
                         </span>
                         <input
@@ -105,13 +97,7 @@
 
                 <div class="col-span-3">
                     <label for="address" class="block text-sm text-gray-900">Address</label>
-                    <input
-                        id="address"
-                        v-model="form.address"
-                        type="text"
-                        class="form-input"
-                        required
-                    />
+                    <input id="address" v-model="form.address" type="text" class="form-input" required />
                     <p v-if="form.errors.address" class="text-sm text-red-500 mt-1">
                         {{ form.errors.address }}
                     </p>
@@ -119,15 +105,122 @@
 
                 <!-- GENDER INPUT FORM -->
                 <div class="col-span-3">
-                    <label for="gender" class="block text-sm text-gray-900">Sex</label>
+                    <InputLabel for="gender" value="Gender" />
 
-                    <Select
-                        v-model="form.gender"
-                        :options="genders"
-                        optionLabel="name"
-                        optionValue="tag"
-                        class="w-full"
-                    />
+                    <Listbox v-model="form.gender">
+                        <div class="relative mt-1">
+                            <ListboxButton
+                                class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                            >
+                                <span class="block truncate">{{ form.gender.name }}</span>
+                                <span
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                                >
+                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </span>
+                            </ListboxButton>
+
+                            <transition
+                                leave-active-class="transition duration-100 ease-in"
+                                leave-from-class="opacity-100"
+                                leave-to-class="opacity-0"
+                            >
+                                <ListboxOptions
+                                    class="absolute mt-1 max-h-60 z-50 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+                                >
+                                    <ListboxOption
+                                        v-slot="{ active, selected }"
+                                        v-for="gender in props.genders"
+                                        :key="gender.name"
+                                        :value="gender"
+                                        as="template"
+                                    >
+                                        <li
+                                            :class="[
+                                                active ? 'bg-green-100 text-green-900' : 'text-gray-900',
+                                                'relative cursor-default select-none py-2 pl-10 pr-4',
+                                            ]"
+                                        >
+                                            <span
+                                                :class="[
+                                                    selected ? 'font-medium' : 'font-normal',
+                                                    'block truncate',
+                                                ]"
+                                            >
+                                                {{ gender.name }}
+                                            </span>
+                                            <span
+                                                v-if="selected"
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-600"
+                                            >
+                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                            </span>
+                                        </li>
+                                    </ListboxOption>
+                                </ListboxOptions>
+                            </transition>
+                        </div>
+                    </Listbox>
+                </div>
+
+                <!-- LIST FOR PRIORITY TYPES -->
+                <div class="col-span-3">
+                    <InputLabel for="priority_type" value="Patient Type" />
+
+                    <Listbox v-model="form.priority_type">
+                        <div class="relative mt-1">
+                            <ListboxButton
+                                class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                            >
+                                <span class="block truncate">{{ form.priority_type.name }}</span>
+                                <span
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                                >
+                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </span>
+                            </ListboxButton>
+
+                            <transition
+                                leave-active-class="transition duration-100 ease-in"
+                                leave-from-class="opacity-100"
+                                leave-to-class="opacity-0"
+                            >
+                                <ListboxOptions
+                                    class="absolute mt-1 max-h-60 z-50 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+                                >
+                                    <ListboxOption
+                                        v-slot="{ active, selected }"
+                                        v-for="priority in props.priority_types"
+                                        :key="priority.name"
+                                        :value="priority"
+                                        as="template"
+                                    >
+                                        <li
+                                            :class="[
+                                                active ? 'bg-green-100 text-green-900' : 'text-gray-900',
+                                                'relative cursor-default select-none py-2 pl-10 pr-4',
+                                            ]"
+                                        >
+                                            <span
+                                                :class="[
+                                                    selected ? 'font-medium' : 'font-normal',
+                                                    'block truncate',
+                                                ]"
+                                            >
+                                                {{ priority.name }}
+                                            </span>
+                                            <span
+                                                v-if="selected"
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-600"
+                                            >
+                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                            </span>
+                                        </li>
+                                    </ListboxOption>
+                                </ListboxOptions>
+                            </transition>
+                        </div>
+                    </Listbox>
                 </div>
 
                 <!-- DATE PICKER INPUT FORM -->
