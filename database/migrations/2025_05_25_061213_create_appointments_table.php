@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('status');
 
             $table->foreignId('schedule_id')->constrained('appointment_schedules');
+            $table->foreignId('priority_id')->constrained('priority_types');
             $table->timestamps();
         });
     }

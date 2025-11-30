@@ -19,7 +19,13 @@
     const props = defineProps({
         test_categories: Array,
         appointment_schedules: Array,
+        priority_types: Array,
     })
+
+    const genders = ref([
+        { name: 'Male', tag: 'male' },
+        { name: 'Female', tag: 'female' },
+    ])
 
     const toast = useToast()
     const showAppointmentDetails = ref(false)
@@ -33,8 +39,9 @@
         email: '', // MAKE THIS NULLABLE IN THE BACKEND PARA SA MGA ARTE NA PANEL
         phone: '',
         address: '',
-        gender: '',
+        gender: genders.value[0],
         birthdate: '',
+        priority_type: props.priority_types[2], // INITIAL VALUE SET REGULAR PATIENT
         selected_schedule_id: -1,
         selected_time_slot_id: -1,
         selected_type_ids: [],
@@ -67,6 +74,7 @@
 
     onMounted(() => {
         console.log('test_categories: ', props.test_categories)
+        console.log('priority_types: ', props.priority_types)
     })
 </script>
 
@@ -115,7 +123,11 @@
                 <StepPanel v-slot="{ activateCallback }" value="2">
                     <div class="flex flex-col h-full">
                         <div class="flex-auto flex justify-center items-center font-medium">
-                            <AppointmentForm :form="form" />
+                            <AppointmentForm
+                                :form="form"
+                                :genders="genders"
+                                :priority_types="priority_types"
+                            />
                         </div>
                     </div>
                     <div class="flex py-4 pr-3 justify-between">
