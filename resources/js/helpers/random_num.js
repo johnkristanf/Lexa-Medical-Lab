@@ -9,3 +9,9 @@ export function generateRandomNumberString(length) {
     }
     return result;
 }
+
+
+
+export function loadPatientCodeWithDiscount(){
+    return ["PWD", "SC", "PW"]
+}

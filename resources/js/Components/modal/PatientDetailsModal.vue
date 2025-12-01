@@ -13,7 +13,6 @@
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
     import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
-    import InputLabel from '@/Components/InputLabel.vue'
     import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
     import { onMounted } from 'vue'
 
@@ -304,7 +303,7 @@
                                             >
                                                 Patient Type
                                             </label>
-                                            
+
                                             <Listbox v-model="form.priority_type">
                                                 <div class="relative mt-1">
                                                     <ListboxButton

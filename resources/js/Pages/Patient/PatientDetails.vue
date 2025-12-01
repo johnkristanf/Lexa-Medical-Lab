@@ -34,7 +34,7 @@
 
     onMounted(() => {
         console.log("patients: ", props.patients);
-        
+
     })
 
     const showAddScheduleModal = ref(false)
@@ -58,6 +58,7 @@
     }
 
     const patientID = ref(null)
+    const patientPriotityType = ref(null)
 
     const toggles = reactive({
         showAddSupplyModal: false,
@@ -69,9 +70,12 @@
         showInventoryDrawer: false,
     })
 
-    const showTestModal = (patient_id) => {
-        ;(patientID.value = patient_id), (togglesTestModal.showTestModal = true)
-        console.log('sa patient ni', patientID.value)
+    const showTestModal = (patient_id, priority_type) => {
+        console.log("priority_type: ", priority_type);
+
+        patientID.value = patient_id
+        togglesTestModal.showTestModal = true
+        patientPriotityType.value = priority_type
     }
 
     // TABLE HEADERS
@@ -87,7 +91,7 @@
         'Actions',
     ]
 
-  
+
 </script>
 
 <template>
@@ -155,7 +159,7 @@
                                     <!-- Actions -->
                                     <fwb-table-cell class="flex items-center gap-3">
                                         <button
-                                            @click="showTestModal(patient.id)"
+                                            @click="showTestModal(patient.id, patient.priority_type)"
                                             class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
                                             Conduct Test
@@ -209,6 +213,7 @@
             :testTypesPurpose="testTypesPurpose"
             :testTypesRequest="testTypesRequest"
             :patientID="patientID"
+            :patientPriorityType="patientPriotityType"
             :testCategory="testCategory"
             @close="togglesTestModal.showTestModal = false"
             :testType="testType"

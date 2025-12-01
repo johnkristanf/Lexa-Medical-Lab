@@ -1,5 +1,6 @@
 <script setup>
-    import {
+    import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
+import {
         TransitionRoot,
         TransitionChild,
         Dialog,
@@ -11,19 +12,22 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import { onMounted, computed } from 'vue'
+    import {  computed } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
+    const discountedCode = loadPatientCodeWithDiscount();
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
+
     const props = defineProps({
         testTypesPurpose: Array,
         // testTypesRequest: Array,
         patientID: Number,
+        patientPriorityType: Object,
         testCategory: Array,
         testType: Array,
     })
@@ -52,11 +56,18 @@
         return selectedCategory ? selectedCategory.test_types : []
     })
 
-    // calculate total price of test types
+    // calculate total price of test types, applying 20% discount if eligible
     const totalPrice = computed(() => {
+        const discountEligible = props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)
         return filteredTestTypes.value
             .filter((type) => form.selected_test_types.includes(type.id))
-            .reduce((sum, type) => sum + parseInt(type.price || 0), 0)
+            .reduce((sum, type) => {
+                let price = Number(type.price || 0)
+                if (discountEligible) {
+                    price = price * 0.8 // Apply 20% discount
+                }
+                return sum + price
+            }, 0)
             .toFixed(2)
     })
 
@@ -339,8 +350,17 @@
                                                                 {{ type.name }}
                                                             </span>
                                                         </label>
-                                                        <span class="text-sm text-gray-700">
-                                                            {{ type.price }}
+                                                        <span class="text-sm text-gray-700 flex items-center gap-2">
+                                                            <template v-if="props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)">
+                                                                <span class="line-through opacity-50">{{ type.price }}</span>
+                                                                <span class="font-bold text-green-600">
+                                                                    {{ (Number(type.price) * 0.8).toFixed(2) }}
+                                                                </span>
+                                                                <span class="ml-1 px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">Discounted</span>
+                                                            </template>
+                                                            <template v-else>
+                                                                {{ type.price }}
+                                                            </template>
                                                         </span>
                                                     </div>
                                                 </div>

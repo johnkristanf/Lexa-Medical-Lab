@@ -21,6 +21,7 @@
 
     import { ref, computed, watch, onMounted } from 'vue'
     import { formatDate } from '@/helpers/formatter'
+import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
 
     const props = defineProps({
         test_categories: Array,
@@ -28,7 +29,7 @@
         form: Object,
     })
 
-    
+
 
     // Modal state
     const isScheduleModalOpen = ref(false)
@@ -44,13 +45,13 @@
     )
 
     // Compute total price from selected type IDs
-    const discountedCode = ["PWD", "SC", "PW"]
-    
+    const discountedCode = loadPatientCodeWithDiscount();
+
     const totalPrice = computed(() => {
         // Get the code of selected priority type from the form
         const priorityTypeCode = props.form?.priority_type?.code
         const hasDiscount = discountedCode.includes(priorityTypeCode)
-        return selectedTypeIds.value.reduce((total, id) => {
+        const total = selectedTypeIds.value.reduce((total, id) => {
             const type = allTestTypes.value.find((t) => t.id === id)
             if (!type) return total
             let price = Number(type.price)
@@ -59,6 +60,7 @@
             }
             return total + price
         }, 0)
+        return total.toFixed(2)
     })
 
     // Format time for display
@@ -91,7 +93,7 @@
     function selectTimeSlot(schedule, slot) {
         console.log("schedule: ", schedule);
         console.log("slot: ", slot);
-        
+
         selectedSchedule.value = schedule
         selectedTimeSlot.value = slot
 
