@@ -11,7 +11,7 @@
         FwbTableRow,
     } from 'flowbite-vue'
 
-    import { reactive, ref } from 'vue'
+    import { onMounted, reactive, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import PatientDetailsModal from '@/Components/modal/PatientDetailsModal.vue'
@@ -29,6 +29,12 @@
         testCategory: Array,
         testType: Array,
         patientUpdate: Array,
+        priority_types: Array,
+    })
+
+    onMounted(() => {
+        console.log("patients: ", props.patients);
+        
     })
 
     const showAddScheduleModal = ref(false)
@@ -71,6 +77,7 @@
     // TABLE HEADERS
     const patientTableHeaders = [
         'Patient ID',
+        'Patient Type',
         'Full Name',
         'Gender',
         'Birth Date',
@@ -79,6 +86,8 @@
         'Email',
         'Actions',
     ]
+
+  
 </script>
 
 <template>
@@ -128,6 +137,7 @@
                             <template v-if="patients && patients.length > 0">
                                 <fwb-table-row v-for="(patient, index) in patients" :key="index">
                                     <fwb-table-cell>{{ patient.patient_id }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.priority_type?.name ?? '' }}</fwb-table-cell>
                                     <fwb-table-cell
                                         class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
                                     >
@@ -182,7 +192,11 @@
         </div>
 
         <!-- ADD SUPLY MODAL -->
-        <PatientDetailsModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
+        <PatientDetailsModal
+            v-if="toggles.showAddSupplyModal"
+            :priority_types="props.priority_types"
+            @close="toggles.showAddSupplyModal = false"
+        />
 
         <UpdatePatientDetails
             v-if="showUpdatePatientDetails"

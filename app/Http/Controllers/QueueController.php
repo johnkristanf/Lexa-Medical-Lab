@@ -20,29 +20,20 @@ class QueueController extends Controller
    
     public function create(Request $request): Response
     {
+        $defaultRegularPatientID = 3;
+        $priorityTypeId = $request->input('id', $defaultRegularPatientID);
+        $priorityType = PriorityTypes::findOrFail($priorityTypeId);
+
         $priorityTypes = PriorityTypes::select('id', 'name', 'code')->get();
-        $newQueueNumber = null;
+        $queueNumber = $this->queueService->getNewQueueNumber($priorityType->id);
 
-        if ($request->has('id')) {
-            $priorityTypeId = $request->input('id');
-            $newQueueNumber = $this->queueService->getNewQueueNumber($priorityTypeId);
-        } else {
-
-            // If no ID is provided, use the first priority type as default
-            $defaultPriorityType = $priorityTypes->first();
-
-            if ($defaultPriorityType) {
-
-                $newQueueNumber = $this->queueService->getNewQueueNumber($defaultPriorityType->id);
-            } else {
-                // Fallback in case there are no priority types
-                $newQueueNumber = '01';
-            }
+        if ($queueNumber === null) {
+            // If there are no existing queues, default to "01" using the priority type's code
+            $queueNumber = '01';
         }
-
         return Inertia::render('Queue/CreateQueue', [
             'priority_types' => $priorityTypes,
-            'queue_number' => $newQueueNumber,
+            'queue_number' => $queueNumber,
         ]);
     }
 
@@ -93,9 +84,16 @@ class QueueController extends Controller
             ->whereDate('created_at', now()->toDateString())
             ->where('status_id', '!=', 3)
             ->get()
-            ->sortBy(fn ($queue) => $queue->priority_types->priority_level)
+            ->sortBy(function ($queue) {
+                return [
+                    $queue->priority_types->priority_level,            // 1st: Lower priority_level first
+                    $queue->is_appointment ? 0 : 1,                    // 2nd: Appointments first within same priority_level
+                    $queue->created_at,                                // 3rd: First-come within same group
+                ];
+            })
             ->values(); // Reset index
 
+            Log::info("allQueues: ", [$allQueues]);
         return Inertia::render('Queue/DashboardQueue', [
             'queues' => $allQueues,
         ]);

@@ -24,4 +24,9 @@ class Patient extends Model
             ->withPivot(['test_id', 'results'])
             ->withTimestamps();
     }
+
+    public function priority_type()
+    {
+        return $this->belongsTo(PriorityTypes::class, 'priority_id');
+    }
 }

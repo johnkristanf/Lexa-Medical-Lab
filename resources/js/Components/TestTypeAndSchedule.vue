@@ -28,6 +28,8 @@
         form: Object,
     })
 
+    
+
     // Modal state
     const isScheduleModalOpen = ref(false)
     const selectedSchedule = ref(null)
@@ -42,10 +44,20 @@
     )
 
     // Compute total price from selected type IDs
+    const discountedCode = ["PWD", "SC", "PW"]
+    
     const totalPrice = computed(() => {
+        // Get the code of selected priority type from the form
+        const priorityTypeCode = props.form?.priority_type?.code
+        const hasDiscount = discountedCode.includes(priorityTypeCode)
         return selectedTypeIds.value.reduce((total, id) => {
             const type = allTestTypes.value.find((t) => t.id === id)
-            return type ? total + Number(type.price) : total
+            if (!type) return total
+            let price = Number(type.price)
+            if (hasDiscount) {
+                price = price * 0.8 // 20% discount
+            }
+            return total + price
         }, 0)
     })
 
@@ -105,7 +117,9 @@
 
     onMounted(() => {
         console.log('appointment_schedules: ', props.appointment_schedules)
+        console.log('FORM SA TYPE AND SCHEDULE: ', props.form)
     })
+
 </script>
 
 <template>
@@ -171,7 +185,15 @@
                             class="mr-2"
                         />
                         <label :for="'type-' + type.id" class="text-gray-700">
-                            {{ type.name }} — ₱{{ type.price }}
+                            {{ type.name }} —
+                            <span v-if="discountedCode.includes(props.form.priority_type.code)">
+                                <span class="line-through text-gray-400">₱{{ type.price }}</span>
+                                <span class="text-green-700 font-bold ml-2">₱{{ (type.price * 0.8).toFixed(2) }}</span>
+                                <span class="ml-2 text-xs text-green-700 font-semibold">(20% Discount Applied)</span>
+                            </span>
+                            <span v-else>
+                                ₱{{ type.price }}
+                            </span>
                         </label>
                     </div>
                 </div>

@@ -12,6 +12,21 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
+    import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
+    import InputLabel from '@/Components/InputLabel.vue'
+    import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
+    import { onMounted } from 'vue'
+
+    const props = defineProps({
+        priority_types: {
+            type: Array,
+            default: () => [],
+        },
+    })
+
+    onMounted(() => {
+        console.log('PRIORITY TYPES SA MODAL:: ', props.priority_types)
+    })
 
     // TOAST INITIALIZATION
     const toast = useToast()
@@ -19,8 +34,6 @@
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
-
-
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
@@ -33,10 +46,13 @@
         address: '',
         contact_number: '',
         email: '',
+        priority_type: props.priority_types[2]
     })
 
     // FORM SUBMISSION
     function submitForm() {
+        console.log('Submitting form with values:', { ...form });
+
         form.post(route('patient.details.submit'), {
             onSuccess: () => {
                 toast.add({
@@ -278,6 +294,83 @@
                                             <p v-if="form.errors.email" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.email }}
                                             </p>
+                                        </div>
+
+                                        <!-- LIST OF PATIENT TYPES -->
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="contact_number"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Patient Type
+                                            </label>
+                                            
+                                            <Listbox v-model="form.priority_type">
+                                                <div class="relative mt-1">
+                                                    <ListboxButton
+                                                        class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                                                    >
+                                                        <span class="block truncate">
+                                                            {{ form.priority_type.name }}
+                                                        </span>
+                                                        <span
+                                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                                                        >
+                                                            <ChevronUpDownIcon
+                                                                class="h-5 w-5 text-gray-400"
+                                                                aria-hidden="true"
+                                                            />
+                                                        </span>
+                                                    </ListboxButton>
+
+                                                    <transition
+                                                        leave-active-class="transition duration-100 ease-in"
+                                                        leave-from-class="opacity-100"
+                                                        leave-to-class="opacity-0"
+                                                    >
+                                                        <ListboxOptions
+                                                            class="absolute mt-1 max-h-60 z-50 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+                                                        >
+                                                            <ListboxOption
+                                                                v-slot="{ active, selected }"
+                                                                v-for="priority in priority_types"
+                                                                :key="priority.name"
+                                                                :value="priority"
+                                                                as="template"
+                                                            >
+                                                                <li
+                                                                    :class="[
+                                                                        active
+                                                                            ? 'bg-green-100 text-green-900'
+                                                                            : 'text-gray-900',
+                                                                        'relative cursor-default select-none py-2 pl-10 pr-4',
+                                                                    ]"
+                                                                >
+                                                                    <span
+                                                                        :class="[
+                                                                            selected
+                                                                                ? 'font-medium'
+                                                                                : 'font-normal',
+                                                                            'block truncate',
+                                                                        ]"
+                                                                    >
+                                                                        {{ priority.name }}
+                                                                    </span>
+                                                                    <span
+                                                                        v-if="selected"
+                                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-600"
+                                                                    >
+                                                                        <CheckIcon
+                                                                            class="h-5 w-5"
+                                                                            aria-hidden="true"
+                                                                        />
+                                                                    </span>
+                                                                </li>
+                                                            </ListboxOption>
+                                                        </ListboxOptions>
+                                                    </transition>
+                                                </div>
+                                            </Listbox>
                                         </div>
                                     </div>
 

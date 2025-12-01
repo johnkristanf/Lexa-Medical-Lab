@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\QueueUpdate;
 use App\Http\Requests\StoreAppoinmentScheduleRequest;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Mail\AppointmentConfirmationMail;
@@ -158,14 +159,26 @@ class AppointmentController extends Controller
 
             // MAGKA PROBLEMA SIYA PAG WLA PAJUY UNOD ANG QUEUE MAG FAIL ANG WHERE CONDITION
             $queueNumber = $this->queueService->getNewQueueNumber($priorityType->id);
+
+            if ($queueNumber === null) {
+                // If there are no existing queues, default to "01" using the priority type's code
+                $queueNumber = '01';
+            }
+
             $formmattedQueueNumber = $priorityType->code . '-' . $queueNumber;
 
             // Add the appointment patient to the queue
-            Queues::create([
-                'priority_type_id' => $appointment->priority_id,
+            $queue = Queues::create([
                 'queue_number' => $formmattedQueueNumber,
-                'is_appointment' => true
+                'priority_type_id' => $appointment->priority_id,
+                'status_id' => 1, // default status is "waiting"
+                'is_appointment' => true,
+                'appointment_number' => $appointment->appointment_number,
             ]);
+
+            if ($queue) {
+                broadcast(new QueueUpdate($queue->id));
+            }
 
             // DELETE EXISTING APPOINTMENT
             $appointment->delete();

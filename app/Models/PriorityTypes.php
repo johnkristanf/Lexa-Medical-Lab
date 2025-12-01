@@ -17,4 +17,9 @@ class PriorityTypes extends Model
     {
         return $this->hasMany(Queues::class, 'priority_type_id');
     }
+
+    public function patients(): HasMany
+    {
+        return $this->hasMany(Patient::class, 'priority_id');
+    }
 }

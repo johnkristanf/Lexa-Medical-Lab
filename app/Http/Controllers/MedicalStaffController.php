@@ -7,6 +7,7 @@ use App\Mail\ResultEmailReminder;
 use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
 use App\Models\Patient;
+use App\Models\PriorityTypes;
 use App\Models\Queues;
 use App\Models\QueueStatus;
 use App\Models\Test;
@@ -99,16 +100,16 @@ class MedicalStaffController extends Controller
     public function patientDetailscreate(Request $request)
     {
         $searchQuery = $request->query('search');
-        $patientsDetails = Patient::when($searchQuery, function ($query, $search) {
-            $query->where('patient_id', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere(
-                    DB::raw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)"),
-                    'like',
-                    "%{$search}%"
-                );
-
-        })
+        $patientsDetails = Patient::with('priority_type')
+            ->when($searchQuery, function ($query, $search) {
+                $query->where('patient_id', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere(
+                        DB::raw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)"),
+                        'like',
+                        "%{$search}%"
+                    );
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -116,6 +117,7 @@ class MedicalStaffController extends Controller
         $patientUpdate = Patient::find($request->input('id'));
         // $testTypesRequest = TestRequest::all();
         $testCategory = TestCategory::with('testTypes')->get();
+        $priorityTypes = PriorityTypes::select('id', 'name', 'code')->get();
 
         return Inertia::render('Patient/PatientDetails', [
             'patients' => $patientsDetails,
@@ -123,6 +125,7 @@ class MedicalStaffController extends Controller
             // 'testTypesRequest' => $testTypesRequest,
             'testCategory' => $testCategory,
             'patientUpdate' => $patientUpdate,
+            'priority_types' => $priorityTypes
         ]);
     }
 
@@ -138,9 +141,23 @@ class MedicalStaffController extends Controller
             'address' => 'required|string|max:255',
             'contact_number' => 'required|string|max:11',
             'email' => 'required|email|max:255|unique:patients,email',
+            'priority_type.id' => 'required|exists:priority_types,id',
+            'priority_type.name' => 'required|string|max:255',
+            'priority_type.code' => 'required|string|max:10',
         ]);
 
-        Patient::create($validated);
+        Patient::create([
+            'patient_id' => $validated['patient_id'],
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'],
+            'gender' => $validated['gender'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'address' => $validated['address'],
+            'contact_number' => $validated['contact_number'],
+            'email' => $validated['email'],
+            'priority_id' => $validated['priority_type']['id'],
+        ]);
 
         return redirect()->back()->with('success', 'Patient details added successfully.');
     }
