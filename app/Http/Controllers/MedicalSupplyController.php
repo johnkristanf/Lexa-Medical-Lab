@@ -9,6 +9,7 @@ use App\Models\Batch;
 use App\Models\Categories;
 use App\Models\InventoryLogs;
 use App\Models\MedicalSupplies;
+use App\Models\Patient;
 use App\Models\RequestedSupply;
 use App\Models\Stock;
 use App\Models\SupplyRequest;
@@ -105,10 +106,22 @@ class MedicalSupplyController extends Controller
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
 
+        $data = Patient::select(
+            'priority_types.code as code',
+            DB::raw('COUNT(patients.id) as total')
+        )
+        ->join('priority_types', 'patients.priority_id', '=', 'priority_types.id')
+        ->groupBy('priority_types.code', 'priority_types.priority_level') // add priority_level
+        ->get();
+
+
+        Log::info("PATIENT NI: ", [$data]);
+
         return Inertia::render('Inventory/Dashboard', [
             'supplies' => $supplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
+            'patient_analytics' => $data
         ]);
     }
 
@@ -138,6 +151,7 @@ class MedicalSupplyController extends Controller
 
         return response()->json($query->get());
     }
+
 
 
     public function inventory(Request $request)

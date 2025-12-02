@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('contact_number')->nullable();
             $table->string('email')->nullable();
-
             $table->foreignId('priority_id')->constrained('priority_types');
             $table->enum('transaction_type', [Patient::WALK_IN, Patient::APPOINMENT])->default(Patient::WALK_IN);
             $table->timestamps();

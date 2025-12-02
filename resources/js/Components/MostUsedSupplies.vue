@@ -58,11 +58,9 @@
 
             console.log('Chart API Data:', data)
 
-            // ⭐ Prevent undefined values
             const safeLabels = data.map((item) => item.name ?? 'Unknown')
             const safeSeries = data.map((item) => Number(item.total_quantity ?? 0))
 
-            // ⭐ Ensure lengths match
             if (safeLabels.length !== safeSeries.length) {
                 console.warn('Label and series count mismatch. Fixing...')
             }

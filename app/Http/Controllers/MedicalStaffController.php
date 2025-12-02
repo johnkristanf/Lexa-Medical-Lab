@@ -24,16 +24,15 @@ use Inertia\Inertia;
 
 class MedicalStaffController extends Controller
 {
+
     public function queuePage(Request $request)
     {
         $statusID = $request->input('status_id', '1');
 
-        // FETCH ALL STATUS FOR TABLE FILTER
         $queueStatuses = QueueStatus::select('id', 'name', 'tag')
             ->where('tag', '!=', 'no_show')
             ->get();
 
-        // FETCH ALL QUEUE DATA ALONG WITH PRIORITY TYPE RELATIONSHIP
         $queues = Queues::with(['priority_types' => function ($query) {
             $query->select('id', 'name', 'code', 'priority_level');
         }])

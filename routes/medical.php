@@ -34,6 +34,9 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::post('/medical/result/send-email', [MedicalStaffController::class, 'sendEmailResultReminder'])
         ->name('result.send');
 
+ Route::get('/average/patient', [MedicalStaffController::class, 'averagePatientAnalytics'])
+        ->name('patients.average');
+
     // RENDER  TEST CATEGORY PAGE
     Route::prefix('test/Category')->group(function () {
 

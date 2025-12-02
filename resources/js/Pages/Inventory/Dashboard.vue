@@ -1,18 +1,17 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
-    import { reactive, ref, computed } from 'vue'
-    import { OPERATION_TYPES } from '@/Enums/Inventory'
-    import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
-    import SearchInput from '@/Components/SearchInput.vue'
+    import { reactive } from 'vue'
     import { onMounted } from 'vue'
     import { useToast } from 'primevue/usetoast'
     import MostUsedSupplies from '@/Components/MostUsedSupplies.vue'
+    import PatientAverage from '@/Components/PatientAverage.vue'
 
     // Props from controller
     const props = defineProps({
         supplies: Array,
         nearlyExpired: Array,
+        patient_analytics: Array
     })
 
     const toast = useToast()
@@ -26,6 +25,9 @@
                 life: 5000,
             })
         }
+
+        console.log("PATIENT:", props.patient_analytics);
+
     })
 
     onMounted(() => {
@@ -165,8 +167,15 @@
             </div>
         </div>
 
-        <!-- Extra Component -->
-        <MostUsedSupplies />
+        <!-- ✅ Analytics side-by-side -->
+        <div class="w-[90%] mx-auto mt-10 flex flex-col lg:flex-row gap-6">
+            <div class="flex-1">
+                <MostUsedSupplies />
+            </div>
+            <div class="flex-1">
+                <PatientAverage :patient_analytics="props.patient_analytics" />
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>
 

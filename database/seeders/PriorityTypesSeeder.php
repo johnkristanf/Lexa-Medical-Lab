@@ -25,6 +25,13 @@ class PriorityTypesSeeder extends Seeder
         ]);
 
 
+         PriorityTypes::firstOrCreate([
+            'name' => 'Pregnant Women',
+            'priority_level' => 1,
+            'code' => 'PW',
+        ]);
+
+
         PriorityTypes::firstOrCreate([
             'name' => 'Regular Patient',
             'priority_level' => 2,
