@@ -63,11 +63,7 @@
     const tableHeaders = [
         { key: 'participants', label: 'Item' },
         { key: 'brand_name', label: 'Brand Name' },
-        { key: 'unit', label: 'Unit' },
         { key: 'quantity', label: 'Supplies Left' },
-        { key: 'manufacture_date', label: 'Manufacturing Date' },
-        { key: 'expiration_date', label: 'Expiration Date' },
-        { key: 'lot_number', label: 'Lot #' },
         { key: 'action', label: 'Action', custom: true },
     ]
 </script>

@@ -17,6 +17,7 @@
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import ItemData from '@/Components/MostUsedSupplies.vue'
     import { useToast } from 'primevue/usetoast'
+    import PatientAverage from '@/Components/MostUsedSupplies.vue'
 
     const props = defineProps({
         supplies: Array,
@@ -81,13 +82,15 @@
 
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
             <!-- Nearly Out of Stock -->
-            <div class="flex-1  text-black p-6 rounded-lg shadow-2xl">
-                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Out of Stock Medical Supplies</h2>
+            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
+                    Nearly Out of Stock Medical Supplies
+                </h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
                         <thead>
-                            <tr  class="bg-green-600 text-white">
+                            <tr class="bg-green-600 text-white">
                                 <th class="border-b border-white py-2">Brand Name</th>
                                 <th class="border-b border-white py-2">Current Stock</th>
                                 <th class="border-b border-white py-2">Critical Stock</th>
@@ -127,8 +130,10 @@
             </div>
 
             <!-- Nearly Expired -->
-            <div class="flex-1  text-black p-6 rounded-lg shadow-2xl">
-                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Expired Medical Supplies</h2>
+            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
+                    Nearly Expired Medical Supplies
+                </h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
@@ -170,7 +175,14 @@
         </div>
 
         <!-- Logs -->
-        <ItemData :inventory_logs="props.inventory_logs" />
+        <div class="w-[90%] mx-auto mt-10 flex flex-col lg:flex-row gap-6">
+            <div class="flex-1">
+                <ItemData :inventory_logs="props.inventory_logs" />
+            </div>
+            <div class="flex-1">
+                <PatientAverage :patient_analytics="props.patient_analytics" />
+            </div>
+        </div>
     </AdminLayout>
 </template>
 

@@ -209,6 +209,7 @@ class AppointmentController extends Controller
 
         Appointments::where('id', $data['appointment_id'])->update([
             'appointment_number' => $data['appointment_number'],
+            'is_email_sent' => true
         ]);
 
         return redirect()

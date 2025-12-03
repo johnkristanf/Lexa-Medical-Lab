@@ -89,6 +89,8 @@ class MedicalStaffController extends Controller
             ->latest()
             ->get();
 
+            Log::info("MAO NI:", [$appointments]);
+
         return Inertia::render('Patient/Appointments', [
             'appointments' => $appointments,
             'schedules' => $schedules,
@@ -374,6 +376,7 @@ class MedicalStaffController extends Controller
 
     public function sendEmailResultReminder(Request $request)
     {
+
         Mail::to($request->get('email'))->send(new ResultEmailReminder);
 
         return back()->with('success', 'Reminder email sent.');

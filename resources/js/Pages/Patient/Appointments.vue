@@ -21,7 +21,7 @@
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
     import AddButton from '@/Components/AddButton.vue'
-import { generateRandomNumberString } from '@/helpers/random_num'
+    import { generateRandomNumberString } from '@/helpers/random_num'
 
     // COMPONENT PROPS
     const props = defineProps({
@@ -71,7 +71,7 @@ import { generateRandomNumberString } from '@/helpers/random_num'
                 phone: appointment?.phone ?? '',
                 date_of_birth: appointment?.date_of_birth ?? '',
                 gender: appointment?.gender ?? '',
-                address: appointment?.address ?? ''
+                address: appointment?.address ?? '',
             },
 
             {
@@ -98,11 +98,14 @@ import { generateRandomNumberString } from '@/helpers/random_num'
         </template>
 
         <div>
-            <div class="h-[70vh] mx-auto max-w-8xl sm:px-6 lg:px-8 ">
+            <div class="h-[70vh] mx-auto max-w-8xl sm:px-6 lg:px-8">
                 <div class="h-full card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <SearchInput route="medical.appointments" placeholder="Search Appointment Number, Name, Email" />
+                        <SearchInput
+                            route="medical.appointments"
+                            placeholder="Search Appointment Number, Name, Email"
+                        />
                     </div>
 
                     <fwb-table class="h-full">
@@ -118,10 +121,7 @@ import { generateRandomNumberString } from '@/helpers/random_num'
 
                         <fwb-table-body>
                             <template v-if="appointments && appointments.length > 0">
-                                <fwb-table-row
-                                    v-for="appointment in appointments"
-                                    :key="appointment.id"
-                                >
+                                <fwb-table-row v-for="appointment in appointments" :key="appointment.id">
                                     <fwb-table-cell>
                                         {{ appointment.appointment_number ?? 'N/A' }}
                                     </fwb-table-cell>
@@ -140,11 +140,7 @@ import { generateRandomNumberString } from '@/helpers/random_num'
                                     </fwb-table-cell>
                                     <fwb-table-cell>
                                         <fwb-badge
-                                            :type="
-                                                appointment.status === 'arrived'
-                                                    ? 'green'
-                                                    : 'yellow'
-                                            "
+                                            :type="appointment.status === 'arrived' ? 'green' : 'yellow'"
                                         >
                                             {{ appointment.status.toUpperCase() }}
                                         </fwb-badge>
@@ -167,9 +163,7 @@ import { generateRandomNumberString } from '@/helpers/random_num'
                                                 >
                                                     <fwb-list-group-item
                                                         class="flex justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        @click="
-                                                            updateStatus(appointment.id, 'arrived')
-                                                        "
+                                                        @click="updateStatus(appointment.id, 'arrived')"
                                                     >
                                                         Arrived
                                                     </fwb-list-group-item>
@@ -178,11 +172,13 @@ import { generateRandomNumberString } from '@/helpers/random_num'
 
                                             <AddButton
                                                 color="green"
+                                                :disabled="appointment.is_email_sent === 1"
+                                                class="disabled:opacity-50 disabled:cursor-not-allowed"
                                                 @click="
                                                     openEmailAppointmentDetails(
                                                         appointment.id,
                                                         appointment.appointment_number,
-                                                        appointment.schedule.date,
+                                                        appointment.schedule?.date,
                                                         appointment.email,
                                                     )
                                                 "
