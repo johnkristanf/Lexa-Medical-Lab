@@ -54,20 +54,20 @@
         plotOptions: {
             pie: { dataLabels: { offset: -25, minAngleToShowLabel: 15 } },
         },
+        // Show legends in the chart
         legend: {
+            show: true,
             position: 'right',
-            labels: { colors: '#fff' },
+            labels: { colors: '#000' },
             formatter: (seriesName, opts) => {
-                // Show raw number in legend as well
-                const rawValue = opts.w.globals.series[opts.seriesIndex]
-                return seriesName + ': ' + rawValue
-            }
-        },
-        tooltip: {
-            enabled: true,
-            y: {
-                formatter: (val) => val + ' patients'
-            }
+                const index = opts.seriesIndex
+                const rawValue = opts.w.globals.series[index]
+                const dataItem = filteredData.value[index]
+                const code = dataItem?.code ?? ''
+                const label = opts.w.globals.labels?.[index] ?? seriesName
+
+                return `${code} - ${label}: ${rawValue}`
+            },
         },
     }))
 </script>
@@ -85,11 +85,17 @@
                 @click="filterType = type"
             >
                 {{
-                    type === 'all' ? 'All' :
-                    type === 'regular' ? 'Regular Patient' :
-                    type === 'pwd' ? 'PWD' :
-                    type === 'senior' ? 'Senior Citizen' :
-                    type === 'pregnant' ? 'Pregnant Women' : type
+                    type === 'all'
+                        ? 'All'
+                        : type === 'regular'
+                          ? 'Regular Patient'
+                          : type === 'pwd'
+                            ? 'PWD'
+                            : type === 'senior'
+                              ? 'Senior Citizen'
+                              : type === 'pregnant'
+                                ? 'Pregnant Women'
+                                : type
                 }}
             </button>
         </div>

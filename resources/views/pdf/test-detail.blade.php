@@ -117,7 +117,6 @@
         </tr>
 
         <tr>
-            <td><strong>Age:</strong> {{ $age  }}</td>
             <td><strong>Gender:</strong> {{ $patientDetails->gender }}</td>
             <td><strong>OR Number:</strong> {{ $testDetail->or_number }}</td>
         </tr>
@@ -159,6 +158,7 @@
                 <td style="width: 50%; text-align: center; vertical-align: top;">
                     <p style="text-decoration: underline;"><strong>DR. OSCAR P. GRAGEDA, FSCP, APCP</strong></p>
                     <p>Lic. No.: 0047205</p>
+                    <p>Pathologist</p>
                 </td>
             </tr>
         </table>

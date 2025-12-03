@@ -35,8 +35,16 @@
         <div class="flex justify-between items-center mb-3">
             <h1 class="text-2xl mb-3 text-gray-600">Patients Information</h1>
 
-            <!-- SEARCH INPUT -->
-            <SearchInput route="admin.patients" placeholder="Search Name" />
+            <div class="flex items-center gap-2">
+                <button class="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded hover:opacity-75">
+                    <a class="text-white-600" :href="route('patient.report')" target="_blank">
+                        Print Reports
+                    </a>
+                </button>
+
+                <!-- SEARCH INPUT -->
+                <SearchInput route="admin.patients" placeholder="Search Name" />
+            </div>
         </div>
 
         <fwb-table hoverable>

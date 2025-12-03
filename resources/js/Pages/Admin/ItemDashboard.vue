@@ -81,13 +81,17 @@
 
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
             <!-- Nearly Out of Stock -->
-            <div class="flex-1  text-black p-6 rounded-lg shadow-2xl">
-                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Out of Stock Medical Supplies</h2>
+            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
+                    Nearly
+                    <span class="text-red-600 mx-1">Out of Stock</span>
+                    Medical Supplies
+                </h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">
                         <thead>
-                            <tr  class="bg-green-600 text-white">
+                            <tr class="bg-green-600 text-white">
                                 <th class="border-b border-white py-2">Brand Name</th>
                                 <th class="border-b border-white py-2">Current Stock</th>
                                 <th class="border-b border-white py-2">Critical Stock</th>
@@ -127,8 +131,12 @@
             </div>
 
             <!-- Nearly Expired -->
-            <div class="flex-1  text-black p-6 rounded-lg shadow-2xl">
-                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Nearly Expired Medical Supplies</h2>
+            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+                <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
+                    Nearly
+                    <span class="text-red-600 mx-1">Expired</span>
+                    Medical Supplies
+                </h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-center border-collapse">

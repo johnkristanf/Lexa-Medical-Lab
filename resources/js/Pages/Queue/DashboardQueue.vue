@@ -4,6 +4,7 @@
     import { Card } from 'primevue'
     import { computed, onMounted } from 'vue'
     import { router } from '@inertiajs/vue3'
+    import BusinessLogo from '@/Components/BusinessLogo.vue'
 
     // Props
     const props = defineProps({
@@ -53,20 +54,21 @@
 </script>
 
 <template>
-    <GuestLayout :noMaxWidth="true" dynamicBgColor="bg-transparent">
-        <div class="w-full flex justify-center items-center">
-            <div class="flex flex-col items-center w-full mb-8">
-                <div
-                    class="mt-2 px-4 py-2 rounded-md bg-blue-50 text-blue-800 text-center text-lg font-medium shadow-sm max-w-xl"
-                >
-                    <p class="text-gray-900 text-2xl mb-2">Important Notice:</p>
-                    Patients with an appointment number are always prioritized and skip ahead in the queue.
-                    Walk-ins that are regular patients will be called in order after all scheduled
-                    appointments.
-                </div>
+    <div class="min-h-screen flex-col items-center bg-gradient-to-r from-green-400 to-gray-100">
+        <div class="w-full flex justify-around">
+            <div class="pt-10">
+                <BusinessLogo class="h-20 w-20 fill-current text-gray-500" />
+            </div>
+
+            <div
+                class="mt-5 px-4 py-2 rounded-md text-blue-800 text-center text-lg font-medium shadow-sm max-w-xl"
+            >
+                <p class="text-gray-900 text-2xl mb-2">Important Notice:</p>
+                Patients with an online appointment are always prioritized and regular walk-ins will be called
+                in order.
             </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16 mt-8 p-5">
             <Card v-for="queue in props.queues" style="width: 20rem; overflow: hidden; height: 15rem">
                 <!-- BUSSINESS LOGO IMAGE HEADER -->
                 <!-- <template #header>
@@ -107,5 +109,5 @@
                 </template>
             </Card>
         </div>
-    </GuestLayout>
+    </div>
 </template>

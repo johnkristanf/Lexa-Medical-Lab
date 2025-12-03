@@ -23,8 +23,8 @@
     })
 
     const genders = ref([
-        { name: 'Male', tag: 'male' },
-        { name: 'Female', tag: 'female' },
+        { name: 'MALE', tag: 'male' },
+        { name: 'FEMALE', tag: 'female' },
     ])
 
     const toast = useToast()
@@ -41,7 +41,7 @@
         address: '',
         gender: genders.value[0],
         birthdate: '',
-        priority_type: props.priority_types[2], // INITIAL VALUE SET REGULAR PATIENT
+        priority_type: props.priority_types[3], // INITIAL VALUE SET REGULAR PATIENT
         selected_schedule_id: -1,
         selected_time_slot_id: -1,
         selected_type_ids: [],
