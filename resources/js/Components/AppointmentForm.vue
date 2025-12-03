@@ -1,6 +1,6 @@
 <script setup>
     import DatePicker from 'primevue/datepicker'
-    import { ref } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
 
     import Select from 'primevue/select'
     import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
@@ -13,7 +13,22 @@
         priority_types: Array,
     })
 
-    
+    const filteredPriorityTypes = computed(() => {
+        if (!props.form.gender) return props.priority_types
+
+        // If gender is male → remove pregnant options
+        if (props.form.gender.name.toLowerCase() === 'male') {
+            return props.priority_types.filter((p) => p.code.toLowerCase() !== 'pw')
+        }
+
+        // Otherwise return all
+        return props.priority_types
+    })
+
+    onMounted(() => {
+        console.log("genders: ", props.genders)
+        console.log("priority_types: ", props.priority_types)
+    })
 </script>
 
 <template>
@@ -190,7 +205,7 @@
                                 >
                                     <ListboxOption
                                         v-slot="{ active, selected }"
-                                        v-for="priority in props.priority_types"
+                                        v-for="priority in filteredPriorityTypes"
                                         :key="priority.name"
                                         :value="priority"
                                         as="template"

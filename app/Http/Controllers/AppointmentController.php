@@ -9,6 +9,8 @@ use App\Mail\AppointmentConfirmationMail;
 use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
 use App\Models\AppointmentSlots;
+use App\Models\InventoryLogs;
+use App\Models\MedicalSupplies;
 use App\Models\Patient;
 use App\Models\PriorityTypes;
 use App\Models\Queues;
@@ -113,6 +115,36 @@ class AppointmentController extends Controller
         return Inertia::render('Admin/Appointments', [
             'appointments' => $appointments,
             'schedules' => $schedules,
+        ]);
+    }
+
+    public function renderAdminInventory(Request $request)
+    {
+        $searchQuery = $request->query('search');
+
+        $supplies = MedicalSupplies::with(['batches', 'category'])
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('participants', 'LIKE', "%{$searchQuery}%")
+                        ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
+                        ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                            $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+                        });
+                });
+            })
+
+            ->paginate($request->input('perPage', 10))
+            ->withQueryString();
+
+        $inventoryLogs = InventoryLogs::with([
+            'medical_supplies' => function ($query) {
+                $query->select('id', 'brand_name', 'quantity');
+            },
+        ])->get();
+
+        return Inertia::render('Admin/Inventory', [
+            'supplies' => $supplies,
+            'inventory_logs' => $inventoryLogs,
         ]);
     }
 

@@ -84,7 +84,9 @@
             <!-- Nearly Out of Stock -->
             <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
-                    Nearly Out of Stock Medical Supplies
+                    Nearly
+                    <span class="text-red-600 mx-1">Out of Stock</span>
+                    Medical Supplies
                 </h2>
 
                 <div class="overflow-x-auto">
@@ -132,7 +134,9 @@
             <!-- Nearly Expired -->
             <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
-                    Nearly Expired Medical Supplies
+                    Nearly
+                    <span class="text-red-600 mx-1">Expired</span>
+                    Medical Supplies
                 </h2>
 
                 <div class="overflow-x-auto">
