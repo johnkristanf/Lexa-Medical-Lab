@@ -20,6 +20,7 @@
     import UpdatePatientDetails from '@/Components/modal/UpdatePatientDetails.vue'
     import AddButton from '@/Components/AddButton.vue'
     import { formatDate } from '@/helpers/formatter'
+    import { EnvelopeIcon, InboxArrowDownIcon, PencilSquareIcon } from '@heroicons/vue/20/solid'
 
     const props = defineProps({
         patients: Array,
@@ -33,8 +34,7 @@
     })
 
     onMounted(() => {
-        console.log("patients: ", props.patients);
-
+        console.log('patients: ', props.patients)
     })
 
     const showAddScheduleModal = ref(false)
@@ -71,7 +71,7 @@
     })
 
     const showTestModal = (patient_id, priority_type) => {
-        console.log("priority_type: ", priority_type);
+        console.log('priority_type: ', priority_type)
 
         patientID.value = patient_id
         togglesTestModal.showTestModal = true
@@ -90,8 +90,6 @@
         'Email',
         'Actions',
     ]
-
-
 </script>
 
 <template>
@@ -162,21 +160,21 @@
                                             @click="showTestModal(patient.id, patient.priority_type)"
                                             class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
-                                            Conduct Test
+                                            <InboxArrowDownIcon class="size-4 text-white" />
                                         </button>
 
                                         <button
                                             @click="openEmailAppointmentDetails(patient.email)"
                                             class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
-                                            Send Email
+                                            <EnvelopeIcon class="size-4 text-white" />
                                         </button>
 
                                         <button
                                             @click="openUpdatePatientDetails(patient)"
                                             class="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
-                                            Update
+                                            <PencilSquareIcon class="size-4 text-white" />
                                         </button>
                                     </fwb-table-cell>
                                 </fwb-table-row>

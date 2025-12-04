@@ -1,7 +1,7 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
-    import { reactive } from 'vue'
+    import { reactive, ref } from 'vue'
     import { onMounted } from 'vue'
     import { useToast } from 'primevue/usetoast'
     import MostUsedSupplies from '@/Components/MostUsedSupplies.vue'
@@ -11,7 +11,7 @@
     const props = defineProps({
         supplies: Array,
         nearlyExpired: Array,
-        patient_analytics: Array
+        patient_analytics: Array,
     })
 
     const toast = useToast()
@@ -26,8 +26,7 @@
             })
         }
 
-        console.log("PATIENT:", props.patient_analytics);
-
+        console.log('PATIENT:', props.patient_analytics)
     })
 
     onMounted(() => {
@@ -64,6 +63,33 @@
             year: 'numeric',
         })
     }
+
+    const lowStock = ref(null)
+    const nearlyExpired = ref(null)
+    const medicalSupplies = ref(null)
+    const averagePatient = ref(null)
+
+    const sectionRefs = {
+        lowStock,
+        nearlyExpired,
+        medicalSupplies,
+        averagePatient,
+    }
+
+    onMounted(() => {
+        // Listen for frontend event
+        window.addEventListener('scroll-to-section', (e) => {
+            const section = e.detail.section
+            const el = sectionRefs[section]?.value
+
+            if (el) {
+                el.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                })
+            }
+        })
+    })
 </script>
 
 <template>
@@ -76,7 +102,7 @@
 
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
             <!-- ✅ Low/Critical Stock -->
-            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+            <div ref="lowStock" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
                     Nearly Out of Stock Medical Supplies
                 </h2>
@@ -124,7 +150,7 @@
             </div>
 
             <!-- ✅ Nearly Expired Items -->
-            <div class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+            <div ref="nearlyExpired" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
                     Nearly Expired Medical Supplies
                 </h2>
@@ -169,10 +195,10 @@
 
         <!-- ✅ Analytics side-by-side -->
         <div class="w-[90%] mx-auto mt-10 flex flex-col lg:flex-row gap-6">
-            <div class="flex-1">
+            <div ref="medicalSupplies" class="flex-1">
                 <MostUsedSupplies />
             </div>
-            <div class="flex-1">
+            <div ref="averagePatient" class="flex-1">
                 <PatientAverage :patient_analytics="props.patient_analytics" />
             </div>
         </div>

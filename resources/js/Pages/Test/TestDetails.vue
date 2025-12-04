@@ -63,10 +63,7 @@
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
                         <!-- SEARCH INPUT -->
-                        <SearchInput
-                            route="test.details.create"
-                            placeholder="Search Referrer Name"
-                        />
+                        <SearchInput route="test.details.create" placeholder="Search Referrer Name" />
                     </div>
 
                     <fwb-table hoverable>
@@ -84,10 +81,7 @@
                         <!-- Table Body -->
                         <fwb-table-body>
                             <template v-if="props.testDetails && props.testDetails.length > 0">
-                                <fwb-table-row
-                                    v-for="(test, index) in props.testDetails"
-                                    :key="index"
-                                >
+                                <fwb-table-row v-for="(test, index) in props.testDetails" :key="index">
                                     <!-- Referrer -->
                                     <fwb-table-cell>{{ test.referer_fullname }}</fwb-table-cell>
 

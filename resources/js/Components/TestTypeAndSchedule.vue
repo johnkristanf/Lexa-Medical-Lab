@@ -128,7 +128,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
     <fwb-accordion class="p-5">
         <div class="flex justify-between items-center mb-8">
             <div class="flex flex-col">
-                <h1 class="text-3xl font-bold">Test Type and Schedule</h1>
+                <h1 class="text-3xl font-bold">Schedule</h1>
                 <p class="text-gray-500 text-sm">Please choose type according to your needs</p>
             </div>
 

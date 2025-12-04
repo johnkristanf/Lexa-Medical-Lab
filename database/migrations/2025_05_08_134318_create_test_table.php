@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('referer_fullname');
             $table->string('doctor_license_no')->nullable();
             $table->date('test_schedule');
-            $table->integer('total_price');
+            $table->decimal('total_price', 15, 2);
             $table->enum('status', ['paid', 'pending'])->default('pending');
             $table->foreignId('purpose_id')->constrained('test_purpose')->onDelete('cascade');
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');

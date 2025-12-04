@@ -74,7 +74,7 @@
 
 <template>
     <div class="mt-7 mb-12 p-6 max-w-6xl mx-auto rounded-lg shadow-2xl">
-        <h2 class="text-2xl font-bold mb-4 text-center text-gray-600">Average Patient Analytics</h2>
+        <h2 class="text-2xl font-bold mb-4 text-center text-gray-600">Patient Statistics</h2>
 
         <div class="flex justify-center gap-3 mb-4">
             <button
