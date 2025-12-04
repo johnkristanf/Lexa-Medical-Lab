@@ -84,7 +84,7 @@ const sendEmail = () => {
                                     <h1 class="text-lg flex flex-col">
                                         Appointment Number:
                                         <span class="text-2xl">
-                                            - {{ generateRandomNumberString(7) }}
+                                            - {{form.appointment_number  }}
                                         </span>
                                     </h1>
 
