@@ -95,7 +95,7 @@
             <StepList class="sticky top-0 z-10">
                 <Step value="1">Terms & Conditions</Step>
                 <Step value="2">Personal Information</Step>
-                <Step value="3">Test Type & Schedule</Step>
+                <Step value="3">Schedule</Step>
             </StepList>
 
             <StepPanels class="overflow-y-auto max-h-[70vh]">
@@ -107,7 +107,7 @@
                     </div>
                     <div class="flex py-4 pr-3 justify-end">
                         <Button
-                            label="Next"
+                            label="Agree"
                             icon="pi pi-arrow-right"
                             iconPos="right"
                             @click="

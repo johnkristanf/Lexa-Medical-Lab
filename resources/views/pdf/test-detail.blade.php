@@ -107,7 +107,7 @@
             </div>
         @endif
         <p><strong>CLINICAL LABORATORY DEPARTMENT</strong></p>
-        <p><strong>CLINICAL CHEMISTRY REPORT</strong></p>
+        <p><strong>{{ $testCategory->name}}</strong></p>
     </div>
 
     <table class="info-table">
@@ -136,7 +136,10 @@
             <tr>
                 <td>{{ $testType->name ?? 'N/A' }}</td>
                 <td>{{ $testType->pivot->results ?? 'N/A' }}</td>
-                <td>{{ $testType->reference_range ?? 'N/A' }}</td>
+                <td>
+                    <pre class="whitespace-pre-wrap font-mono text-sm">{{ $testType->reference_range ?? 'N/A' }}</pre>
+
+                </td>
                 <td>{{ $testType->unit ?? 'N/A' }}</td>
             </tr>
             @endforeach

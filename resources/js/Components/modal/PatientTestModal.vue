@@ -197,18 +197,10 @@
                                                         class="form-input w-full"
                                                     />
                                                     <p
-                                                        v-if="
-                                                            form.errors[
-                                                                `test_results.${index}.result`
-                                                            ]
-                                                        "
+                                                        v-if="form.errors[`test_results.${index}.result`]"
                                                         class="text-sm text-red-500 mt-1"
                                                     >
-                                                        {{
-                                                            form.errors[
-                                                                `test_results.${index}.result`
-                                                            ]
-                                                        }}
+                                                        {{ form.errors[`test_results.${index}.result`] }}
                                                     </p>
                                                 </fwb-table-cell>
 
@@ -244,9 +236,7 @@
                                 </form>
                             </div>
 
-                            <h1 v-else class="text-2xl font-semibold text-center">
-                                Loading Test Details...
-                            </h1>
+                            <h1 v-else class="text-2xl font-semibold text-center">Loading Test Details...</h1>
                         </DialogPanel>
                     </TransitionChild>
                 </div>

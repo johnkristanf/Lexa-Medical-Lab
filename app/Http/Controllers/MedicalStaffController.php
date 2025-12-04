@@ -222,22 +222,53 @@ class MedicalStaffController extends Controller
 
     public function testTypeStore(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'reference_range' => 'required|string|max:255',
-            'unit' => 'nullable|string|max:255',
-            'price' => 'required|integer',
-            'test_category_id' => 'required|exists:test_category,id',
-        ]);
+        // Check if test_types is present (batch insert from modal) or single insert
+        if ($request->has('test_types') && is_array($request->test_types)) {
+            // Batch mode (validate each item in test_types array)
+            $validated = $request->validate([
+                'test_types' => 'required|array|min:1',
+                'test_category_id' => 'required|exists:test_category,id',
+                'test_types.*.name' => 'required|string|max:255',
+                'test_types.*.reference_range' => 'required|string|max:255',
+                'test_types.*.unit' => 'nullable|string|max:255',
+                'test_types.*.price' => 'required|integer',
+            ]);
 
-        TestType::create($validated);
+        Log::info("TEST TYPES: ", [$validated]);
 
-        // dd($request->all());
+            $testTypes = [];
+            foreach ($request->input('test_types') as $testType) {
+                // Prepare each test type with the test_category_id from request
+                $testTypes[] = [
+                    'name' => $testType['name'],
+                    'reference_range' => $testType['reference_range'],
+                    'unit' => $testType['unit'] ?? null,
+                    'price' => $testType['price'],
+                    'test_category_id' => $request->input('test_category_id'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
 
-        // DB::table('test_types')->insert($request->all());
+            TestType::insert($testTypes);
 
-        return redirect()->back()->with('success', 'Test Type created successfully.');
+            return redirect()->back()->with('success', count($testTypes).' Test Type(s) created successfully.');
+        } else {
+            // Single test type mode (e.g. manual entry)
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'reference_range' => 'required|string|max:255',
+                'unit' => 'nullable|string|max:255',
+                'price' => 'required|integer',
+                'test_category_id' => 'required|exists:test_category,id',
+            ]);
+
+            \App\Models\TestType::create($validated);
+
+            return redirect()->back()->with('success', 'Test Type created successfully.');
+        }
     }
+
 
     public function testStore(Request $request)
     {
@@ -252,17 +283,19 @@ class MedicalStaffController extends Controller
             'category_id' => 'required|integer',
             'selected_test_types' => 'required|array',
         ]);
+        Log::info("validated: ", [$validated]);
 
         $orNumber = (string) random_int(10000, 99999);
 
-        // Convert the total_price string to integer before insertion
-        $totalPriceInt = (int) preg_replace('/[^\d]/', '', $validated['total_price']);
+        // Convert the total_price string to a float (preserving decimals) before insertion
+        $totalPriceFloat = (float) preg_replace('/[^\d.]/', '', $validated['total_price']);
+        Log::info("totalPriceFloat: ", [$totalPriceFloat]);
 
         $test = Test::create([
             'referer_fullname' => $validated['referer_fullname'],
             'doctor_license_no' => $validated['doctor_license_no'],
             'test_schedule' => $validated['test_schedule'],
-            'total_price' => $totalPriceInt,
+            'total_price' => $totalPriceFloat,
             'or_number' => $orNumber,
             'purpose_id' => $validated['purpose_id'],
             'patient_id' => $validated['patient_id'],
