@@ -1,17 +1,17 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head } from '@inertiajs/vue3'
-    import { reactive, ref } from 'vue'
-    import { onMounted } from 'vue'
+    import { reactive, ref, onMounted } from 'vue'
     import { useToast } from 'primevue/usetoast'
     import MostUsedSupplies from '@/Components/MostUsedSupplies.vue'
     import PatientAverage from '@/Components/PatientAverage.vue'
 
-    // Props from controller
+    // ✅ UPDATED PROPS
     const props = defineProps({
         supplies: Array,
         nearlyExpired: Array,
         patient_analytics: Array,
+        latestPatients: Array,
     })
 
     const toast = useToast()
@@ -25,8 +25,6 @@
                 life: 5000,
             })
         }
-
-        console.log('PATIENT:', props.patient_analytics)
     })
 
     onMounted(() => {
@@ -40,19 +38,11 @@
         }
     })
 
-    // Toggles
-    const toggles = reactive({
-        showAddSupplyModal: false,
-        showInventoryDrawer: false,
-    })
-
     // Utility
     const daysLeft = (expiration) => {
         const now = new Date()
         const exp = new Date(expiration)
-        const diffTime = exp.getTime() - now.getTime()
-        const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24))
-        return diffDays
+        return Math.ceil((exp - now) / (1000 * 3600 * 24))
     }
 
     const formatDate = (date) => {
@@ -64,30 +54,25 @@
         })
     }
 
+    // ✅ ADD REF
     const lowStock = ref(null)
     const nearlyExpired = ref(null)
+    const latestPatients = ref(null)
     const medicalSupplies = ref(null)
     const averagePatient = ref(null)
 
     const sectionRefs = {
         lowStock,
         nearlyExpired,
+        latestPatients,
         medicalSupplies,
         averagePatient,
     }
 
     onMounted(() => {
-        // Listen for frontend event
         window.addEventListener('scroll-to-section', (e) => {
-            const section = e.detail.section
-            const el = sectionRefs[section]?.value
-
-            if (el) {
-                el.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                })
-            }
+            const el = sectionRefs[e.detail.section]?.value
+            el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         })
     })
 </script>
@@ -99,6 +84,38 @@
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">Dashboard</h2>
         </template>
+
+        <div ref="latestPatients" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+            <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Latest Patients</h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse">
+                    <thead>
+                        <tr class="bg-green-600 text-white">
+                            <th class="border-b border-white py-2">Patient ID</th>
+                            <th class="border-b border-white py-2">Full Name</th>
+                            <th class="border-b border-white py-2">Date Added</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="patient in props.latestPatients" :key="patient.id">
+                            <td class="py-2 px-4 font-semibold">
+                                {{ patient.patient_id }}
+                            </td>
+                            <td class="py-2 px-4">{{ patient.first_name }} {{ patient.last_name }}</td>
+                            <td class="py-2 px-4">
+                                {{ formatDate(patient.created_at) }}
+                            </td>
+                        </tr>
+
+                        <tr v-if="props.latestPatients.length === 0">
+                            <td colspan="3" class="py-2 text-center text-gray-600">No recent patients</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">
             <!-- ✅ Low/Critical Stock -->

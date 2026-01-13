@@ -130,25 +130,38 @@ class MedicalStaffController extends Controller
         ]);
     }
 
-    public function patientDetailsStore(Request $request)
-    {
-        $validated = $request->validate([
-            'patient_id' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'gender' => 'required|string|max:10',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:11',
-            'email' => 'required|email|max:255|unique:patients,email',
-            'priority_type.id' => 'required|exists:priority_types,id',
-            'priority_type.name' => 'required|string|max:255',
-            'priority_type.code' => 'required|string|max:10',
-        ]);
+   public function patientDetailsStore(Request $request)
+{
+    $validated = $request->validate([
+        'first_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'gender' => 'required|string|max:10',
+        'date_of_birth' => 'required|date',
+        'address' => 'required|string|max:255',
+        'contact_number' => 'required|string|max:11',
+        'email' => 'required|email|max:255|unique:patients,email',
+        'priority_type.id' => 'required|exists:priority_types,id',
+    ]);
+
+    DB::transaction(function () use ($validated) {
+
+        $year = now()->year;
+
+        // Lock rows for safety
+        $lastPatient = Patient::where('patient_id', 'like', $year . '-%')
+            ->lockForUpdate()
+            ->orderByRaw('CAST(SUBSTRING(patient_id, 6) AS UNSIGNED) DESC')
+            ->first();
+
+        $nextNumber = $lastPatient
+            ? ((int) substr($lastPatient->patient_id, 5)) + 1
+            : 1;
+
+        $patientId = $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
         Patient::create([
-            'patient_id' => $validated['patient_id'],
+            'patient_id' => $patientId,
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?? null,
             'last_name' => $validated['last_name'],
@@ -159,9 +172,10 @@ class MedicalStaffController extends Controller
             'email' => $validated['email'],
             'priority_id' => $validated['priority_type']['id'],
         ]);
+    });
 
-        return redirect()->back()->with('success', 'Patient details added successfully.');
-    }
+    return redirect()->back()->with('success', 'Patient details added successfully.');
+ }
 
     public function testCategoryCreate(Request $request)
     {
@@ -287,7 +301,6 @@ class MedicalStaffController extends Controller
 
         $orNumber = (string) random_int(10000, 99999);
 
-        // Convert the total_price string to a float (preserving decimals) before insertion
         $totalPriceFloat = (float) preg_replace('/[^\d.]/', '', $validated['total_price']);
         Log::info("totalPriceFloat: ", [$totalPriceFloat]);
 

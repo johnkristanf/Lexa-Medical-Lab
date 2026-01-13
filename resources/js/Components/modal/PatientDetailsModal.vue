@@ -36,7 +36,7 @@
 
     // INERTIA FORM INIATILIZATION
     const form = useForm({
-        patient_id: generateRandomNumberString(10),
+        patient_id: props.flash?.patient_id ?? '',
         first_name: '',
         middle_name: '',
         last_name: '',
@@ -45,13 +45,12 @@
         address: '',
         contact_number: '',
         email: '',
-        priority_type: props.priority_types[2]
+        priority_type: props.priority_types[2],
     })
 
     // FORM SUBMISSION
     function submitForm() {
-        console.log('Submitting form with values:', { ...form });
-
+        console.log('Submitting form with values:', { ...form })
         form.post(route('patient.details.submit'), {
             onSuccess: () => {
                 toast.add({
@@ -106,7 +105,7 @@
                             <div class="isolate px-6 lg:px-8 mt-10">
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
-                                        <div>
+                                        <div class="sm:col-span-2">
                                             <label
                                                 for="first_name"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -114,11 +113,10 @@
                                                 First Name
                                             </label>
                                             <input
-                                                id="first_name"
+                                                id="address"
                                                 v-model="form.first_name"
                                                 type="text"
                                                 class="form-input"
-                                                required
                                             />
                                             <p
                                                 v-if="form.errors.first_name"
@@ -128,7 +126,7 @@
                                             </p>
                                         </div>
 
-                                        <div>
+                                        <!-- <div>
                                             <label
                                                 for="patient_id"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -136,6 +134,7 @@
                                                 Patient ID
                                             </label>
                                             <input
+                                                randomly
                                                 disabled
                                                 id="patient_id"
                                                 v-model="form.patient_id"
@@ -149,7 +148,7 @@
                                             >
                                                 {{ form.errors.patient_id }}
                                             </p>
-                                        </div>
+                                        </div> -->
 
                                         <div>
                                             <label

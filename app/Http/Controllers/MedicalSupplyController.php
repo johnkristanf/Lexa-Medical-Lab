@@ -121,8 +121,12 @@ class MedicalSupplyController extends Controller
             'supplies' => $supplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
-            'patient_analytics' => $data
-        ]);
+            'patient_analytics' => $data,
+            'latestPatients' => Patient::latest()
+            ->take(5)
+            ->get(['id', 'patient_id', 'first_name', 'last_name', 'created_at']),
+    ]);
+
     }
 
      public function mostUsedSupples(Request $request)
@@ -333,7 +337,7 @@ class MedicalSupplyController extends Controller
             'quantity' => 'required|integer|min:0',
             'manufacture_date' => 'required|date',
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
-              'sku' => 'nullable|string|max:255',
+            'sku' => 'nullable|string|max:255',
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
             'crtical_stock' => 'nullable|integer|min:0',
