@@ -1,21 +1,4 @@
-# Stage 1: Node Build Stage
-FROM node:18-alpine AS node_builder
-
-WORKDIR /app
-
-COPY ./package*.json ./
-RUN npm install
-
-COPY resources ./resources
-COPY public ./public
-COPY vite.config.js ./
-# If you use ziggy as a dev dependency for JS, make sure vendor/tightenco/ziggy exists before build
-COPY vendor/tightenco/ziggy ./vendor/tightenco/ziggy
-
-RUN npm run build
-
-
-# Stage 2: PHP build stage
+# Stage 1: PHP build stage
 FROM php:8.2-fpm AS php_builder
 WORKDIR /app
 
@@ -26,6 +9,25 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+
+# Stage 2: Node Build Stage
+FROM node:18-alpine AS node_builder
+
+WORKDIR /app
+
+COPY ./package*.json ./
+RUN npm install
+
+COPY resources ./resources
+COPY public ./public
+COPY vite.config.js ./
+
+# If you use ziggy as a dev dependency for JS, make sure vendor/tightenco/ziggy exists before build
+COPY vendor/tightenco/ziggy ./vendor/tightenco/ziggy
+
+RUN npm run build
+
 
 
 # Stage 3: Runtime
