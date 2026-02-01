@@ -100,11 +100,11 @@ jobs:
 
           # Upload files directly to target directory
           scp -i temp_ssh_key -o StrictHostKeyChecking=no \
-              server/docker-compose.yml \
+              docker-compose.yml \
               ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ env.SERVER_DIR }}/docker-compose.yml
 
           scp -i temp_ssh_key -o StrictHostKeyChecking=no \
-              server/default.conf \
+              default.conf \
               ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ env.SERVER_DIR }}/default.conf
 
           scp -i temp_ssh_key -o StrictHostKeyChecking=no \
