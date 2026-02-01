@@ -40,19 +40,17 @@ services:
             "
 
 
-    db:
-        image: mysql:8.0
-        container_name: lexa_medical_database
-        restart: always
-        env_file:
-            - .env.production
-        volumes:
-            - database:/var/lib/mysql
-        networks:
-            - app-network
+    # db:
+    #     image: mysql:8.0
+    #     container_name: lexa_medical_database
+    #     restart: always
+    #     env_file:
+    #         - .env.production
+    #     volumes:
+    #         - database:/var/lib/mysql
+    #     networks:
+    #         - app-network
 
-volumes:
-    database:
 
 networks:
     app-network:
