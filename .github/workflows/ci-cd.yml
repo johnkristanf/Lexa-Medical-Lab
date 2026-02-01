@@ -240,6 +240,8 @@ jobs:
           script: |
             set -e
 
+            cd ${{ env.SERVER_DIR }}
+            
             echo "📄 Checking Files inside EC2"
             ls -lah
 
