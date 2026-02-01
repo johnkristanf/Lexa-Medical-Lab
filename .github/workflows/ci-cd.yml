@@ -92,6 +92,16 @@ jobs:
               SENTRY_TRACES_SAMPLE_RATE=${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
           EOF
 
+
+      - name: Make Server Directory on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            mkdir -p ${{ env.SERVER_DIR }}
+
       - name: Upload files using native SCP
         run: |  
           # Create temporary SSH key file
@@ -219,14 +229,7 @@ jobs:
             sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-containers.sh
             sudo chmod +x /etc/letsencrypt/renewal-hooks/post/start-containers.sh
 
-      - name: Make Server Directory on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            mkdir -p ${{ env.SERVER_DIR }}
+      
 
       - name: 🚀 Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.0.2
