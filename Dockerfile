@@ -23,8 +23,7 @@ COPY resources ./resources
 COPY public ./public
 COPY vite.config.js ./
 
-# If you use ziggy as a dev dependency for JS, make sure vendor/tightenco/ziggy exists before build
-COPY vendor/tightenco/ziggy ./vendor/tightenco/ziggy
+COPY --from=php_builder /app/vendor/tightenco/ziggy ./vendor/tightenco/ziggy
 
 RUN npm run build
 
