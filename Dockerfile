@@ -34,7 +34,16 @@ WORKDIR /var/www
 
 RUN apt-get update && apt-get install -y \
     unzip libpng-dev libonig-dev libxml2-dev zip curl \
-    && docker-php-ext-install pdo_mysql pdo_pgsql pgsql mbstring exif pcntl bcmath gd
+    libpq-dev \
+    && docker-php-ext-install \
+        pdo_mysql \
+        pdo_pgsql \
+        pgsql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd
 
 COPY --from=php_builder /app /var/www
 COPY --from=node_builder /app/public/build /var/www/public/build
