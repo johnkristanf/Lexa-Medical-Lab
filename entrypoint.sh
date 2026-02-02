@@ -10,6 +10,8 @@ chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 php artisan migrate --force
 php artisan db:seed --force
 
+php artisan optimize:clear
+
 php artisan optimize
 
 exec php-fpm -F -R
