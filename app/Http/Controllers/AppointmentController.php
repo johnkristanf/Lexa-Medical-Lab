@@ -37,10 +37,17 @@ class AppointmentController extends Controller
             {
                 $year = now()->format('Y');
 
+                $driver = DB::getDriverName();
+
+                $orderExpr = $driver === 'pgsql'
+                    ? "SUBSTRING(appointment_number, 6)::INTEGER"
+                    : "CAST(SUBSTRING(appointment_number, 6) AS UNSIGNED)";
+
                 $last = Appointments::whereYear('created_at', $year)
                     ->whereNotNull('appointment_number')
-                    ->orderByRaw("CAST(SUBSTRING(appointment_number, 6) AS UNSIGNED) DESC")
+                    ->orderByRaw("$orderExpr DESC")
                     ->first();
+
 
                 if ($last) {
                     $lastNumber = intval(substr($last->appointment_number, -5));
