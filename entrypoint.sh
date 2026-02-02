@@ -1,3 +1,5 @@
+#!/bin/sh
+
 set -e
 
 echo "Setting correct storage and bootstrap/cache permissions..."
