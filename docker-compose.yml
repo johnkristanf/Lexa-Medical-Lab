@@ -11,23 +11,17 @@ services:
       - app-network
 
   nginx:
-    image: nginx:alpine
+    image: johnkristan/lexa-medical-laboratory-nginx:latest
     container_name: nginx
     restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - app-code:/var/www:ro
-
       - /etc/letsencrypt/live/lexa-medical-laboratory.it.com:/etc/letsencrypt/live/lexa-medical-laboratory.it.com:ro
       - /etc/letsencrypt/archive/lexa-medical-laboratory.it.com:/etc/letsencrypt/archive/lexa-medical-laboratory.it.com:ro
-      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - app-network
-
-volumes:
-  app-code:
 
 networks:
   app-network:
