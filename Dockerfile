@@ -29,7 +29,10 @@ RUN npm install
 
 COPY resources ./resources
 COPY public ./public
-COPY vite.config.js ./
+
+COPY vite.config.js .
+COPY tailwind.config.js .
+COPY postcss.config.js .
 
 COPY --from=php_builder /app/vendor/tightenco/ziggy ./vendor/tightenco/ziggy
 
