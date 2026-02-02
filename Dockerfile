@@ -41,8 +41,8 @@ COPY --from=php_builder /app /var/www
 COPY --from=node_builder /app/public/build /var/www/public/build
 
 # Ensure the entrypoint script is copied from build context, not a potentially-missing relative location
-COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY ./entrypoint.sh /var/www/entrypoint.sh
+RUN chmod +x /var/www/entrypoint.sh
 
 EXPOSE 9000
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/var/www/entrypoint.sh"]
