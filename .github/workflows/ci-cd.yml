@@ -1,0 +1,255 @@
+name: Lexa Medical Laboratory Deployment
+on:
+  push:
+    branches: [production]
+
+env:
+  SERVER_DIR: /home/${{ secrets.EC2_USER }}/server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .                # directory to build from (can be ./server, etc.)
+          file: ./Dockerfile        # specify Dockerfile path
+          push: true                # actually push to Docker Hub
+          tags: johnkristan/lexa-medical-laboratory:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Production Env
+        run: |
+          cat <<'EOF' > .env.production
+              APP_NAME="Lexa Medical Laboratory"
+              APP_KEY=${{ secrets.APP_KEY }}
+              APP_URL=https://lexa-medical-laboratory.it.com
+
+              APP_TIMEZONE="Asia/Manila"
+              APP_ENV=production
+              APP_DEBUG=false
+
+              DB_CONNECTION=${{ secrets.DB_CONNECTION }}
+              DB_HOST=${{ secrets.DB_HOST }}
+              DB_PORT=${{ secrets.DB_PORT }}
+              DB_DATABASE=${{ secrets.DB_DATABASE }}
+              DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+              DB_USERNAME=${{ secrets.DB_USERNAME }}
+
+              LOG_CHANNEL=stack
+              LOG_LEVEL=error
+
+              SESSION_DRIVER=database
+              SESSION_SAME_SITE=None
+              SESSION_SECURE_COOKIE=true
+
+              BROADCAST_CONNECTION=pusher
+              PUSHER_APP_ID=${{ secrets.PUSHER_APP_ID }}
+              PUSHER_APP_KEY=${{ secrets.PUSHER_APP_KEY }}
+              PUSHER_APP_SECRET=${{ secrets.PUSHER_APP_SECRET }}
+              PUSHER_SCHEME="https"
+              PUSHER_APP_CLUSTER="ap1"
+
+
+              VITE_APP_NAME=${APP_NAME}
+              VITE_PUSHER_APP_KEY=${PUSHER_APP_KEY}
+              VITE_PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}
+              VITE_PUSHER_SCHEME=${PUSHER_SCHEME}
+
+
+              MAIL_MAILER=smtp
+              MAIL_HOST=smtp.gmail.com
+              MAIL_PORT=587
+              MAIL_ENCRYPTION=tls
+              MAIL_FROM_NAME="${APP_NAME}"
+              EMAIL_VERIFICATION_URL="${APP_URL}/email/verified"
+
+              MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+              MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+              MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}
+
+              SENTRY_LARAVEL_DSN=${{ secrets.SENTRY_LARAVEL_DSN }}
+              SENTRY_TRACES_SAMPLE_RATE=${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
+          EOF
+
+      - name: Upload files using native SCP
+        run: |  
+          # Create temporary SSH key file
+          echo "${{ secrets.EC2_KEY }}" > temp_ssh_key
+          chmod 600 temp_ssh_key
+
+          # Upload files directly to target directory
+          scp -i temp_ssh_key -o StrictHostKeyChecking=no \
+              server/docker-compose.yml \
+              ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ env.SERVER_DIR }}/docker-compose.yml
+
+          scp -i temp_ssh_key -o StrictHostKeyChecking=no \
+              server/default.conf \
+              ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ env.SERVER_DIR }}/default.conf
+
+          scp -i temp_ssh_key -o StrictHostKeyChecking=no \
+              .env.production \
+              ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ env.SERVER_DIR }}/.env.production
+
+          # Clean up
+          rm temp_ssh_key
+
+      - name: Install Docker and Docker Compose inside EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            set -e
+
+            if ! command -v docker &> /dev/null; then
+              
+              sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
+              
+              sudo apt-get update
+             
+              sudo apt-get install -y ca-certificates curl gnupg
+              
+              sudo install -m 0755 -d /etc/apt/keyrings
+              
+              # Docker Key for Repository Signing
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+                sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+              sudo chmod a+r /etc/apt/keyrings/docker.gpg
+              
+              # Docker Official Repository
+              echo \
+                "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+                https://download.docker.com/linux/ubuntu \
+                $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+                sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+              sudo apt-get update
+             
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+              
+              sudo usermod -aG docker $USER
+            fi
+
+            # Install Docker Compose plugin if not installed
+            if ! docker compose version &> /dev/null; then
+              sudo apt-get install -y docker-compose-plugin
+            fi
+
+      - name: 🚀 Deploy & Setup SSL Key and Certificate
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            set -e
+
+            # Stop any existing web servers ONLY during certificate issuance
+            sudo systemctl stop apache2 || true
+            sudo systemctl stop nginx || true
+            sudo systemctl disable apache2 || true
+            sudo systemctl disable nginx || true
+            sudo fuser -k 80/tcp || true
+            sudo fuser -k 443/tcp || true
+
+            # Install certbot 
+            if ! command -v certbot &> /dev/null; then
+              sudo apt-get update
+              sudo apt-get install -y certbot
+            fi
+
+            # One-time SSL issuance (only if certs don't exist yet)
+            if [ ! -d "/etc/letsencrypt/live/${{ secrets.SSL_DOMAIN }}" ]; then
+              echo "⚡ Requesting SSL certificate for ${{ secrets.SSL_DOMAIN }}..."
+              sudo certbot certonly --standalone \
+                -d ${{ secrets.SSL_DOMAIN }} -d www.${{ secrets.SSL_DOMAIN }} \
+                --non-interactive --agree-tos -m ${{ secrets.SSL_EMAIL }}
+            else
+              echo "✅ SSL certificate already exists, skipping issuance."
+            fi
+
+            # Enable auto-renew via systemd
+            sudo systemctl enable certbot.timer
+            sudo systemctl start certbot.timer
+
+            # Create renewal hook to stop containers during renewal
+            sudo mkdir -p /etc/letsencrypt/renewal-hooks/pre
+            sudo mkdir -p /etc/letsencrypt/renewal-hooks/post
+
+            # Pre-hook: Stop containers before renewal
+            cat << 'EOF' | sudo tee /etc/letsencrypt/renewal-hooks/pre/stop-containers.sh
+
+            #!/bin/bash
+            cd ${{ env.SERVER_DIR }}
+            docker compose down || true
+
+            EOF
+
+            # Post-hook: Start containers after renewal
+            cat << 'EOF' | sudo tee /etc/letsencrypt/renewal-hooks/post/start-containers.sh
+
+            #!/bin/bash
+            cd ${{ env.SERVER_DIR }}
+            docker compose up -d || true
+            
+            EOF
+
+            sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-containers.sh
+            sudo chmod +x /etc/letsencrypt/renewal-hooks/post/start-containers.sh
+
+      - name: Make Server Directory on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            mkdir -p ${{ env.SERVER_DIR }}
+
+      - name: 🚀 Deploy on EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            set -e
+
+            echo "📄 Checking Files inside EC2"
+            ls -lah
+
+            echo "📄 Viewing .env"
+            cat .env
+
+            echo "🔐 Logging into Docker Hub..."
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            echo "Stopping old containers..."
+            docker compose down || true
+
+            echo "Pulling latest images..."
+            docker compose pull
+
+            echo "Starting containers..."
+            docker compose --env-file .env.production up -d --remove-orphans
