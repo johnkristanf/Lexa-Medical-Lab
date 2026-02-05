@@ -149,9 +149,19 @@ class MedicalStaffController extends Controller
         $year = now()->year;
 
         // Lock rows for safety
+        $driver = DB::getDriverName();
+
+        if ($driver === 'pgsql') {
+            // In PostgreSQL, use ::INTEGER for casting
+            $orderExpr = "SUBSTRING(patient_id FROM 6)::INTEGER";
+        } else {
+            // In MySQL/MariaDB, use CAST AS UNSIGNED
+            $orderExpr = "CAST(SUBSTRING(patient_id, 6) AS UNSIGNED)";
+        }
+
         $lastPatient = Patient::where('patient_id', 'like', $year . '-%')
             ->lockForUpdate()
-            ->orderByRaw('CAST(SUBSTRING(patient_id, 6) AS UNSIGNED) DESC')
+            ->orderByRaw("$orderExpr DESC")
             ->first();
 
         $nextNumber = $lastPatient
