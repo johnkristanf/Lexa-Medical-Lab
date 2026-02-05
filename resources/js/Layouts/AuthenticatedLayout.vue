@@ -5,7 +5,7 @@
     import DropdownLink from '@/Components/DropdownLink.vue'
     import NavLink from '@/Components/NavLink.vue'
     import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-    import { Link, usePage, router } from '@inertiajs/vue3'
+    import { Link, usePage } from '@inertiajs/vue3'
     import Drawer from 'primevue/drawer'
     import Toast from 'primevue/toast'
 
@@ -29,11 +29,13 @@
             permitted: permissions.value?.can_manage_medical,
         },
         { name: 'Queue', route_name: 'patient.queue', permitted: permissions.value?.can_manage_medical },
+
         {
             name: 'Patients',
             route_name: 'patient.details.create',
             permitted: permissions.value?.can_manage_medical,
         },
+
         {
             name: 'Test Catalog',
             route_name: 'test.category.create',
@@ -63,6 +65,7 @@
             route_name: 'inventory.supply.request',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
+
         {
             name: 'Stock',
             route_name: 'medical.stock.create',
@@ -85,28 +88,14 @@
             route_name: 'test.details.create',
             permitted: permissions.value?.can_manage_medical,
         },
-    ])
 
-    // Handle dashboard menu clicks
-    const handleDashboardMenuClick = (section) => {
-        console.log("section:" , section);
-        
-        const currentRoute = route().current()
-        
-        // Navigate to patient details page with scroll parameter
-        if (currentRoute !== 'inventory.dashboard') {
-            router.visit(route('inventory.dashboard'), {
-                data: { scrollTo: section },
-                preserveState: true,
-                preserveScroll: false,
-            })
-        } else {
-            // If already on the page, emit custom event
-            window.dispatchEvent(new CustomEvent('scroll-to-section', { 
-                detail: { section } 
-            }))
-        }
-    }
+        // IMAGE IDENTIFICATION
+        {
+            name: 'Scan Image',
+            route_name: 'scan.page',
+            permitted: permissions.value?.can_manage_medical,
+        },
+    ])
 
     onMounted(() => {
         console.log('User Data: ', page.props.auth?.user)
@@ -123,65 +112,21 @@
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('medical.appointments')">
+                                <Link :href="route('admin.dashboard')">
                                     <BusinessLogo class="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
                             </div>
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <template
+                                <NavLink
                                     v-for="link in navigationLinks.filter((link) => link.permitted)"
                                     :key="link.route_name"
+                                    :href="route(link.route_name)"
+                                    :active="route().current(link.route_name)"
                                 >
-                                    <div v-if="link.name === 'Dashboard'" class="relative group mt-5">
-                                        <NavLink
-                                            :href="route(link.route_name)"
-                                            :active="route().current(link.route_name)"
-                                            class="inline-flex items-center"
-                                        >
-                                            {{ link.name }}
-                                        </NavLink>
-                                        <!-- Hoverable Dropdown -->
-                                        <div
-                                            class="absolute hidden group-hover:block mt-2 w-48 p-5 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                                        >
-                                            <div class="py-1 flex flex-col gap-2">
-                                                <h1 
-                                                    class="hover:opacity-75 hover:cursor-pointer"
-                                                    @click="handleDashboardMenuClick('lowStock')"
-                                                >
-                                                    Nearly Out of Stock
-                                                </h1>
-                                                <h1 
-                                                    class="hover:opacity-75 hover:cursor-pointer"
-                                                    @click="handleDashboardMenuClick('nearlyExpired')"
-                                                >
-                                                    Nearly Expired
-                                                </h1>
-                                                <h1 
-                                                    class="hover:opacity-75 hover:cursor-pointer"
-                                                    @click="handleDashboardMenuClick('medicalSupplies')"
-                                                >
-                                                    Medical Supplies
-                                                </h1>
-                                                <h1 
-                                                    class="hover:opacity-75 hover:cursor-pointer"
-                                                    @click="handleDashboardMenuClick('averagePatient')"
-                                                >
-                                                    Average Patient
-                                                </h1>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <NavLink
-                                        v-else
-                                        :href="route(link.route_name)"
-                                        :active="route().current(link.route_name)"
-                                    >
-                                        {{ link.name }}
-                                    </NavLink>
-                                </template>
+                                    {{ link.name }}
+                                </NavLink>
                             </div>
                         </div>
 

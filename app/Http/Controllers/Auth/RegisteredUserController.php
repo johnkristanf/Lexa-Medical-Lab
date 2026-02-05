@@ -34,12 +34,16 @@ class RegisteredUserController extends Controller
     {
         $validated = $request->validated();
 
+        Log::info('validated: ', [$validated]);
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role_id' => $validated['role'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        Log::info('Users: ', [$user]);
 
         return back()->with([
             'success' => 'User Added Successfully',

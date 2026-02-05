@@ -50,13 +50,13 @@
                         <div class="hidden sm:ms-6 sm:flex sm:items-center gap-4">
                             <!-- 🔔 Notification Bell -->
                             <button @click="visibleRight = true" class="relative">
-                                <i class="pi pi-bell text-7xl text-black"></i>
+                                <i class="pi pi-bell text-2xl text-black"></i>
                                 <span
                                     v-if="
                                         notifications.lowStock > 0 ||
                                         notifications.nearlyExpired > 0
                                     "
-                                    class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-xs font-bold px-1 py-0.1 rounded-full"
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full"
                                 >
                                     {{ notifications.lowStock + notifications.nearlyExpired }}
                                 </span>

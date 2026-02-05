@@ -14,7 +14,6 @@
         medical_supply_requests: Array,
     })
 
-    // MODAL TOGGLERS
     const modals = reactive({
         showReleaseSupplyModal: false,
         showSupplyRequestedModal: false,
@@ -28,7 +27,6 @@
         modals.showSupplyRequestedModal = true
     }
 
-    // Handle update supply request - similar approach
     const handleUpdateSupplyRequest = (requestID) => {
         selectedRequestID.value = requestID
         modals.showReleaseSupplyModal = true

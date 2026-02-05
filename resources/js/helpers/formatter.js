@@ -22,20 +22,6 @@ export const formatDate = (dateString, withTime = true) => {
     return `${month}/${day}/${year}`
 }
 
-// DATE FORMATTER: 04/29/25 (no time)
-export const formatDateWithoutTime = (dateString) => {
-    const date = new Date(dateString)
-
-    const padZero = (num) => (num < 10 ? '0' + num : num)
-
-    const month = padZero(date.getMonth() + 1)
-    const day = padZero(date.getDate())
-    const year = String(date.getFullYear()).slice(-2)
-
-    return `${month}/${day}/${year}`
-}
-
-
 // QUEUE STATUS FORMATTER
 export const getStatusClasses = (status) => {
     switch (status) {

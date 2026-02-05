@@ -1,6 +1,5 @@
 <script setup>
-    import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
-import {
+    import {
         TransitionRoot,
         TransitionChild,
         Dialog,
@@ -12,22 +11,19 @@ import {
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {  computed } from 'vue'
+    import { onMounted, computed } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
-    const discountedCode = loadPatientCodeWithDiscount();
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-
     const props = defineProps({
         testTypesPurpose: Array,
         // testTypesRequest: Array,
         patientID: Number,
-        patientPriorityType: Object,
         testCategory: Array,
         testType: Array,
     })
@@ -56,18 +52,11 @@ import {
         return selectedCategory ? selectedCategory.test_types : []
     })
 
-    // calculate total price of test types, applying 20% discount if eligible
+    // calculate total price of test types
     const totalPrice = computed(() => {
-        const discountEligible = props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)
         return filteredTestTypes.value
             .filter((type) => form.selected_test_types.includes(type.id))
-            .reduce((sum, type) => {
-                let price = Number(type.price || 0)
-                if (discountEligible) {
-                    price = price * 0.8 // Apply 20% discount
-                }
-                return sum + price
-            }, 0)
+            .reduce((sum, type) => sum + parseFloat(type.price || 0), 0)
             .toFixed(2)
     })
 
@@ -83,7 +72,7 @@ import {
         }
 
         form.selected_test_types = form.selected_test_types.map(Number)
-        form.total_price =totalPrice.value
+        form.total_price = totalPrice.value
 
         console.log('Submitting form data:', form.data())
         form.post(route('test.submit'), {
@@ -139,7 +128,10 @@ import {
                         <DialogPanel
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
+                            <DialogTitle
+                                as="h1"
+                                class="text-2xl font-medium leading-6 text-gray-900"
+                            >
                                 Conduct Test
                             </DialogTitle>
 
@@ -173,10 +165,16 @@ import {
                                                 >
                                                     Sharmlane Faith Patches,RMT
                                                 </option>
-                                                <option value="Jane R. Moldez, RMT" class="text-black">
+                                                <option
+                                                    value="Jane R. Moldez, RMT"
+                                                    class="text-black"
+                                                >
                                                     Jane R. Moldez, RMT
                                                 </option>
-                                                <option value="Jill R. Albino, RMT" class="text-black">
+                                                <option
+                                                    value="Jill R. Albino, RMT"
+                                                    class="text-black"
+                                                >
                                                     Jill R. Albino, RMT
                                                 </option>
                                             </select>
@@ -320,7 +318,9 @@ import {
                                         <!-- checkbox when selecting a category -->
                                         <div class="sm:col-span-2" v-if="filteredTestTypes.length">
                                             <div class="space-y-2 mt-2">
-                                                <label class="block text-sm font-semibold text-gray-900">
+                                                <label
+                                                    class="block text-sm font-semibold text-gray-900"
+                                                >
                                                     Select Test Type
                                                 </label>
 
@@ -343,24 +343,19 @@ import {
                                                             <input
                                                                 type="checkbox"
                                                                 :value="type.id"
-                                                                v-model.number="form.selected_test_types"
+                                                                v-model.number="
+                                                                    form.selected_test_types
+                                                                "
                                                                 class="form-checkbox"
                                                             />
-                                                            <span class="ml-2 text-sm text-gray-700">
+                                                            <span
+                                                                class="ml-2 text-sm text-gray-700"
+                                                            >
                                                                 {{ type.name }}
                                                             </span>
                                                         </label>
-                                                        <span class="text-sm text-gray-700 flex items-center gap-2">
-                                                            <template v-if="props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)">
-                                                                <span class="line-through opacity-50">{{ type.price }}</span>
-                                                                <span class="font-bold text-green-600">
-                                                                    {{ (Number(type.price) * 0.8).toFixed(2) }}
-                                                                </span>
-                                                                <span class="ml-1 px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">Discounted</span>
-                                                            </template>
-                                                            <template v-else>
-                                                                {{ type.price }}
-                                                            </template>
+                                                        <span class="text-sm text-gray-700">
+                                                            {{ type.price }}
                                                         </span>
                                                     </div>
                                                 </div>

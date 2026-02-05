@@ -21,15 +21,12 @@
 
     import { ref, computed, watch, onMounted } from 'vue'
     import { formatDate } from '@/helpers/formatter'
-import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
 
     const props = defineProps({
         test_categories: Array,
         appointment_schedules: Array,
         form: Object,
     })
-
-
 
     // Modal state
     const isScheduleModalOpen = ref(false)
@@ -45,22 +42,11 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
     )
 
     // Compute total price from selected type IDs
-    const discountedCode = loadPatientCodeWithDiscount();
-
     const totalPrice = computed(() => {
-        // Get the code of selected priority type from the form
-        const priorityTypeCode = props.form?.priority_type?.code
-        const hasDiscount = discountedCode.includes(priorityTypeCode)
-        const total = selectedTypeIds.value.reduce((total, id) => {
+        return selectedTypeIds.value.reduce((total, id) => {
             const type = allTestTypes.value.find((t) => t.id === id)
-            if (!type) return total
-            let price = Number(type.price)
-            if (hasDiscount) {
-                price = price * 0.8 // 20% discount
-            }
-            return total + price
+            return type ? total + Number(type.price) : total
         }, 0)
-        return total.toFixed(2)
     })
 
     // Format time for display
@@ -93,7 +79,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
     function selectTimeSlot(schedule, slot) {
         console.log("schedule: ", schedule);
         console.log("slot: ", slot);
-
+        
         selectedSchedule.value = schedule
         selectedTimeSlot.value = slot
 
@@ -119,16 +105,14 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
 
     onMounted(() => {
         console.log('appointment_schedules: ', props.appointment_schedules)
-        console.log('FORM SA TYPE AND SCHEDULE: ', props.form)
     })
-
 </script>
 
 <template>
     <fwb-accordion class="p-5">
         <div class="flex justify-between items-center mb-8">
             <div class="flex flex-col">
-                <h1 class="text-3xl font-bold">Schedule</h1>
+                <h1 class="text-3xl font-bold">Test Type and Schedule</h1>
                 <p class="text-gray-500 text-sm">Please choose type according to your needs</p>
             </div>
 
@@ -187,15 +171,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                             class="mr-2"
                         />
                         <label :for="'type-' + type.id" class="text-gray-700">
-                            {{ type.name }} —
-                            <span v-if="discountedCode.includes(props.form.priority_type.code)">
-                                <span class="line-through text-gray-400">₱{{ type.price }}</span>
-                                <span class="text-green-700 font-bold ml-2">₱{{ (type.price * 0.8).toFixed(2) }}</span>
-                                <span class="ml-2 text-xs text-green-700 font-semibold">(20% Discount Applied)</span>
-                            </span>
-                            <span v-else>
-                                ₱{{ type.price }}
-                            </span>
+                            {{ type.name }} — ₱{{ type.price }}
                         </label>
                     </div>
                 </div>

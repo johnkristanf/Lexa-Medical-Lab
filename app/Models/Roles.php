@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Roles extends Model
 {
-    use HasFactory;
-
     const ADMIN = 1;
 
     const MEDICAL = 2;

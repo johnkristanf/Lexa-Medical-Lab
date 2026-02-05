@@ -27,21 +27,18 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::get('/medical/appointments', [MedicalStaffController::class, 'medicalAppointmentPage'])
         ->name('medical.appointments');
 
-         Route::get('/patient/report', [MedicalStaffController::class, 'printPatientReport'])
-        ->name('patient.report');
-
     // SEND EMAIL REMINDER FOR RESULTS
     Route::post('/medical/result/send-email', [MedicalStaffController::class, 'sendEmailResultReminder'])
         ->name('result.send');
-
- Route::get('/average/patient', [MedicalStaffController::class, 'averagePatientAnalytics'])
-        ->name('patients.average');
 
     // RENDER  TEST CATEGORY PAGE
     Route::prefix('test/Category')->group(function () {
 
         Route::get('/create', [MedicalStaffController::class, 'testCategoryCreate'])
             ->name('test.category.create');
+
+        Route::get('/scan/image', [MedicalStaffController::class, 'ImageIdenticationPage'])
+            ->name('scan.page');
 
         Route::post('/store', [MedicalStaffController::class, 'testCategoryStore'])
             ->name('test.category.submit');

@@ -38,7 +38,7 @@
     // FORM INITIALIZATION
     const form = useForm({
         patient_name: 'Automatic Name Regular Patient',
-        priority_type: props.priority_types[2], // INITIAL VALUE SET REGULAR PATIENT
+        priority_type: props.priority_types[3], // AUTOMATIC SET FOR REGULAR PATIENT
         queue_number: '',
     })
 
@@ -215,40 +215,25 @@
                 />
             </div> -->
 
-            <!-- AUTOMATIC QUEUE NUMBER -->
-            <div>
-                <InputLabel for="queue_number" value="Queue Number" />
+            <!-- LIST FOR PRIORITY TYPES -->
+            <!-- <div>
+                <InputLabel for="priority_type" value="Priority Type" />
 
-                <TextInput
-                    id="queue_number"
-                    type="text"
-                    class="mt-1 block w-full opacity-75 focus:border-none focus:outline-none"
-                    v-model="form.queue_number"
-                    required
-                    autofocus
-                    readonly
-                    disabled
-                    autocomplete="off"
-                />
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <!-- LIST FOR PRIORITY TYPES -->
-                <div>
-                    <InputLabel for="priority_type" value="Priority Type" />
-
-                    <Listbox v-model="form.priority_type">
-                        <div class="relative mt-1">
-                            <ListboxButton
-                                class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                <Listbox v-model="form.priority_type">
+                    <div class="relative mt-1">
+                        <ListboxButton
+                            class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                        >
+                            <span class="block truncate">{{ form.priority_type.name }}</span>
+                            <span
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                             >
-                                <span class="block truncate">{{ form.priority_type.name }}</span>
-                                <span
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                                >
-                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </span>
-                            </ListboxButton>
+                                <ChevronUpDownIcon
+                                    class="h-5 w-5 text-gray-400"
+                                    aria-hidden="true"
+                                />
+                            </span>
+                        </ListboxButton>
 
                             <transition
                                 leave-active-class="transition duration-100 ease-in"
@@ -293,16 +278,15 @@
                     </Listbox>
                 </div>
 
-                <!-- SUBMIT BUTTON -->
-                <PrimaryButton
-                    type="submit"
-                    class="w-full flex justify-center"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Get Queue Ticket
-                </PrimaryButton>
-            </div>
+            <!-- SUBMIT BUTTON -->
+            <PrimaryButton
+                type="submit"
+                class="w-full flex justify-center"
+                :class="{ 'opacity-25': form.processing }"
+                :disabled="form.processing"
+            >
+                Get Queue Ticket
+            </PrimaryButton>
         </form>
 
         <!-- SUCCESSFULL QUEUE INSERTION ALERT -->

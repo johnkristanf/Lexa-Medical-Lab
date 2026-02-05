@@ -27,10 +27,6 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->group(fun
     Route::get('/appointments', [AppointmentController::class, 'renderAdminAppointments'])
         ->name('admin.appointments');
 
-    Route::get('/inventory', [AppointmentController::class, 'renderAdminInventory'])
-        ->name('admin.inventory');
-
-
     Route::put('/appointment-schedules/slots/{slotId}/status', [AppointmentController::class, 'updateScheduleStatus']);
 
     // USER PROTECTED ROUTES

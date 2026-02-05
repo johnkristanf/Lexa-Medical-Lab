@@ -87,7 +87,7 @@
                                                 for="lot_number"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Category Name
+                                                Name
                                             </label>
                                             <input
                                                 id="lot_number"

@@ -142,7 +142,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Update
+                                            Save
                                         </button>
 
                                         <button

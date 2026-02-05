@@ -34,6 +34,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $authenticatedUserRoleID = Auth::user()->role_id;
+
         return redirect()->intended(Auth::user()->getIndexRoute($authenticatedUserRoleID));
 
     }

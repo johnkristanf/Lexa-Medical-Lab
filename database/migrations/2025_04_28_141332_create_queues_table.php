@@ -16,8 +16,6 @@ return new class extends Migration
             $table->string('queue_number');
             $table->string('name')->nullable();
             $table->timestamp('called_at')->nullable();
-            $table->boolean('is_appointment')->default(false);
-            $table->string('appointment_number')->nullable();
 
             $table->foreignId('status_id')->constrained('queue_statuses')->default(1);
             $table->foreignId('priority_type_id')->constrained('priority_types');

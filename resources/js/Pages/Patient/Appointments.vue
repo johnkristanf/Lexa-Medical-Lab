@@ -21,7 +21,6 @@
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
     import AddButton from '@/Components/AddButton.vue'
-    import { generateRandomNumberString } from '@/helpers/random_num'
 
     // COMPONENT PROPS
     const props = defineProps({
@@ -57,27 +56,15 @@
     }
 
     function updateStatus(id, status) {
-        const appointment = props.appointments.find((a) => a.id === id)
-
         router.put(
             `/admin/appointments/${id}/status`,
-            {
-                status,
-                patient_id: generateRandomNumberString(10),
-                first_name: appointment.first_name,
-                middle_name: appointment.middle_name,
-                last_name: appointment.last_name,
-                email: appointment?.email ?? '',
-                phone: appointment?.phone ?? '',
-                date_of_birth: appointment?.date_of_birth ?? '',
-                gender: appointment?.gender ?? '',
-                address: appointment?.address ?? '',
-            },
+            { status },
 
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     // Immediately update the status locally so UI changes
+                    const appointment = props.appointments.find((a) => a.id === id)
                     if (appointment) {
                         appointment.status = status
                     }
@@ -86,7 +73,7 @@
         )
     }
 
-    const headers = ['Appointment #', 'Full Name', 'Email', 'Phone Number', 'Status', 'Schedule', 'Actions']
+    const headers = ['Appointment #', 'Full Name', 'Email', 'Status', 'Schedule', 'Actions']
 </script>
 
 <template>
@@ -94,18 +81,15 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-gray-800 leading-tight">Patient Appointments</h2>
+            <h2 class="text-xl font-semibold text-gray-800 leading-tight">Appointments</h2>
         </template>
 
         <div>
-            <div class="h-[70vh] mx-auto max-w-8xl sm:px-6 lg:px-8">
+            <div class="h-full mx-auto max-w-8xl sm:px-6 lg:px-8">
                 <div class="h-full card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <SearchInput
-                            route="medical.appointments"
-                            placeholder="Search Appointment Number, Name, Email"
-                        />
+                        <SearchInput route="medical.appointments" placeholder="Search Appointment Number, Name, Email" />
                     </div>
 
                     <fwb-table class="h-full">
@@ -121,7 +105,10 @@
 
                         <fwb-table-body>
                             <template v-if="appointments && appointments.length > 0">
-                                <fwb-table-row v-for="appointment in appointments" :key="appointment.id">
+                                <fwb-table-row
+                                    v-for="appointment in appointments"
+                                    :key="appointment.id"
+                                >
                                     <fwb-table-cell>
                                         {{ appointment.appointment_number ?? 'N/A' }}
                                     </fwb-table-cell>
@@ -134,13 +121,13 @@
                                     <fwb-table-cell>
                                         {{ appointment.email ?? 'N/A' }}
                                     </fwb-table-cell>
-
-                                    <fwb-table-cell>
-                                        {{ appointment.phone ?? 'N/A' }}
-                                    </fwb-table-cell>
                                     <fwb-table-cell>
                                         <fwb-badge
-                                            :type="appointment.status === 'arrived' ? 'green' : 'yellow'"
+                                            :type="
+                                                appointment.status === 'arrived'
+                                                    ? 'green'
+                                                    : 'yellow'
+                                            "
                                         >
                                             {{ appointment.status.toUpperCase() }}
                                         </fwb-badge>
@@ -163,7 +150,9 @@
                                                 >
                                                     <fwb-list-group-item
                                                         class="flex justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        @click="updateStatus(appointment.id, 'arrived')"
+                                                        @click="
+                                                            updateStatus(appointment.id, 'arrived')
+                                                        "
                                                     >
                                                         Arrived
                                                     </fwb-list-group-item>
@@ -172,13 +161,11 @@
 
                                             <AddButton
                                                 color="green"
-                                                :disabled="appointment.is_email_sent === 1"
-                                                class="disabled:opacity-50 disabled:cursor-not-allowed"
                                                 @click="
                                                     openEmailAppointmentDetails(
                                                         appointment.id,
                                                         appointment.appointment_number,
-                                                        appointment.schedule?.date,
+                                                        appointment.schedule.date,
                                                         appointment.email,
                                                     )
                                                 "

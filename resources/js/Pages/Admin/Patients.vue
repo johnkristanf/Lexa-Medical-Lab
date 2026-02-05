@@ -35,16 +35,8 @@
         <div class="flex justify-between items-center mb-3">
             <h1 class="text-2xl mb-3 text-gray-600">Patients Information</h1>
 
-            <div class="flex items-center gap-2">
-                <button class="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded hover:opacity-75">
-                    <a class="text-white-600" :href="route('patient.report')" target="_blank">
-                        Print Reports
-                    </a>
-                </button>
-
-                <!-- SEARCH INPUT -->
-                <SearchInput route="admin.patients" placeholder="Search Name" />
-            </div>
+            <!-- SEARCH INPUT -->
+            <SearchInput route="admin.patients" placeholder="Search Name" />
         </div>
 
         <fwb-table hoverable>
@@ -70,7 +62,7 @@
                         <fwb-table-cell>{{ formatDate(patient.date_of_birth) }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>
-                        <fwb-table-cell>{{ patient.email ?? 'N/A' }}</fwb-table-cell>
+                        <fwb-table-cell class="!text-left">{{ patient.email ?? 'N/A' }}</fwb-table-cell>
                     </fwb-table-row>
                 </template>
 

@@ -17,17 +17,11 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('address')->nullable();
             $table->string('gender');
             $table->date('date_of_birth');
             $table->string('status');
-            $table->boolean('is_email_sent')->default(false);
-
-
 
             $table->foreignId('schedule_id')->constrained('appointment_schedules');
-            $table->foreignId('priority_id')->constrained('priority_types');
             $table->timestamps();
         });
     }
