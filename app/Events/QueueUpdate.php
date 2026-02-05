@@ -17,6 +17,7 @@ class QueueUpdate implements ShouldBroadcast
 
     public function __construct($updatedQueueID)
     {
+        Log::info('updatedQueueID 123: '.$updatedQueueID);
         $this->updatedQueueID = $updatedQueueID;
     }
 

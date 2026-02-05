@@ -107,7 +107,7 @@
             </div>
         @endif
         <p><strong>CLINICAL LABORATORY DEPARTMENT</strong></p>
-        <p><strong>{{ $testCategory->name}}</strong></p>
+        <p><strong>CLINICAL CHEMISTRY REPORT</strong></p>
     </div>
 
     <table class="info-table">
@@ -117,6 +117,7 @@
         </tr>
 
         <tr>
+            <td><strong>Age:</strong> {{ $age  }}</td>
             <td><strong>Gender:</strong> {{ $patientDetails->gender }}</td>
             <td><strong>OR Number:</strong> {{ $testDetail->or_number }}</td>
         </tr>
@@ -136,10 +137,7 @@
             <tr>
                 <td>{{ $testType->name ?? 'N/A' }}</td>
                 <td>{{ $testType->pivot->results ?? 'N/A' }}</td>
-                <td>
-                    <pre class="whitespace-pre-wrap font-mono text-sm">{{ $testType->reference_range ?? 'N/A' }}</pre>
-
-                </td>
+                <td>{{ $testType->reference_range ?? 'N/A' }}</td>
                 <td>{{ $testType->unit ?? 'N/A' }}</td>
             </tr>
             @endforeach
@@ -161,7 +159,6 @@
                 <td style="width: 50%; text-align: center; vertical-align: top;">
                     <p style="text-decoration: underline;"><strong>DR. OSCAR P. GRAGEDA, FSCP, APCP</strong></p>
                     <p>Lic. No.: 0047205</p>
-                    <p>Pathologist</p>
                 </td>
             </tr>
         </table>

@@ -1,13 +1,11 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-    import { Head } from '@inertiajs/vue3'
-    import { Column, DataTable, Drawer } from 'primevue'
-    import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref, computed } from 'vue'
+    import { Head, router } from '@inertiajs/vue3'
+    import { Drawer } from 'primevue'
+    import { reactive, ref, watch } from 'vue'
     import AddSupplyModal from '@/Components/modal/AddSupplyModal.vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
-    import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
     import StockModal from '@/Components/modal/StockModal.vue'
     import {
         FwbTable,
@@ -19,7 +17,7 @@
     } from 'flowbite-vue'
 
     const props = defineProps({
-        supplies: Array,
+        supplies: Object,
         inventory_logs: Array,
         supplyUpdate: Object,
         addStock: Array,
@@ -30,35 +28,27 @@
         showInventoryDrawer: false,
     })
 
-    const search = ref('')
+    const perPage = ref(props.supplies.per_page || 10)
+
+    watch(perPage, (value) => {
+        router.get(
+            route('medical.stock.create'),
+            {
+                ...props.filters,
+                perPage: value,
+                page: 1,
+            },
+            { preserveState: true, replace: true },
+        )
+    })
 
     const showStockModal = ref(false)
     const addStock = ref(null)
 
     const openStockModal = (stock) => {
-        console.log('Opening StockModal with:', stock)
         addStock.value = stock
         showStockModal.value = true
     }
-    const filteredSupplies = computed(() => {
-        if (!search.value) {
-            return props.supplies
-        }
-
-        return props.supplies.filter((item) => {
-            const brand = item.brand_name?.toLowerCase() || ''
-            const quantity = String(item.quantity || '').toLowerCase()
-            const critical = String(item.stocks?.[0]?.critical_stock || '').toLowerCase()
-            const batch = item.batches?.[0]?.batch_number?.toLowerCase() || ''
-
-            return (
-                brand.includes(search.value.toLowerCase()) ||
-                quantity.includes(search.value.toLowerCase()) ||
-                critical.includes(search.value.toLowerCase()) ||
-                batch.includes(search.value.toLowerCase())
-            )
-        })
-    })
 
     const tableHeaders = [
         { key: 'brand_name', label: 'Brand Name' },
@@ -67,11 +57,6 @@
         { key: 'batch_number', label: 'Product Batch #', custom: true },
         { key: 'action', label: 'Action', custom: true },
     ]
-
-    console.log('supplies: ', props.supplies)
-    console.log('inventory_logs: ', props.inventory_logs)
-
-    const sampleOperationType = 'added'
 </script>
 
 <template>
@@ -87,23 +72,15 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <!-- <fwb-button
-                            class="bg-gray-900 hover:bg-gray-500"
-                            @click="toggles.showInventoryDrawer = true"
-                        >
-                            View Logs
-                        </fwb-button> -->
-
-                        <!-- <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
-                            Add Supply
-                        </fwb-button> -->
-
-                        <!-- SEARCH INPUT -->
-                        <SearchInput route="medical.stock.create" placeholder="Search Supplies" />
+                        <SearchInput
+                            route="medical.stock.create"
+                            placeholder="Search Supplies"
+                            v-model="search"
+                        />
                     </div>
 
+                    <!-- TABLE -->
                     <FwbTable class="w-full min-w-[50rem]">
-                        <!-- Table Head -->
                         <FwbTableHead>
                             <FwbTableHeadCell
                                 v-for="(header, index) in tableHeaders"
@@ -114,10 +91,8 @@
                             </FwbTableHeadCell>
                         </FwbTableHead>
 
-                        <!-- Table Body -->
                         <FwbTableBody>
-                            <FwbTableRow v-for="supply in filteredSupplies" :key="supply.id">
-                                <!-- Loop cells -->
+                            <FwbTableRow v-for="supply in supplies.data" :key="supply.id">
                                 <FwbTableCell v-for="(header, index) in tableHeaders" :key="index">
                                     <!-- Normal fields -->
                                     <template v-if="!header.custom">
@@ -148,16 +123,100 @@
                             </FwbTableRow>
                         </FwbTableBody>
                     </FwbTable>
+
+                    <!-- PAGINATION -->
+                    <div
+                        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4"
+                    >
+                        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-4">
+                                <p class="text-sm text-gray-700">
+                                    Showing
+                                    <span class="font-medium">{{ supplies.from }}</span>
+                                    to
+                                    <span class="font-medium">{{ supplies.to }}</span>
+                                    of
+                                    <span class="font-medium">{{ supplies.total }}</span>
+                                    results
+                                </p>
+
+                                <!-- Per Page Dropdown -->
+                                <div class="flex items-center gap-2">
+                                    <label for="perPage" class="text-sm text-gray-700">Per page:</label>
+                                    <select
+                                        id="perPage"
+                                        v-model="perPage"
+                                        class="rounded-md border-gray-300 text-sm focus:border-green-500 focus:ring-green-500"
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Page Navigation -->
+                            <div>
+                                <nav
+                                    class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                                    aria-label="Pagination"
+                                >
+                                    <!-- Previous -->
+                                    <button
+                                        :disabled="!supplies.prev_page_url"
+                                        @click="router.get(supplies.prev_page_url, { perPage, search })"
+                                        class="relative inline-flex items-center gap-1 rounded-l-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-gray-300"
+                                        :class="
+                                            supplies.prev_page_url
+                                                ? 'text-gray-700 hover:bg-gray-50'
+                                                : 'text-gray-400 cursor-not-allowed opacity-50'
+                                        "
+                                    >
+                                        Previous
+                                    </button>
+
+                                    <!-- Page Numbers -->
+                                    <button
+                                        v-for="link in supplies.links.slice(1, -1).slice(0, 5)"
+                                        :key="link.label"
+                                        @click="link.url && router.get(link.url, { perPage, search })"
+                                        :class="[
+                                            'relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300',
+                                            link.active
+                                                ? 'z-10 bg-green-600 text-white'
+                                                : 'text-gray-900 hover:bg-gray-50',
+                                        ]"
+                                    >
+                                        {{ link.label }}
+                                    </button>
+
+                                    <!-- Next -->
+                                    <button
+                                        :disabled="!supplies.next_page_url"
+                                        @click="router.get(supplies.next_page_url, { perPage, search })"
+                                        class="relative inline-flex items-center gap-1 rounded-r-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-gray-300"
+                                        :class="
+                                            supplies.next_page_url
+                                                ? 'text-gray-700 hover:bg-gray-50'
+                                                : 'text-gray-400 cursor-not-allowed opacity-50'
+                                        "
+                                    >
+                                        Next
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- MODALS -->
         <StockModal v-if="showStockModal" :addStock="addStock" @close="showStockModal = false" />
-
-        <!-- ADD SUPLY MODAL -->
         <AddSupplyModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
 
-        <!-- DRAWER FOR INVENTORY LOGS -->
+        <!-- Drawer -->
         <Drawer
             v-model:visible="toggles.showInventoryDrawer"
             header="Inventory Logs"

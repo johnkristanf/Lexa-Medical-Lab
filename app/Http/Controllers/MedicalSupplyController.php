@@ -9,7 +9,6 @@ use App\Models\Batch;
 use App\Models\Categories;
 use App\Models\InventoryLogs;
 use App\Models\MedicalSupplies;
-use App\Models\Patient;
 use App\Models\RequestedSupply;
 use App\Models\Stock;
 use App\Models\SupplyRequest;
@@ -106,42 +105,25 @@ class MedicalSupplyController extends Controller
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
 
-        $data = Patient::select(
-            'priority_types.code as code',
-            DB::raw('COUNT(patients.id) as total')
-        )
-        ->join('priority_types', 'patients.priority_id', '=', 'priority_types.id')
-        ->groupBy('priority_types.code', 'priority_types.priority_level') // add priority_level
-        ->get();
-
-
-        Log::info("PATIENT NI: ", [$data]);
-
         return Inertia::render('Inventory/Dashboard', [
             'supplies' => $supplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
-            'patient_analytics' => $data,
-            'latestPatients' => Patient::latest()
-            ->take(5)
-            ->get(['id', 'patient_id', 'first_name', 'last_name', 'created_at']),
-    ]);
-
+        ]);
     }
 
-     public function mostUsedSupples(Request $request)
+    public function mostUsedSupples(Request $request)
     {
-    $filter = $request->get('filter', 'all');
+        $filter = $request->get('filter', 'all');
+        Log::info("filter: ", [$filter]);
 
-    $query = InventoryLogs::select(
-        'categories.name',
-        DB::raw('SUM(inventory_logs.total_quantity) as total_quantity')
-    )
-        ->join('medical_supplies', 'inventory_logs.supply_id', '=', 'medical_supplies.id')
-        ->join('categories', 'medical_supplies.category_id', '=', 'categories.id')
-        ->where('inventory_logs.operation_type', 'DEDUCTED')
-        ->groupBy('categories.name')
-        ->orderByDesc('total_quantity');
+        $query = InventoryLogs::select(
+            'medical_supplies.brand_name',
+            DB::raw('SUM(inventory_logs.total_quantity) as total_quantity')
+        )
+            ->join('medical_supplies', 'inventory_logs.supply_id', '=', 'medical_supplies.id')
+            ->groupBy('medical_supplies.brand_name')
+            ->orderByDesc('total_quantity');
 
         // apply filters
         if ($filter === 'day') {
@@ -153,9 +135,9 @@ class MedicalSupplyController extends Controller
             $query->whereYear('inventory_logs.created_at', now()->year);
         }
 
-        return response()->json($query->get());
+        $logs = $query->get();
+        return response()->json($logs);
     }
-
 
 
     public function inventory(Request $request)
@@ -230,32 +212,38 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply quantity deducted successfully.');
     }
 
-    public function suppliescreate(Request $request)
-    {
-        $searchQuery = $request->query('search');
+   public function suppliescreate(Request $request)
+{
+    $searchQuery = $request->query('search');
+    $categoryId = $request->query('category');
 
-        $supplies = MedicalSupplies::with(['category'])
+    $supplies = MedicalSupplies::with(['category'])
         ->when($searchQuery, function ($query) use ($searchQuery) {
-        $query->where(function ($q) use ($searchQuery) {
-            $q->where('participants', 'LIKE', "%{$searchQuery}%")
-              ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
-              ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
-                  $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
-              })
-              ->orWhereHas('category', function ($categoryQuery) use ($searchQuery) {
-                  $categoryQuery->where('name', 'LIKE', "%{$searchQuery}%");
-              });
-        });
-    })
-    ->get();
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('participants', 'LIKE', "%{$searchQuery}%")
+                  ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
+                  ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                      $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+                  })
+                  ->orWhereHas('category', function ($categoryQuery) use ($searchQuery) {
+                      $categoryQuery->where('name', 'LIKE', "%{$searchQuery}%");
+                  });
+            });
+        })
+        ->when($categoryId, function ($query) use ($categoryId) {
+            $query->where('category_id', $categoryId);
+        })
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
-        $categories_supplies = Categories::with('medical_supplies')->get();
+    $categories_supplies = Categories::with('medical_supplies')->get();
 
-        return Inertia::render('Inventory/Supplies', [
-            'supplies' => $supplies,
-            'categories' => $categories_supplies,
-        ]);
-    }
+    return Inertia::render('Inventory/Supplies', [
+        'supplies' => $supplies,
+        'categories' => $categories_supplies,
+    ]);
+}
+
 
     public function addStockSupply(Request $request, $id)
     {
@@ -309,22 +297,32 @@ class MedicalSupplyController extends Controller
                   $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
               });
     })
-    ->get();
+    ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
         return Inertia::render('Inventory/Stock', [
             'supplies' => $supplies,
         ]);
     }
 
-    public function batchNumbercreate(Request $request)
-    {
-        $supplies = MedicalSupplies::with('batches')->get();
+   public function batchNumbercreate(Request $request)
+{
+    $searchQuery = $request->query('search');
+    Log::info('searchQuery batch number: ', [$searchQuery]);
 
-        return Inertia::render('Inventory/Batches', [
-            'supplies' => $supplies,
+    $supplies = MedicalSupplies::with('batches')
+        ->when($searchQuery, function ($query) use ($searchQuery) {
+            $query->where('brand_name', 'LIKE', "%{$searchQuery}%")
+                  ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
+                      $batchQuery->where('batch_number', 'LIKE', "%{$searchQuery}%");
+                  });
+        })
+        ->get();
 
-        ]);
-    }
+    return Inertia::render('Inventory/Batches', [
+        'supplies' => $supplies,
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -337,7 +335,6 @@ class MedicalSupplyController extends Controller
             'quantity' => 'required|integer|min:0',
             'manufacture_date' => 'required|date',
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
-            'sku' => 'nullable|string|max:255',
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
             'crtical_stock' => 'nullable|integer|min:0',
@@ -352,11 +349,10 @@ class MedicalSupplyController extends Controller
             'quantity' => $validated['quantity'],
             'manufacture_date' => $validated['manufacture_date'],
             'expiration_date' => $validated['expiration_date'],
-            'sku' =>  $validated['sku'],
             'lot_number' => $validated['lot_number'],
             'batch_number' => $validated['batch_number'],
             'category_id' => $validated['category_id'],
-
+3
         ]);
 
         $createdSupply->batches()->create([
@@ -382,7 +378,11 @@ class MedicalSupplyController extends Controller
         $supplyRequest = SupplyRequest::select('id', 'to', 'po_number', 'status', 'remarks', 'release_datetime')
             ->with([
                 'medical_supplies' => function ($query) {
-                    $query->select('medical_supplies.id', 'medical_supplies.participants', 'medical_supplies.brand_name', 'medical_supplies.unit')
+                    $query->select('medical_supplies.id',
+                    'medical_supplies.participants',
+                    'medical_supplies.brand_name',
+                    'medical_supplies.unit'
+                    )
                         ->withPivot('quantity');
                 },
             ])
@@ -448,7 +448,8 @@ class MedicalSupplyController extends Controller
                     $subQuery->where('item_description', 'LIKE', "%{$searchQuery}%");
                 });
         })
-        ->get();
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
         Log::info('supplyRequest', [
             'supplyRequest' => $supplyRequest,
@@ -518,7 +519,8 @@ class MedicalSupplyController extends Controller
         $query->where('name', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('description', 'LIKE', "%{$searchQuery}%");
     })
-    ->get();
+    ->paginate($request->input('perPage',10))
+    ->withQueryString();
 
         $updateCategory = categories::find($request->input('id'));
 
@@ -553,7 +555,8 @@ class MedicalSupplyController extends Controller
                 $supplyQuery->where('brand_name', 'LIKE', "%{$searchQuery}%");
             });
         })
-        ->get();
+        ->paginate($request->input('perPage', 10))
+        ->withQueryString();
 
         return Inertia::render('Inventory/ArchiveSupplies', [
             'arcvhivedSupplies' => $archive_supplies,
@@ -583,7 +586,7 @@ class MedicalSupplyController extends Controller
             }
 
             InventoryLogs::where('supply_id', $supply->id)->delete();
-            $supply->delete(); // soft delete
+            $supply->delete();
         });
 
         return back()->with('success', 'Supply archived successfully.');
@@ -636,7 +639,4 @@ class MedicalSupplyController extends Controller
 
         return null;
     }
-
-
-
 }

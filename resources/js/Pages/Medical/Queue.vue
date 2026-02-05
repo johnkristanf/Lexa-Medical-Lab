@@ -13,7 +13,7 @@
         FwbTableHeadCell,
         FwbTableRow,
         FwbButton,
-        FwbDropdown,
+        FwbDropdown
     } from 'flowbite-vue'
 
     // QUEUE DATA PROPS
@@ -78,7 +78,13 @@
         )
     }
 
-    const queueTableHeaders = ['Queue Number', 'Priority Label', 'Actions']
+
+
+    const queueTableHeaders = [
+        'Queue Number',
+        'Priority Label',
+        'Actions'
+    ]
 </script>
 
 <template>
@@ -111,42 +117,45 @@
                 </fwb-table-head>
 
                 <fwb-table-body>
-                    <fwb-table-row v-for="queue in props.queues" :key="queue.id">
+                    <fwb-table-row
+                        v-for="queue in props.queues"
+                        :key="queue.id"
+                    >
                         <fwb-table-cell>{{ queue.queue_number }}</fwb-table-cell>
                         <fwb-table-cell>
-                            {{ queue.priority_types?.name }} ({{ queue.priority_types?.code }})
+                        {{ queue.priority_types?.name }} ({{ queue.priority_types?.code }})
                         </fwb-table-cell>
 
                         <fwb-table-cell>
-                            <div v-if="queue.status_id < 3">
-                                <!-- DROPDOWN FOR STATUS UPDATE -->
-                                <FwbDropdown text="Update Status" placement="bottom-start">
-                                    <ul class="py-1 text-sm text-gray-700">
-                                        <li
-                                            v-for="queueStatus in props.queue_statuses.filter(
-                                                (s) => s.id === queue.status_id + 1,
-                                            )"
-                                            :key="queueStatus.id"
-                                            @click="
-                                                updateStatus({
-                                                    queue_id: queue.id,
-                                                    updated_status_id: queueStatus.id,
-                                                })
-                                            "
-                                            class="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                                        >
-                                            {{ queueStatus.name }}
-                                        </li>
-                                    </ul>
-                                </FwbDropdown>
-                            </div>
+                        <div v-if="queue.status_id < 3">
+                            <!-- DROPDOWN FOR STATUS UPDATE -->
+                            <FwbDropdown text="Update Status" placement="bottom-start">
+                            <ul class="py-1 text-sm text-gray-700">
+                                <li
+                                v-for="queueStatus in props.queue_statuses.filter(
+                                    (s) => s.id === queue.status_id + 1
+                                )"
+                                :key="queueStatus.id"
+                                @click="
+                                    updateStatus({
+                                    queue_id: queue.id,
+                                    updated_status_id: queueStatus.id,
+                                    })
+                                "
+                                class="cursor-pointer px-4 py-2 hover:bg-gray-100"
+                                >
+                                {{ queueStatus.name }}
+                                </li>
+                            </ul>
+                            </FwbDropdown>
+                        </div>
 
-                            <span
-                                v-else
-                                class="inline-block px-2 py-1 text-sm font-bold rounded-md bg-green-100 text-green-800"
-                            >
-                                This Patient is already Served
-                            </span>
+                        <span
+                            v-else
+                            class="inline-block px-2 py-1 text-sm font-bold rounded-md bg-green-100 text-green-800"
+                        >
+                            This Patient is already Served
+                        </span>
                         </fwb-table-cell>
                     </fwb-table-row>
                 </fwb-table-body>
@@ -169,9 +178,12 @@
         opacity: 0.85;
     }
 
+
     .custom-select-button .p-selectbutton .p-button.p-highlight {
         background-color: #16a34a !important; /* Example: Tailwind green-600 */
         color: white !important;
         border-color: #15803d !important; /* Optional: dark green */
     }
+
+
 </style>

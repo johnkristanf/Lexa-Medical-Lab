@@ -11,7 +11,7 @@
         FwbTableRow,
     } from 'flowbite-vue'
 
-    import { onMounted, reactive, ref } from 'vue'
+    import { reactive, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import PatientDetailsModal from '@/Components/modal/PatientDetailsModal.vue'
@@ -20,7 +20,6 @@
     import UpdatePatientDetails from '@/Components/modal/UpdatePatientDetails.vue'
     import AddButton from '@/Components/AddButton.vue'
     import { formatDate } from '@/helpers/formatter'
-    import { EnvelopeIcon, InboxArrowDownIcon, PencilSquareIcon } from '@heroicons/vue/20/solid'
 
     const props = defineProps({
         patients: Array,
@@ -30,12 +29,8 @@
         testCategory: Array,
         testType: Array,
         patientUpdate: Array,
-        priority_types: Array,
     })
 
-    onMounted(() => {
-        console.log('patients: ', props.patients)
-    })
 
     const showAddScheduleModal = ref(false)
     const showSchedulesModal = ref(false)
@@ -58,7 +53,6 @@
     }
 
     const patientID = ref(null)
-    const patientPriotityType = ref(null)
 
     const toggles = reactive({
         showAddSupplyModal: false,
@@ -70,18 +64,14 @@
         showInventoryDrawer: false,
     })
 
-    const showTestModal = (patient_id, priority_type) => {
-        console.log('priority_type: ', priority_type)
-
-        patientID.value = patient_id
-        togglesTestModal.showTestModal = true
-        patientPriotityType.value = priority_type
+    const showTestModal = (patient_id) => {
+        (patientID.value = patient_id), (togglesTestModal.showTestModal = true)
+        console.log('sa patient ni', patientID.value)
     }
 
     // TABLE HEADERS
     const patientTableHeaders = [
         'Patient ID',
-        'Patient Type',
         'Full Name',
         'Gender',
         'Birth Date',
@@ -105,23 +95,12 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <button
-                            class="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded hover:opacity-75"
-                        >
-                            <a class="text-white-600" :href="route('patient.report')" target="_blank">
-                                Print Reports
-                            </a>
-                        </button>
-
                         <AddButton color="green" @click="toggles.showAddSupplyModal = true">
                             Add Patient
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput
-                            route="patient.details.create"
-                            placeholder="Search Patient ID, Name, Email"
-                        />
+                        <SearchInput route="patient.details.create" placeholder="Search Patient ID, Name, Email" />
                     </div>
 
                     <fwb-table hoverable>
@@ -139,7 +118,6 @@
                             <template v-if="patients && patients.length > 0">
                                 <fwb-table-row v-for="(patient, index) in patients" :key="index">
                                     <fwb-table-cell>{{ patient.patient_id }}</fwb-table-cell>
-                                    <fwb-table-cell>{{ patient.priority_type?.name ?? '' }}</fwb-table-cell>
                                     <fwb-table-cell
                                         class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
                                     >
@@ -157,24 +135,24 @@
                                     <!-- Actions -->
                                     <fwb-table-cell class="flex items-center gap-3">
                                         <button
-                                            @click="showTestModal(patient.id, patient.priority_type)"
+                                            @click="showTestModal(patient.id)"
                                             class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
-                                            <InboxArrowDownIcon class="size-4 text-white" />
+                                            Conduct Test
                                         </button>
 
                                         <button
                                             @click="openEmailAppointmentDetails(patient.email)"
                                             class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
-                                            <EnvelopeIcon class="size-4 text-white" />
+                                            Send Email
                                         </button>
 
                                         <button
                                             @click="openUpdatePatientDetails(patient)"
                                             class="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
-                                            <PencilSquareIcon class="size-4 text-white" />
+                                            Update
                                         </button>
                                     </fwb-table-cell>
                                 </fwb-table-row>
@@ -182,7 +160,10 @@
 
                             <template v-else>
                                 <fwb-table-row>
-                                    <fwb-table-cell colspan="5" class="text-center bg-gray-100 text-gray-500">
+                                    <fwb-table-cell
+                                        colspan="5"
+                                        class="text-center bg-gray-100 text-gray-500"
+                                    >
                                         No patient records found.
                                     </fwb-table-cell>
                                 </fwb-table-row>
@@ -196,7 +177,6 @@
         <!-- ADD SUPLY MODAL -->
         <PatientDetailsModal
             v-if="toggles.showAddSupplyModal"
-            :priority_types="props.priority_types"
             @close="toggles.showAddSupplyModal = false"
         />
 
@@ -211,7 +191,6 @@
             :testTypesPurpose="testTypesPurpose"
             :testTypesRequest="testTypesRequest"
             :patientID="patientID"
-            :patientPriorityType="patientPriotityType"
             :testCategory="testCategory"
             @close="togglesTestModal.showTestModal = false"
             :testType="testType"
@@ -251,8 +230,10 @@
                         <span
                             class="w-1/2 text-center inline-block px-2 py-1 text-sm font-bold uppercase rounded-md"
                             :class="{
-                                'bg-green-100 text-green-800': log.operation_type === OPERATION_TYPES.ADDED,
-                                'bg-red-100 text-yellow-800': log.operation_type === OPERATION_TYPES.DEDUCTED,
+                                'bg-green-100 text-green-800':
+                                    log.operation_type === OPERATION_TYPES.ADDED,
+                                'bg-red-100 text-yellow-800':
+                                    log.operation_type === OPERATION_TYPES.DEDUCTED,
                             }"
                         >
                             {{ log.operation_type }}

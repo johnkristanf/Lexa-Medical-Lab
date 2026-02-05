@@ -1,13 +1,11 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head, router } from '@inertiajs/vue3'
-    import { Column, DataTable, Drawer } from 'primevue'
-    import { FwbButton } from 'flowbite-vue'
-    import { reactive, ref } from 'vue'
+    import { Drawer } from 'primevue'
+    import { reactive, ref, watch } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
-    import SelectButton from 'primevue/selectbutton'
     import CategoryModal from '@/Components/modal/CategoryModal.vue'
     import AddButton from '@/Components/AddButton.vue'
     import UpdateCategories from '@/Components/modal/UpdateCategories.vue'
@@ -22,7 +20,7 @@
 
     const props = defineProps({
         inventory_logs: Array,
-        categories: Array,
+        categories: Object,
         categoryUpdate: Array,
     })
 
@@ -47,10 +45,20 @@
         showUpdateSupply.value = true
     }
 
-    console.log('supplies: ', props.supplies)
-    console.log('inventory_logs: ', props.inventory_logs)
+    const perPage = ref(props.categories.per_page || 10)
+    const search = ref('')
 
-    const sampleOperationType = 'added'
+    watch(perPage, (value) => {
+        router.get(
+            route('category.supplies.create'),
+            {
+                perPage: value,
+                page: 1,
+                search: search.value,
+            },
+            { preserveState: true, replace: true },
+        )
+    })
 
     function DeletedCategory(id) {
         if (confirm('Are you sure you want to delete this category?')) {
@@ -82,23 +90,19 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-8 mb-4">
-                        <!-- <fwb-button
-                            class="bg-gray-900 hover:bg-gray-500"
-                            @click="toggles.showInventoryDrawer = true"
-
-                        >
-                            View Logs
-                        </fwb-button> -->
-
                         <AddButton color="green" @click="toggles.showCategoryModal = true">
                             Add Category
                         </AddButton>
 
                         <!-- SEARCH INPUT -->
-                        <SearchInput route="category.supplies.create" placeholder="Search Category" />
+                        <SearchInput
+                            route="category.supplies.create"
+                            placeholder="Search Category"
+                            v-model="search"
+                        />
                     </div>
 
-                    <FwbTable>
+                    <FwbTable class="w-full min-w-[40rem]">
                         <!-- Table Head -->
                         <FwbTableHead>
                             <FwbTableHeadCell
@@ -111,7 +115,7 @@
                         </FwbTableHead>
 
                         <FwbTableBody>
-                            <FwbTableRow v-for="category in props.categories" :key="category.id">
+                            <FwbTableRow v-for="category in categories.data" :key="category.id">
                                 <FwbTableCell v-for="header in headers" :key="header.key" class="!text-left">
                                     <template v-if="header.key === 'action'">
                                         <div class="flex gap-2">
@@ -138,6 +142,91 @@
                             </FwbTableRow>
                         </FwbTableBody>
                     </FwbTable>
+
+                    <!-- PAGINATION -->
+                    <div
+                        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4"
+                    >
+                        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-4">
+                                <p class="text-sm text-gray-700">
+                                    Showing
+                                    <span class="font-medium">{{ categories.from }}</span>
+                                    to
+                                    <span class="font-medium">{{ categories.to }}</span>
+                                    of
+                                    <span class="font-medium">{{ categories.total }}</span>
+                                    results
+                                </p>
+
+                                <!-- Per Page Dropdown -->
+                                <div class="flex items-center gap-2">
+                                    <label for="perPage" class="text-sm text-gray-700">Per page:</label>
+                                    <select
+                                        id="perPage"
+                                        v-model="perPage"
+                                        class="rounded-md border-gray-300 text-sm focus:border-green-500 focus:ring-green-500"
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Page Navigation -->
+                            <div>
+                                <nav
+                                    class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                                    aria-label="Pagination"
+                                >
+                                    <!-- Previous -->
+                                    <button
+                                        :disabled="!categories.prev_page_url"
+                                        @click="router.get(categories.prev_page_url, { perPage, search })"
+                                        class="relative inline-flex items-center gap-1 rounded-l-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-gray-300"
+                                        :class="
+                                            categories.prev_page_url
+                                                ? 'text-gray-700 hover:bg-gray-50'
+                                                : 'text-gray-400 cursor-not-allowed opacity-50'
+                                        "
+                                    >
+                                        Previous
+                                    </button>
+
+                                    <!-- Page Numbers -->
+                                    <button
+                                        v-for="link in categories.links.slice(1, -1).slice(0, 5)"
+                                        :key="link.label"
+                                        @click="link.url && router.get(link.url, { perPage, search })"
+                                        :class="[
+                                            'relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300',
+                                            link.active
+                                                ? 'z-10 bg-green-600 text-white'
+                                                : 'text-gray-900 hover:bg-gray-50',
+                                        ]"
+                                    >
+                                        {{ link.label }}
+                                    </button>
+
+                                    <!-- Next -->
+                                    <button
+                                        :disabled="!categories.next_page_url"
+                                        @click="router.get(categories.next_page_url, { perPage, search })"
+                                        class="relative inline-flex items-center gap-1 rounded-r-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-gray-300"
+                                        :class="
+                                            categories.next_page_url
+                                                ? 'text-gray-700 hover:bg-gray-50'
+                                                : 'text-gray-400 cursor-not-allowed opacity-50'
+                                        "
+                                    >
+                                        Next
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,9 +243,6 @@
             @close="showCategoryUpdate = false"
         />
 
-        <!-- ADD SUPLY MODAL -->
-        <AddSupplyModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
-
         <CategoryModal v-if="toggles.showCategoryModal" @close="toggles.showCategoryModal = false" />
 
         <!-- DRAWER FOR INVENTORY LOGS -->
@@ -169,7 +255,7 @@
             <div class="flex flex-col gap-3">
                 <div
                     v-for="log in props.inventory_logs"
-                    :key="log.props.inventory_logs"
+                    :key="log.id"
                     class="flex flex-col gap-4 border-2 border-gray-400 p-3 rounded-md"
                 >
                     <h1>
@@ -212,7 +298,6 @@
         background-color: #208b3a;
         color: white;
     }
-
     .custom-datatable ::v-deep(.p-datatable-tbody > tr > td) {
         background-color: #ffffff;
         color: #374151;

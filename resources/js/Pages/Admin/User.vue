@@ -21,11 +21,15 @@
     import DangerButton from '@/Components/DangerButton.vue'
     import EditButton from '@/Components/EditButton.vue'
     import AddButton from '@/Components/AddButton.vue'
-    import SearchInput from '@/Components/SearchInput.vue'
+import SearchInput from '@/Components/SearchInput.vue'
 
     const props = defineProps({
         users: Array,
         roles: Array,
+    })
+
+    onMounted(() => {
+        console.log('users: ', props.users)
     })
 
     const toast = useToast()
@@ -127,7 +131,11 @@
                         <fwb-table-cell>{{ user.name }}</fwb-table-cell>
                         <fwb-table-cell>{{ user.email }}</fwb-table-cell>
                         <fwb-table-cell>
-                            {{ user.role_name.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()) }}
+                            {{
+                                user.role_name
+                                    .replace(/_/g, ' ')
+                                    .replace(/\b\w/g, (l) => l.toUpperCase())
+                            }}
                         </fwb-table-cell>
                         <fwb-table-cell>{{ formatDate(user.created_at, false) }}</fwb-table-cell>
                         <fwb-table-cell class="flex items-center gap-3">

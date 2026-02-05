@@ -7,7 +7,6 @@ use App\Mail\ResultEmailReminder;
 use App\Models\Appointments;
 use App\Models\AppointmentSchedule;
 use App\Models\Patient;
-use App\Models\PriorityTypes;
 use App\Models\Queues;
 use App\Models\QueueStatus;
 use App\Models\Test;
@@ -24,15 +23,16 @@ use Inertia\Inertia;
 
 class MedicalStaffController extends Controller
 {
-
     public function queuePage(Request $request)
     {
         $statusID = $request->input('status_id', '1');
 
+        // FETCH ALL STATUS FOR TABLE FILTER
         $queueStatuses = QueueStatus::select('id', 'name', 'tag')
             ->where('tag', '!=', 'no_show')
             ->get();
 
+        // FETCH ALL QUEUE DATA ALONG WITH PRIORITY TYPE RELATIONSHIP
         $queues = Queues::with(['priority_types' => function ($query) {
             $query->select('id', 'name', 'code', 'priority_level');
         }])
@@ -89,8 +89,6 @@ class MedicalStaffController extends Controller
             ->latest()
             ->get();
 
-            Log::info("MAO NI:", [$appointments]);
-
         return Inertia::render('Patient/Appointments', [
             'appointments' => $appointments,
             'schedules' => $schedules,
@@ -101,24 +99,21 @@ class MedicalStaffController extends Controller
     public function patientDetailscreate(Request $request)
     {
         $searchQuery = $request->query('search');
-        $patientsDetails = Patient::with('priority_type')
-            ->when($searchQuery, function ($query, $search) {
-                $query->where('patient_id', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere(
-                        DB::raw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)"),
-                        'like',
-                        "%{$search}%"
-                    );
-            })
-            ->orderBy('created_at', 'desc')
+        $patientsDetails = Patient::when($searchQuery, function ($query, $search) {
+            $query->where('patient_id', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere(
+                    DB::raw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)"),
+                    'like',
+                    "%{$search}%"
+                );
+        })
             ->get();
 
         $testTypesPurpose = TestPurpose::all();
         $patientUpdate = Patient::find($request->input('id'));
         // $testTypesRequest = TestRequest::all();
         $testCategory = TestCategory::with('testTypes')->get();
-        $priorityTypes = PriorityTypes::select('id', 'name', 'code')->get();
 
         return Inertia::render('Patient/PatientDetails', [
             'patients' => $patientsDetails,
@@ -126,56 +121,27 @@ class MedicalStaffController extends Controller
             // 'testTypesRequest' => $testTypesRequest,
             'testCategory' => $testCategory,
             'patientUpdate' => $patientUpdate,
-            'priority_types' => $priorityTypes
         ]);
     }
 
-   public function patientDetailsStore(Request $request)
-{
-    $validated = $request->validate([
-        'first_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'gender' => 'required|string|max:10',
-        'date_of_birth' => 'required|date',
-        'address' => 'required|string|max:255',
-        'contact_number' => 'required|string|max:11',
-        'email' => 'required|email|max:255|unique:patients,email',
-        'priority_type.id' => 'required|exists:priority_types,id',
-    ]);
-
-    DB::transaction(function () use ($validated) {
-
-        $year = now()->year;
-
-        // Lock rows for safety
-        $lastPatient = Patient::where('patient_id', 'like', $year . '-%')
-            ->lockForUpdate()
-            ->orderByRaw('CAST(SUBSTRING(patient_id, 6) AS UNSIGNED) DESC')
-            ->first();
-
-        $nextNumber = $lastPatient
-            ? ((int) substr($lastPatient->patient_id, 5)) + 1
-            : 1;
-
-        $patientId = $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
-
-        Patient::create([
-            'patient_id' => $patientId,
-            'first_name' => $validated['first_name'],
-            'middle_name' => $validated['middle_name'] ?? null,
-            'last_name' => $validated['last_name'],
-            'gender' => $validated['gender'],
-            'date_of_birth' => $validated['date_of_birth'],
-            'address' => $validated['address'],
-            'contact_number' => $validated['contact_number'],
-            'email' => $validated['email'],
-            'priority_id' => $validated['priority_type']['id'],
+    public function patientDetailsStore(Request $request)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|string|max:10',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:15',
+            'email' => 'required|email|max:255|unique:patients,email',
         ]);
-    });
 
-    return redirect()->back()->with('success', 'Patient details added successfully.');
- }
+        Patient::create($validated);
+
+        return redirect()->back()->with('success', 'Patient details added successfully.');
+    }
 
     public function testCategoryCreate(Request $request)
     {
@@ -185,7 +151,6 @@ class MedicalStaffController extends Controller
             ->when($searchQuery, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
-            ->orderBy('created_at', 'desc')
             ->get();
 
         Log::info('testCategory: ', [$testCategory]);
@@ -206,11 +171,12 @@ class MedicalStaffController extends Controller
             'gender' => 'required|string|max:10',
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:11',
+            'contact_number' => 'required|string|max:15',
             'email' => 'required|email|max:255|unique:patients,email,'.$patient->id,
         ]);
 
         $patient->update($validated);
+
 
         return redirect()->back()->with('success', 'Patient details updated successfully.');
     }
@@ -236,53 +202,22 @@ class MedicalStaffController extends Controller
 
     public function testTypeStore(Request $request)
     {
-        // Check if test_types is present (batch insert from modal) or single insert
-        if ($request->has('test_types') && is_array($request->test_types)) {
-            // Batch mode (validate each item in test_types array)
-            $validated = $request->validate([
-                'test_types' => 'required|array|min:1',
-                'test_category_id' => 'required|exists:test_category,id',
-                'test_types.*.name' => 'required|string|max:255',
-                'test_types.*.reference_range' => 'required|string|max:255',
-                'test_types.*.unit' => 'nullable|string|max:255',
-                'test_types.*.price' => 'required|integer',
-            ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'reference_range' => 'required|string|max:255',
+            'unit' => 'nullable|string|max:255',
+            'price' => 'required|integer',
+            'test_category_id' => 'required|exists:test_category,id',
+        ]);
 
-        Log::info("TEST TYPES: ", [$validated]);
+        TestType::create($validated);
 
-            $testTypes = [];
-            foreach ($request->input('test_types') as $testType) {
-                // Prepare each test type with the test_category_id from request
-                $testTypes[] = [
-                    'name' => $testType['name'],
-                    'reference_range' => $testType['reference_range'],
-                    'unit' => $testType['unit'] ?? null,
-                    'price' => $testType['price'],
-                    'test_category_id' => $request->input('test_category_id'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+        // dd($request->all());
 
-            TestType::insert($testTypes);
+        // DB::table('test_types')->insert($request->all());
 
-            return redirect()->back()->with('success', count($testTypes).' Test Type(s) created successfully.');
-        } else {
-            // Single test type mode (e.g. manual entry)
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'reference_range' => 'required|string|max:255',
-                'unit' => 'nullable|string|max:255',
-                'price' => 'required|integer',
-                'test_category_id' => 'required|exists:test_category,id',
-            ]);
-
-            \App\Models\TestType::create($validated);
-
-            return redirect()->back()->with('success', 'Test Type created successfully.');
-        }
+        return redirect()->back()->with('success', 'Test Type created successfully.');
     }
-
 
     public function testStore(Request $request)
     {
@@ -297,18 +232,14 @@ class MedicalStaffController extends Controller
             'category_id' => 'required|integer',
             'selected_test_types' => 'required|array',
         ]);
-        Log::info("validated: ", [$validated]);
 
         $orNumber = (string) random_int(10000, 99999);
-
-        $totalPriceFloat = (float) preg_replace('/[^\d.]/', '', $validated['total_price']);
-        Log::info("totalPriceFloat: ", [$totalPriceFloat]);
 
         $test = Test::create([
             'referer_fullname' => $validated['referer_fullname'],
             'doctor_license_no' => $validated['doctor_license_no'],
             'test_schedule' => $validated['test_schedule'],
-            'total_price' => $totalPriceFloat,
+            'total_price' => $validated['total_price'],
             'or_number' => $orNumber,
             'purpose_id' => $validated['purpose_id'],
             'patient_id' => $validated['patient_id'],
@@ -318,7 +249,7 @@ class MedicalStaffController extends Controller
 
         $testID = $test->id;
 
-        // INSERT PATIENT TEST TO THE PIVOT TABLE 123123123213123
+        // INSERT PATIENT TEST TO THE PIVOT TABLE
         $patient = Patient::find($validated['patient_id']);
         $patient->test_types()->attach($validated['selected_test_types'], [
             'test_id' => $testID,
@@ -406,44 +337,8 @@ class MedicalStaffController extends Controller
             ->stream('combined-details.pdf');
     }
 
+
     private function getLogoAsBase64()
-    {
-        $logoPath = public_path('img/lexa-logo-removedbg.png');
-
-        if (file_exists($logoPath)) {
-            $imageData = base64_encode(file_get_contents($logoPath));
-            $mimeType = mime_content_type($logoPath);
-
-            return 'data:'.$mimeType.';base64,'.$imageData;
-        }
-
-        return null;
-    }
-
-    public function sendEmailResultReminder(Request $request)
-    {
-
-        Mail::to($request->get('email'))->send(new ResultEmailReminder);
-
-        return back()->with('success', 'Reminder email sent.');
-    }
-
-    public function printPatientReport(){
-
-        $patients_report = Patient::all();
-        $logoLexa = $this->logoLexa();
-
-        $pdf = Pdf::loadView('pdf.patient_report', [
-            'patients'=> $patients_report,
-            'logoLexa'=> $logoLexa
-        ])->setPaper('a4', 'landscape');
-
-
-        return $pdf->stream('patient_report.pdf');
-
-    }
-
-     private function logoLexa()
     {
         $logoPath = public_path('img/lexa-logo-removedbg.png');
 
@@ -454,5 +349,20 @@ class MedicalStaffController extends Controller
         }
 
         return null;
+    }
+
+    public function sendEmailResultReminder(Request $request)
+    {
+        Mail::to($request->get('email'))->send(new ResultEmailReminder);
+        return back()->with('success', 'Reminder email sent.');
+    }
+
+    public function ImageIdenticationPage(Request $request){
+
+         return Inertia::render('Patient/ScannerPage', [
+
+        ]);
+
+
     }
 }

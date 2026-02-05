@@ -19,13 +19,7 @@
     const props = defineProps({
         test_categories: Array,
         appointment_schedules: Array,
-        priority_types: Array,
     })
-
-    const genders = ref([
-        { name: 'MALE', tag: 'male' },
-        { name: 'FEMALE', tag: 'female' },
-    ])
 
     const toast = useToast()
     const showAppointmentDetails = ref(false)
@@ -37,11 +31,8 @@
         middle_name: '',
         last_name: '',
         email: '', // MAKE THIS NULLABLE IN THE BACKEND PARA SA MGA ARTE NA PANEL
-        phone: '',
-        address: '',
-        gender: genders.value[0],
+        gender: '',
         birthdate: '',
-        priority_type: props.priority_types[3], // INITIAL VALUE SET REGULAR PATIENT
         selected_schedule_id: -1,
         selected_time_slot_id: -1,
         selected_type_ids: [],
@@ -74,7 +65,6 @@
 
     onMounted(() => {
         console.log('test_categories: ', props.test_categories)
-        console.log('priority_types: ', props.priority_types)
     })
 </script>
 
@@ -95,7 +85,7 @@
             <StepList class="sticky top-0 z-10">
                 <Step value="1">Terms & Conditions</Step>
                 <Step value="2">Personal Information</Step>
-                <Step value="3">Schedule</Step>
+                <Step value="3">Test Type & Schedule</Step>
             </StepList>
 
             <StepPanels class="overflow-y-auto max-h-[70vh]">
@@ -107,7 +97,7 @@
                     </div>
                     <div class="flex py-4 pr-3 justify-end">
                         <Button
-                            label="Agree"
+                            label="Next"
                             icon="pi pi-arrow-right"
                             iconPos="right"
                             @click="
@@ -123,11 +113,7 @@
                 <StepPanel v-slot="{ activateCallback }" value="2">
                     <div class="flex flex-col h-full">
                         <div class="flex-auto flex justify-center items-center font-medium">
-                            <AppointmentForm
-                                :form="form"
-                                :genders="genders"
-                                :priority_types="priority_types"
-                            />
+                            <AppointmentForm :form="form" />
                         </div>
                     </div>
                     <div class="flex py-4 pr-3 justify-between">

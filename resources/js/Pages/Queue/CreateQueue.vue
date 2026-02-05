@@ -38,7 +38,7 @@
     // FORM INITIALIZATION
     const form = useForm({
         patient_name: 'Automatic Name Regular Patient',
-        priority_type: props.priority_types[2], // INITIAL VALUE SET REGULAR PATIENT
+        priority_type: props.priority_types[3], // AUTOMATIC SET FOR REGULAR PATIENT
         queue_number: '',
     })
 
@@ -199,7 +199,7 @@
     <GuestLayout>
         <Head title="Queue Create" />
 
-        <form @submit.prevent="onSubmit" class="flex flex-col  gap-3 h-64 pt-5">
+        <form @submit.prevent="onSubmit" class="flex flex-col justify-between gap-6 h-36 pt-5">
             <!-- PATIENT NAME INPUT -->
             <!-- <div>
                 <InputLabel for="patient_name" value="Patient Name" />
@@ -213,6 +213,71 @@
                     autofocus
                     autocomplete="username"
                 />
+            </div> -->
+
+            <!-- LIST FOR PRIORITY TYPES -->
+            <!-- <div>
+                <InputLabel for="priority_type" value="Priority Type" />
+
+                <Listbox v-model="form.priority_type">
+                    <div class="relative mt-1">
+                        <ListboxButton
+                            class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                        >
+                            <span class="block truncate">{{ form.priority_type.name }}</span>
+                            <span
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                            >
+                                <ChevronUpDownIcon
+                                    class="h-5 w-5 text-gray-400"
+                                    aria-hidden="true"
+                                />
+                            </span>
+                        </ListboxButton>
+
+                        <transition
+                            leave-active-class="transition duration-100 ease-in"
+                            leave-from-class="opacity-100"
+                            leave-to-class="opacity-0"
+                        >
+                            <ListboxOptions
+                                class="absolute mt-1 max-h-60 z-50 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+                            >
+                                <ListboxOption
+                                    v-slot="{ active, selected }"
+                                    v-for="priority in props.priority_types"
+                                    :key="priority.name"
+                                    :value="priority"
+                                    as="template"
+                                >
+                                    <li
+                                        :class="[
+                                            active
+                                                ? 'bg-green-100 text-green-900'
+                                                : 'text-gray-900',
+                                            'relative cursor-default select-none py-2 pl-10 pr-4',
+                                        ]"
+                                    >
+                                        <span
+                                            :class="[
+                                                selected ? 'font-medium' : 'font-normal',
+                                                'block truncate',
+                                            ]"
+                                        >
+                                            {{ priority.name }}
+                                        </span>
+                                        <span
+                                            v-if="selected"
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-600"
+                                        >
+                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                        </span>
+                                    </li>
+                                </ListboxOption>
+                            </ListboxOptions>
+                        </transition>
+                    </div>
+                </Listbox>
             </div> -->
 
             <!-- AUTOMATIC QUEUE NUMBER -->
@@ -232,77 +297,15 @@
                 />
             </div>
 
-            <div class="flex flex-col gap-4">
-                <!-- LIST FOR PRIORITY TYPES -->
-                <div>
-                    <InputLabel for="priority_type" value="Priority Type" />
-
-                    <Listbox v-model="form.priority_type">
-                        <div class="relative mt-1">
-                            <ListboxButton
-                                class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                            >
-                                <span class="block truncate">{{ form.priority_type.name }}</span>
-                                <span
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                                >
-                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </span>
-                            </ListboxButton>
-
-                            <transition
-                                leave-active-class="transition duration-100 ease-in"
-                                leave-from-class="opacity-100"
-                                leave-to-class="opacity-0"
-                            >
-                                <ListboxOptions
-                                    class="absolute mt-1 max-h-60 z-50 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
-                                >
-                                    <ListboxOption
-                                        v-slot="{ active, selected }"
-                                        v-for="priority in props.priority_types"
-                                        :key="priority.name"
-                                        :value="priority"
-                                        as="template"
-                                    >
-                                        <li
-                                            :class="[
-                                                active ? 'bg-green-100 text-green-900' : 'text-gray-900',
-                                                'relative cursor-default select-none py-2 pl-10 pr-4',
-                                            ]"
-                                        >
-                                            <span
-                                                :class="[
-                                                    selected ? 'font-medium' : 'font-normal',
-                                                    'block truncate',
-                                                ]"
-                                            >
-                                                {{ priority.name }}
-                                            </span>
-                                            <span
-                                                v-if="selected"
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-600"
-                                            >
-                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                            </span>
-                                        </li>
-                                    </ListboxOption>
-                                </ListboxOptions>
-                            </transition>
-                        </div>
-                    </Listbox>
-                </div>
-
-                <!-- SUBMIT BUTTON -->
-                <PrimaryButton
-                    type="submit"
-                    class="w-full flex justify-center"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Get Queue Ticket
-                </PrimaryButton>
-            </div>
+            <!-- SUBMIT BUTTON -->
+            <PrimaryButton
+                type="submit"
+                class="w-full flex justify-center"
+                :class="{ 'opacity-25': form.processing }"
+                :disabled="form.processing"
+            >
+                Get Queue Ticket
+            </PrimaryButton>
         </form>
 
         <!-- SUCCESSFULL QUEUE INSERTION ALERT -->

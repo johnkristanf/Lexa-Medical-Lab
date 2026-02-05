@@ -27,21 +27,12 @@
             permitted: permissions.value?.is_admin,
             icon: UserGroupIcon,
         },
-
-        {
-            name: 'Inventory',
-            route_name: 'admin.inventory',
-            permitted: permissions.value?.is_admin,
-            icon: CalendarIcon,
-        },
-
         {
             name: 'Appointments',
             route_name: 'admin.appointments',
             permitted: permissions.value?.is_admin,
             icon: CalendarIcon,
         },
-
         {
             name: 'User',
             route_name: 'admin.user',
@@ -85,6 +76,7 @@
             class="h-full flex flex-col justify-between px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800"
         >
             <ul class="space-y-2 font-medium">
+
                 <!-- CLOSE SIDEBAR BUTTON -->
                 <button
                     type="button"

@@ -1,6 +1,7 @@
 <?php
 
-it('test login page render', function () {
-    $response = $this->get('/login');
+it('returns a successful response', function () {
+    $response = $this->get('/');
+
     $response->assertStatus(200);
 });

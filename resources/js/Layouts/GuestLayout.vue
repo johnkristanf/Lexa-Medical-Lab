@@ -1,6 +1,6 @@
 <script setup>
     import BusinessLogo from '@/Components/BusinessLogo.vue'
-    import { Link, usePage } from '@inertiajs/vue3'
+    import { Link } from '@inertiajs/vue3'
     import { computed } from 'vue'
 
     // Define props
@@ -15,14 +15,6 @@
             default: 'bg-white', // Default is still having sm:max-w-md
         },
     })
-
-    const page = usePage()
-    const currentRoute = computed(() => page.url) // or page.component
-
-    // Decide whether to render as link
-    const renderAsLink = computed(() => {
-        return currentRoute.value !== '/'
-    })
 </script>
 
 <template>
@@ -30,7 +22,9 @@
         class="flex min-h-screen flex-col items-center bg-gradient-to-r from-green-400 to-gray-100 pt-10 sm:justify-center sm:pt-0 px-4"
     >
         <div class="pt-10">
-            <BusinessLogo class="h-20 w-20 fill-current text-gray-500" />
+            <Link href="/">
+                <BusinessLogo class="h-20 w-20 fill-current text-gray-500" />
+            </Link>
         </div>
 
         <div

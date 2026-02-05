@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Patient extends Model
 {
-    const WALK_IN = 'walk_in';
-    const APPOINMENT = 'appointment';
-
     protected $guarded = ['id'];
 
     protected $table = 'patients';
@@ -23,10 +20,5 @@ class Patient extends Model
         return $this->belongsToMany(TestType::class, 'patient_test_type')
             ->withPivot(['test_id', 'results'])
             ->withTimestamps();
-    }
-
-    public function priority_type()
-    {
-        return $this->belongsTo(PriorityTypes::class, 'priority_id');
     }
 }

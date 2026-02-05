@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
@@ -18,9 +17,7 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-
-    $authenticatedUserRoleID = auth()->user()->role_id;
-    $response->assertRedirect(Auth::user()->getIndexRoute($authenticatedUserRoleID));
+    $response->assertRedirect(route('dashboard', absolute: false));
 });
 
 test('users can not authenticate with invalid password', function () {

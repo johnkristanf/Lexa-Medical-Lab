@@ -36,8 +36,6 @@ class ConfirmablePasswordController extends Controller
 
         $request->session()->put('auth.password_confirmed_at', time());
 
-        $authenticatedUserRoleID = Auth::user()->role_id;
-
-        return redirect()->intended(Auth::user()->getIndexRoute($authenticatedUserRoleID));
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 }

@@ -77,13 +77,13 @@
             </div> -->
 
             <div class="mt-4 flex items-center justify-end">
-                <!-- <Link
+                <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
                     class="rounded-md text-sm text-green-600 hover:underline  focus:outline-none "
                 >
                     Forgot your password?
-                </Link> -->
+                </Link>
 
                 <PrimaryButton
                     class="ms-4"
