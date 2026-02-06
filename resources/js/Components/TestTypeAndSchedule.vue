@@ -30,6 +30,9 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
     })
 
 
+    onMounted(() => {
+        console.log('test_categories 123: ', props.test_categories)
+    })
 
     // Modal state
     const isScheduleModalOpen = ref(false)
@@ -44,23 +47,53 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
         props.test_categories.flatMap((category) => category.test_types || []),
     )
 
-    // Compute total price from selected type IDs
+    function categoryTypeIds(category) {
+        return (category.test_types || []).map((t) => t.id)
+    }
+
+    function allSelectedInCategory(category) {
+        const ids = categoryTypeIds(category)
+        if (!ids.length) return false
+        const selected = new Set(selectedTypeIds.value)
+        return ids.every((id) => selected.has(id))
+    }
+
+    function toggleSelectAllInCategory(category) {
+        const ids = categoryTypeIds(category)
+        if (!ids.length) return
+        if (allSelectedInCategory(category)) {
+            selectedTypeIds.value = selectedTypeIds.value.filter((id) => !ids.includes(id))
+        } else {
+            const combined = new Set([...selectedTypeIds.value, ...ids])
+            selectedTypeIds.value = [...combined]
+        }
+    }
+
+    // Total price: each category has one price; include it once if user selects any test type in that category
     const discountedCode = loadPatientCodeWithDiscount();
 
     const totalPrice = computed(() => {
-        // Get the code of selected priority type from the form
         const priorityTypeCode = props.form?.priority_type?.code
         const hasDiscount = discountedCode.includes(priorityTypeCode)
-        const total = selectedTypeIds.value.reduce((total, id) => {
-            const type = allTestTypes.value.find((t) => t.id === id)
-            if (!type) return total
-            let price = Number(type.price)
+        const selectedIds = new Set(selectedTypeIds.value)
+        const total = props.test_categories.reduce((sum, category) => {
+            const hasSelectedTypeInCategory = (category.test_types || []).some((t) =>
+                selectedIds.has(t.id),
+            )
+            if (!hasSelectedTypeInCategory) return sum
+            let price = Number(category.price)
             if (hasDiscount) {
                 price = price * 0.8 // 20% discount
             }
-            return total + price
+            return sum + price
         }, 0)
         return total.toFixed(2)
+    })
+
+    // Whether the current total is discounted (for UI indicator)
+    const isDiscounted = computed(() => {
+        const priorityTypeCode = props.form?.priority_type?.code
+        return priorityTypeCode && discountedCode.includes(priorityTypeCode)
     })
 
     // Format time for display
@@ -117,10 +150,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
         props.form.selected_type_ids = newVal
     })
 
-    onMounted(() => {
-        console.log('appointment_schedules: ', props.appointment_schedules)
-        console.log('FORM SA TYPE AND SCHEDULE: ', props.form)
-    })
+   
 
 </script>
 
@@ -170,10 +200,19 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
 
         <fwb-accordion-panel v-for="category in test_categories" :key="category.id">
             <fwb-accordion-header>
-                {{ category.name }}
+                {{ category.name }} (₱{{ category.price }})
             </fwb-accordion-header>
             <fwb-accordion-content>
                 <div v-if="category.test_types && category.test_types.length">
+                    <div class="mb-3">
+                        <button
+                            type="button"
+                            @click="toggleSelectAllInCategory(category)"
+                            class="text-sm text-green-600 hover:text-green-800 font-medium"
+                        >
+                            {{ allSelectedInCategory(category) ? 'Deselect all' : 'Select all' }}
+                        </button>
+                    </div>
                     <div
                         v-for="type in category.test_types"
                         :key="type.id"
@@ -187,15 +226,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                             class="mr-2"
                         />
                         <label :for="'type-' + type.id" class="text-gray-700">
-                            {{ type.name }} —
-                            <span v-if="discountedCode.includes(props.form.priority_type.code)">
-                                <span class="line-through text-gray-400">₱{{ type.price }}</span>
-                                <span class="text-green-700 font-bold ml-2">₱{{ (type.price * 0.8).toFixed(2) }}</span>
-                                <span class="ml-2 text-xs text-green-700 font-semibold">(20% Discount Applied)</span>
-                            </span>
-                            <span v-else>
-                                ₱{{ type.price }}
-                            </span>
+                            {{ type.name }}
                         </label>
                     </div>
                 </div>
@@ -204,8 +235,11 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
         </fwb-accordion-panel>
 
         <!-- Total Price Display -->
-        <div class="mt-4 text-right font-semibold text-lg text-green-700">
-            Total Price: ₱{{ totalPrice }}
+        <div class="mt-4 text-right font-semibold text-lg text-green-700 flex items-center justify-end gap-2 flex-wrap">
+            <span>Total Price: ₱{{ totalPrice }}</span>
+            <fwb-badge v-if="isDiscounted && selectedTypeIds.length" type="green" class="shrink-0">
+                20% Discount Applied
+            </fwb-badge>
         </div>
     </fwb-accordion>
 

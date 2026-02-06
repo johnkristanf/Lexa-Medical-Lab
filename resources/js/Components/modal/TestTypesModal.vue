@@ -33,7 +33,6 @@
         name: '',
         reference_range: '',
         unit: '',
-        price: '',
     })
 
     // Array to hold all test types
@@ -49,15 +48,12 @@
     function addItem() {
         // Validate current item
         if (
-            !currentItem.value.name ||
-            !currentItem.value.reference_range ||
-            !currentItem.value.unit ||
-            !currentItem.value.price
+            !currentItem.value.name 
         ) {
             toast.add({
                 severity: 'warn',
-                summary: 'Missing Fields',
-                detail: 'Please fill in all fields before adding',
+                summary: 'Name is required',
+                detail: 'Please fill the details of the name field',
                 life: 3000,
             })
             return
@@ -71,7 +67,6 @@
             name: '',
             reference_range: '',
             unit: '',
-            price: '',
         }
 
         // Focus back on name input
@@ -94,6 +89,8 @@
 
     // FORM SUBMISSION
     function submitForm() {
+        console.log("SUBMIT HERE");
+        
         if (testTypes.value.length === 0) {
             toast.add({
                 severity: 'warn',
@@ -109,7 +106,6 @@
             name: item.name,
             reference_range: item.reference_range,
             unit: item.unit,
-            price: item.price,
         }))
 
         form.post(route('test.types.submit'), {
@@ -126,7 +122,6 @@
                     name: '',
                     reference_range: '',
                     unit: '',
-                    price: '',
                 }
                 form.reset()
                 nextTick(() => {
@@ -204,7 +199,7 @@
                                                 for="reference_range"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Reference Range
+                                                Reference Range (optional)
                                             </label>
                                             <textarea
                                                 id="reference_range"
@@ -214,32 +209,17 @@
                                             ></textarea>
                                         </div>
 
-                                        <div>
+                                        <div class="col-span-2">
                                             <label
                                                 for="unit"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Unit
+                                                Unit (optional)
                                             </label>
                                             <input
                                                 id="unit"
                                                 v-model="currentItem.unit"
                                                 type="text"
-                                                class="form-input"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label
-                                                for="price"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Price
-                                            </label>
-                                            <input
-                                                id="price"
-                                                v-model="currentItem.price"
-                                                type="number"
                                                 class="form-input"
                                             />
                                         </div>
@@ -265,7 +245,7 @@
                                             :key="index"
                                             class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200"
                                         >
-                                            <div class="flex-1 grid grid-cols-4 gap-2 text-sm">
+                                            <div class="flex-1 grid grid-cols-3 gap-2 text-sm">
                                                 <div>
                                                     <span class="font-semibold text-gray-600">Name:</span>
                                                     <span class="ml-1">{{ item.name }}</span>
@@ -277,10 +257,6 @@
                                                 <div>
                                                     <span class="font-semibold text-gray-600">Unit:</span>
                                                     <span class="ml-1">{{ item.unit }}</span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-semibold text-gray-600">Price:</span>
-                                                    <span class="ml-1">{{ item.price }}</span>
                                                 </div>
                                             </div>
                                             <button

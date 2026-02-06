@@ -89,8 +89,6 @@ class MedicalStaffController extends Controller
             ->latest()
             ->get();
 
-            Log::info("MAO NI:", [$appointments]);
-
         return Inertia::render('Patient/Appointments', [
             'appointments' => $appointments,
             'schedules' => $schedules,
@@ -148,7 +146,6 @@ class MedicalStaffController extends Controller
 
         $year = now()->year;
 
-        // Lock rows for safety
         $driver = DB::getDriverName();
 
         if ($driver === 'pgsql') {
@@ -229,6 +226,7 @@ class MedicalStaffController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'price' => 'required|integer',
         ]);
 
         TestCategory::create($validated);
@@ -253,9 +251,8 @@ class MedicalStaffController extends Controller
                 'test_types' => 'required|array|min:1',
                 'test_category_id' => 'required|exists:test_category,id',
                 'test_types.*.name' => 'required|string|max:255',
-                'test_types.*.reference_range' => 'required|string|max:255',
+                'test_types.*.reference_range' => 'nullable|string|max:255',
                 'test_types.*.unit' => 'nullable|string|max:255',
-                'test_types.*.price' => 'required|integer',
             ]);
 
         Log::info("TEST TYPES: ", [$validated]);
@@ -267,7 +264,6 @@ class MedicalStaffController extends Controller
                     'name' => $testType['name'],
                     'reference_range' => $testType['reference_range'],
                     'unit' => $testType['unit'] ?? null,
-                    'price' => $testType['price'],
                     'test_category_id' => $request->input('test_category_id'),
                     'created_at' => now(),
                     'updated_at' => now(),

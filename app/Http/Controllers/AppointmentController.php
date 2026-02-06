@@ -48,7 +48,7 @@ class AppointmentController extends Controller
                     ->orderByRaw("$orderExpr DESC")
                     ->first();
 
-
+                
                 if ($last) {
                     $lastNumber = intval(substr($last->appointment_number, -5));
                     $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
@@ -83,8 +83,6 @@ class AppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request)
     {
-        Log::info('request', [$request]);
-
         $validated = $request->validated();
         Log::info('VALIDATE', [$validated]);
 
@@ -105,7 +103,6 @@ class AppointmentController extends Controller
                 'status' => 'pending',
                 'schedule_id' => $validated['selected_schedule_id'],
 
-                //  ⭐ AUTO GENERATED APPOINTMENT NUMBER
                 'appointment_number' => $this->generateAppointmentNumber(),
             ]);
 
@@ -196,9 +193,24 @@ class AppointmentController extends Controller
         DB::transaction(function () use ($validated, $appointment) {
             $priorityType = PriorityTypes::findOrFail($appointment->priority_id);
 
+            $year = now()->year;
+
+            $orderExpr = DB::getDriverName() === 'pgsql' ? "SUBSTRING(patient_id FROM 6)::INTEGER" : "CAST(SUBSTRING(patient_id, 6) AS UNSIGNED)";
+
+            $lastPatient = Patient::where('patient_id', 'like', $year . '-%')
+                ->lockForUpdate()
+                ->orderByRaw("$orderExpr DESC")
+                ->first();
+
+            $nextNumber = $lastPatient
+                ? ((int) substr($lastPatient->patient_id, 5)) + 1
+                : 1;
+
+            $patientId = $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
             // Create patient
             Patient::create([
-                'patient_id' => $validated['patient_id'] ?? '',
+                'patient_id' => $patientId ?? '',
                 'first_name' => $validated['first_name'] ?? '',
                 'middle_name' => $validated['middle_name'] ?? null,
                 'last_name' => $validated['last_name'] ?? '',

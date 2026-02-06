@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('test_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('reference_range');
+            $table->text('reference_range')->nullable();
             $table->text('unit')->nullable();
-            $table->integer('price');
             $table->foreignId('test_category_id')->constrained('test_category')->onDelete('cascade');
             $table->timestamps();
         });

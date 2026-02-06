@@ -51,7 +51,7 @@
         testTypesToggle.showAddTestTypesModal = true
     }
 
-    const categoryTableHeaders = ['Category Name', 'Created At', 'Updated At', 'Actions']
+    const categoryTableHeaders = ['Name', 'Price', 'Date created', 'Actions']
 </script>
 
 <template>
@@ -91,6 +91,7 @@
                                 <fwb-table-row v-for="(category, index) in props.test_category" :key="index">
                                     <!-- Category Name -->
                                     <fwb-table-cell>{{ category.name }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ category.price }}</fwb-table-cell>
 
                                     <!-- Created At -->
                                     <fwb-table-cell>
@@ -104,21 +105,6 @@
                                                 minute: '2-digit',
                                                 hour12: true,
                                             }).format(new Date(category.created_at))
-                                        }}
-                                    </fwb-table-cell>
-
-                                    <!-- Updated At -->
-                                    <fwb-table-cell>
-                                        {{
-                                            new Intl.DateTimeFormat('en-PH', {
-                                                timeZone: 'Asia/Manila',
-                                                year: 'numeric',
-                                                month: '2-digit',
-                                                day: '2-digit',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                                hour12: true,
-                                            }).format(new Date(category.updated_at))
                                         }}
                                     </fwb-table-cell>
 

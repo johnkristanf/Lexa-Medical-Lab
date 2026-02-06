@@ -51,7 +51,6 @@
     function submitForm() {
         form.birthdate = formateBirthDate(form.birthdate)
 
-        console.log('form data boss: ', form)
         form.post(route('store.services.appointment'), {
             onSuccess: () => {
                 toast.add({
@@ -72,10 +71,7 @@
     // CURRENT STEP OF THE STEPPER
     const currentStep = ref('1')
 
-    onMounted(() => {
-        console.log('test_categories: ', props.test_categories)
-        console.log('priority_types: ', props.priority_types)
-    })
+    
 </script>
 
 <template>
