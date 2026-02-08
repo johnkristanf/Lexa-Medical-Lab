@@ -170,21 +170,25 @@
                                                 </fwb-list-group>
                                             </fwb-dropdown>
 
-                                            <AddButton
-                                                color="green"
-                                                :disabled="appointment.is_email_sent === 1"
-                                                class="disabled:opacity-50 disabled:cursor-not-allowed"
-                                                @click="
-                                                    openEmailAppointmentDetails(
-                                                        appointment.id,
-                                                        appointment.appointment_number,
-                                                        appointment.schedule?.date,
-                                                        appointment.email,
-                                                    )
-                                                "
-                                            >
-                                                Send Email
-                                            </AddButton>
+                                            <template v-if="appointment.is_email_sent === 1 || appointment.is_email_sent === true">
+                                                <span class="text-green-600 text-xs ml-2">Already sent email</span>
+                                            </template>
+                                            <template v-else>
+                                                <AddButton
+                                                    color="green"
+                                                    class="disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    @click="
+                                                        openEmailAppointmentDetails(
+                                                            appointment.id,
+                                                            appointment.appointment_number,
+                                                            appointment.schedule?.date,
+                                                            appointment.email,
+                                                        )
+                                                    "
+                                                >
+                                                    Send Email
+                                                </AddButton>
+                                            </template>
                                         </div>
 
                                         <div v-else>

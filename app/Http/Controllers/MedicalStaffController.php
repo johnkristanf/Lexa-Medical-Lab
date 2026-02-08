@@ -295,7 +295,7 @@ class MedicalStaffController extends Controller
 
         $validated = $request->validate([
             'referer_fullname' => 'required|string|max:255',
-            'doctor_license_no' => 'required|string|max:255',
+            'doctor_license_no' => 'nullable|string|max:255',
             'test_schedule' => 'required|date',
             'total_price' => 'required|string',
             'purpose_id' => 'required|integer',
@@ -387,29 +387,38 @@ class MedicalStaffController extends Controller
 
     public function print($testID)
     {
-        $testDetail = Test::findOrFail($testID);
-        $patientDetails = Patient::findOrFail($testDetail->patient_id);
-        $testCategory = TestCategory::findOrFail($testDetail->category_id);
+        // Wrap everything in a DB transaction
+        return DB::transaction(function () use ($testID) {
+            $testDetail = Test::findOrFail($testID);
+            $patientDetails = Patient::findOrFail($testDetail->patient_id);
+            $testCategory = TestCategory::findOrFail($testDetail->category_id);
 
-        $testPatient = $this->testDetailsByID($testDetail->patient_id, $testID);
-        $testTypes = $testPatient->test_types ?? collect();
+            $testPatient = $this->testDetailsByID($testDetail->patient_id, $testID);
+            $testTypes = $testPatient->test_types ?? collect();
 
-        $dob = new DateTime($patientDetails->date_of_birth);
-        $today = new DateTime;
-        $age = $dob->diff($today)->y;
+            // Update the test status if not already 'completed'
+            if ($testDetail->status !== 'completed') {
+                $testDetail->status = 'completed';
+                $testDetail->save();
+            }
 
-        $logoBase64 = $this->getLogoAsBase64();
+            $dob = new \DateTime($patientDetails->date_of_birth);
+            $today = new \DateTime;
+            $age = $dob->diff($today)->y;
 
-        return Pdf::loadView('pdf.test-detail', compact(
-            'patientDetails',
-            'testCategory',
-            'age',
-            'testDetail',
-            'testTypes',
-            'logoBase64'
-        ))->setPaper('A4', 'portrait')
-            ->setOptions(['defaultFont' => 'DejaVu Sans'])
-            ->stream('combined-details.pdf');
+            $logoBase64 = $this->getLogoAsBase64();
+
+            return Pdf::loadView('pdf.test-detail', compact(
+                'patientDetails',
+                'testCategory',
+                'age',
+                'testDetail',
+                'testTypes',
+                'logoBase64'
+            ))->setPaper('A4', 'portrait')
+                ->setOptions(['defaultFont' => 'DejaVu Sans'])
+                ->stream('combined-details.pdf');
+        });
     }
 
     private function getLogoAsBase64()

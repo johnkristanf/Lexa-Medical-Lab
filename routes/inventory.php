@@ -9,7 +9,6 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::get('/medical/supply/dashboard/create', [MedicalSupplyController::class, 'dashboardSupplyCreate'])
         ->name('inventory.dashboard');
 
-
     Route::get('/most/used/supply', [MedicalSupplyController::class, 'mostUsedSupples'])
         ->name('most.used.supply');
 

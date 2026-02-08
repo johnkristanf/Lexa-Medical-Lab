@@ -4,14 +4,16 @@
     import Dropdown from '@/Components/Dropdown.vue'
     import DropdownLink from '@/Components/DropdownLink.vue'
     import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-    import { Link, usePage } from '@inertiajs/vue3'
+    import { Link, usePage, router } from '@inertiajs/vue3'
     import SideBar from '@/Components/SideBar.vue'
     import Drawer from 'primevue/drawer'
     import ConfirmPopup from 'primevue/confirmpopup'
     import Toast from 'primevue/toast'
+    import Dialog from 'primevue/dialog'
 
     const showingNavigationDropdown = ref(false)
     const visibleRight = ref(false)
+    const showLogoutDialog = ref(false)
 
     const page = usePage()
 
@@ -23,6 +25,14 @@
         () => page.props.notifications ?? { lowStock: 0, nearlyExpired: 0 },
     )
 
+    const confirmLogout = () => {
+        showLogoutDialog.value = true
+    }
+
+    const handleLogout = () => {
+        router.post(route('logout'))
+    }
+
     onMounted(() => {
         console.log('Admin User Data: ', page.props.auth?.user)
         console.log('Notifications: ', page.props.notifications)
@@ -32,7 +42,7 @@
 <template>
     <div>
         <div class="min-h-screen bg-white">
-            <nav class="sticky top-0 border-b border-gray-100 bg-white">
+            <nav class="sticky top-0 z-50 border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -92,13 +102,12 @@
                                         <DropdownLink :href="route('admin.profile.edit')">
                                             Profile
                                         </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('logout')"
-                                            method="post"
-                                            as="button"
+                                        <button
+                                            @click="confirmLogout"
+                                            class="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
                                         >
                                             Log Out
-                                        </DropdownLink>
+                                        </button>
                                     </template>
                                 </Dropdown>
                             </div>
@@ -165,9 +174,12 @@
                             <ResponsiveNavLink :href="route('admin.profile.edit')">
                                 Profile
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                            <button
+                                @click="confirmLogout"
+                                class="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
+                            >
                                 Log Out
-                            </ResponsiveNavLink>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -209,5 +221,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Logout Confirmation Dialog -->
+        <Dialog
+            v-model:visible="showLogoutDialog"
+            modal
+            header="Confirm Logout"
+            :style="{ width: '25rem' }"
+        >
+            <div class="flex items-center gap-4 mb-4">
+                <i class="pi pi-exclamation-triangle text-3xl text-yellow-500"></i>
+                <p class="text-gray-700">
+                    Are you sure you want to logout?
+                </p>
+            </div>
+            <template #footer>
+                <button
+                    @click="showLogoutDialog = false"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                    Cancel
+                </button>
+                <button
+                    @click="handleLogout"
+                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                    Logout
+                </button>
+            </template>
+        </Dialog>
     </div>
 </template>

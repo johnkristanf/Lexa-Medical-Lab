@@ -35,7 +35,6 @@
         quantity: '',
         manufacture_date: '',
         expiration_date: '',
-        sku: '',
         lot_number: '',
         batch_number: generateBatchNumber(),
         category_id: '',
@@ -253,30 +252,14 @@
                                             </p>
                                         </div>
 
-                                        <div class="sm:col-span-2">
-                                            <label
-                                                for="lot_number"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                SKU
-                                            </label>
-                                            <input
-                                                id="lot_number"
-                                                v-model="form.sku"
-                                                type="text"
-                                                class="form-input"
-                                            />
-                                            <p v-if="form.errors.sku" class="text-sm text-red-500 mt-1">
-                                                {{ form.errors.sku }}
-                                            </p>
-                                        </div>
+                                       
 
                                         <div class="sm:col-span-2">
                                             <label
                                                 for="lot_number"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Lot Number
+                                                Lot Number (optional)
                                             </label>
                                             <input
                                                 id="lot_number"

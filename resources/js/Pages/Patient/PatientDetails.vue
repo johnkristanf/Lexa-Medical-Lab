@@ -33,10 +33,6 @@
         priority_types: Array,
     })
 
-    onMounted(() => {
-        console.log('patients: ', props.patients)
-    })
-
     const showAddScheduleModal = ref(false)
     const showSchedulesModal = ref(false)
 

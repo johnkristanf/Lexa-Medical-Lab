@@ -222,7 +222,6 @@ import {
                                                 v-model="form.doctor_license_no"
                                                 type="text"
                                                 class="form-input"
-                                                required
                                             />
                                             <p
                                                 v-if="form.errors.doctor_license_no"

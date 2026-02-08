@@ -271,7 +271,6 @@ class AppointmentController extends Controller
 
         Mail::to($data['email'])->send(new AppointmentConfirmationMail($data));
 
-        // ❌ DO NOT OVERRIDE appointment_number anymore
         Appointments::where('id', $data['appointment_id'])->update([
             'is_email_sent' => true
         ]);
