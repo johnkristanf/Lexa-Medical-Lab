@@ -12,16 +12,16 @@ class TestPurposeSeeder extends Seeder
      */
     public function run(): void
     {
-        TestPurpose::insert([
+        $purposes = [
             ['test_purposename' => 'Personal'],
             ['test_purposename' => 'Work'],
             ['test_purposename' => 'School'],
             ['test_purposename' => 'Insurance'],
             ['test_purposename' => 'Follow-up'],
-        ]);
+        ];
 
-        // foreach ($roles as $role) {
-        //     TestPurpose::firstOrCreate($role);
-        // }
+        foreach ($purposes as $purpose) {
+            TestPurpose::firstOrCreate($purpose);
+        }
     }
 }

@@ -1,0 +1,28 @@
+services:
+  app:
+    image: johnkristan/lexa-medical-laboratory:latest
+    container_name: lexa_medical_laboratory
+    restart: always
+    expose:
+      - "9000"
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+  nginx:
+    image: johnkristan/lexa-medical-laboratory-nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/lexa-medical-laboratory.it.com:/etc/letsencrypt/live/lexa-medical-laboratory.it.com:ro
+      - /etc/letsencrypt/archive/lexa-medical-laboratory.it.com:/etc/letsencrypt/archive/lexa-medical-laboratory.it.com:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

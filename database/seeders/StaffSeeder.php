@@ -12,18 +12,22 @@ class StaffSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->createOne([
-            'name' => 'Ailine M. Torrentira',
-            'email' => 'laboratory@technician',
-            'password' => bcrypt('lab123'),
-            'role_id' => 3,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'laboratory@technician'],
+            [
+                'name' => 'Ailine M. Torrentira',
+                'password' => bcrypt('lab123'),
+                'role_id' => 3,
+            ]
+        );
 
-        User::factory()->createOne([
-            'name' => 'Jake the Medicator',
-            'email' => 'medical@technician',
-            'password' => bcrypt('medical123'),
-            'role_id' => 2,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'medical@technician'],
+            [
+                'name' => 'Jake the Medicator',
+                'password' => bcrypt('medical123'),
+                'role_id' => 2,
+            ]
+        );
     }
 }

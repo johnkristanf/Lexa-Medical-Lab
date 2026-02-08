@@ -18,6 +18,40 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+    public function __construct(protected QueueService $queueService) {}
+
+    /**
+     * ----------------------------------------
+     * AUTO GENERATE APPOINTMENT NUMBER
+     * Format: YYYY-00001
+     * ----------------------------------------
+     */
+            private function generateAppointmentNumber()
+            {
+                $year = now()->format('Y');
+
+                $driver = DB::getDriverName();
+
+                $orderExpr = $driver === 'pgsql'
+                    ? "SUBSTRING(appointment_number, 6)::INTEGER"
+                    : "CAST(SUBSTRING(appointment_number, 6) AS UNSIGNED)";
+
+                $last = Appointments::whereYear('created_at', $year)
+                    ->whereNotNull('appointment_number')
+                    ->orderByRaw("$orderExpr DESC")
+                    ->first();
+
+
+                if ($last) {
+                    $lastNumber = intval(substr($last->appointment_number, -5));
+                    $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+                } else {
+                    $newNumber = "00001";
+                }
+
+                return $year . '-' . $newNumber;
+            }
+
     public function index()
     {
         $testCategories = TestCategory::with('testTypes')
@@ -37,7 +71,6 @@ class AppointmentController extends Controller
 
     public function store(StoreAppointmentRequest $request)
     {
-
         $validated = $request->validated();
         Log::info('validated appointmebnt data', [$validated]);
 
@@ -51,6 +84,8 @@ class AppointmentController extends Controller
                 'date_of_birth' => $validated['birthdate'],
                 'status' => 'pending',
                 'schedule_id' => $validated['selected_schedule_id'],
+
+                'appointment_number' => $this->generateAppointmentNumber(),
             ]);
 
             // MAKE THE SELECTED TIME SLOT TO UNAVAILABLE
@@ -100,12 +135,72 @@ class AppointmentController extends Controller
 
     public function updateStatus(Appointments $appointment, Request $request)
     {
-        $request->validate([
-            'status' => 'required',
+        $validated = $request->validate([
+            'status' => 'required|string|in:pending,arrived',
+            'patient_id' => 'sometimes|string',
+            'first_name' => 'sometimes|string',
+            'middle_name' => 'sometimes|nullable|string',
+            'last_name' => 'sometimes|string',
+            'email' => 'sometimes|nullable|email',
+            'phone' => 'sometimes|nullable|string',
+            'address' => 'sometimes|nullable|string',
+            'gender' => 'sometimes|string',
+            'date_of_birth' => 'sometimes|date|date_format:Y-m-d',
         ]);
 
-        $appointment->status = $request->status;
-        $appointment->save();
+        DB::transaction(function () use ($validated, $appointment) {
+            $priorityType = PriorityTypes::findOrFail($appointment->priority_id);
+
+            $year = now()->year;
+
+            $orderExpr = DB::getDriverName() === 'pgsql' ? "SUBSTRING(patient_id FROM 6)::INTEGER" : "CAST(SUBSTRING(patient_id, 6) AS UNSIGNED)";
+
+            $lastPatient = Patient::where('patient_id', 'like', $year . '-%')
+                ->lockForUpdate()
+                ->orderByRaw("$orderExpr DESC")
+                ->first();
+
+            $nextNumber = $lastPatient
+                ? ((int) substr($lastPatient->patient_id, 5)) + 1
+                : 1;
+
+            $patientId = $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+            // Create patient
+            Patient::create([
+                'patient_id' => $patientId ?? '',
+                'first_name' => $validated['first_name'] ?? '',
+                'middle_name' => $validated['middle_name'] ?? null,
+                'last_name' => $validated['last_name'] ?? '',
+                'gender' => $validated['gender'] ?? '',
+                'date_of_birth' => $validated['date_of_birth'] ?? '',
+                'address' => $validated['address'] ?? '',
+                'contact_number' => $validated['phone'] ?? '',
+                'email' => $validated['email'] ?? null,
+                'priority_id' => $priorityType->id,
+                'transaction_type' => Patient::APPOINMENT
+            ]);
+
+            // Generate queue number
+            $queueNumber = $this->queueService->getNewQueueNumber($priorityType->id) ?? '01';
+            $formattedQueueNumber = $priorityType->code . '-' . $queueNumber;
+
+            // Add to queue
+            $queue = Queues::create([
+                'queue_number' => $formattedQueueNumber,
+                'priority_type_id' => $appointment->priority_id,
+                'status_id' => 1,
+                'is_appointment' => true,
+                'appointment_number' => $appointment->appointment_number,
+            ]);
+
+            if ($queue) {
+                broadcast(new QueueUpdate($queue->id));
+            }
+
+            // Remove appointment
+            $appointment->delete();
+        });
 
         return back()->with('success', 'Status updated successfully.');
     }

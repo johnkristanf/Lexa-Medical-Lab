@@ -1,0 +1,6 @@
+FROM nginx:alpine
+
+# Copy Laravel public assets from app image
+COPY --from=johnkristan/lexa-medical-laboratory:latest /var/www/public /var/www/public
+
+COPY default.conf /etc/nginx/conf.d/default.conf

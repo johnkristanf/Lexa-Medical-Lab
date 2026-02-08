@@ -43,22 +43,50 @@
     // filtered by category
     const filteredTestTypes = computed(() => {
         const selectedId = form.category_id
-
-        console.log('selectedId: ', selectedId)
-        console.log('type of selectedId: ', typeof selectedId)
-
         if (!selectedId) return []
         const selectedCategory = props.testCategory.find((category) => category.id === selectedId)
         return selectedCategory ? selectedCategory.test_types : []
     })
 
-    // calculate total price of test types
-    const totalPrice = computed(() => {
-        return filteredTestTypes.value
-            .filter((type) => form.selected_test_types.includes(type.id))
-            .reduce((sum, type) => sum + parseFloat(type.price || 0), 0)
-            .toFixed(2)
+    const selectedCategory = computed(() => {
+        if (!form.category_id) return null
+        return props.testCategory.find((category) => category.id === form.category_id) || null
     })
+
+    // Total price: base price from selected category (once when at least one test type selected), with 20% discount if eligible
+    const totalPrice = computed(() => {
+        const discountEligible = props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)
+        const category = selectedCategory.value
+        const hasSelection = form.selected_test_types.length > 0
+        if (!category || !hasSelection) return '0.00'
+        let price = Number(category.price || 0)
+        if (discountEligible) {
+            price = price * 0.8 // Apply 20% discount
+        }
+        return price.toFixed(2)
+    })
+
+    const isDiscounted = computed(() =>
+        props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code),
+    )
+
+    const allSelectedInCategory = computed(() => {
+        const types = filteredTestTypes.value
+        if (!types.length) return false
+        const selected = new Set(form.selected_test_types)
+        return types.every((t) => selected.has(t.id))
+    })
+
+    function toggleSelectAll() {
+        const ids = filteredTestTypes.value.map((t) => t.id)
+        if (!ids.length) return
+        if (allSelectedInCategory.value) {
+            form.selected_test_types = form.selected_test_types.filter((id) => !ids.includes(id))
+        } else {
+            const combined = new Set([...form.selected_test_types, ...ids])
+            form.selected_test_types = [...combined]
+        }
+    }
 
     function submitForm() {
         if (form.selected_test_types.length === 0) {
@@ -136,7 +164,7 @@
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                Provide Test Details below
+                                Provide test details below
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
@@ -323,13 +351,19 @@
                                                 >
                                                     Select Test Type
                                                 </label>
+                                                <p v-if="selectedCategory" class="text-sm text-gray-600">
+                                                    Category price: ₱{{ selectedCategory.price }}
+                                                    <span v-if="isDiscounted" class="ml-1 text-green-600 font-medium">(20% discount applied at total)</span>
+                                                </p>
 
-                                                <!-- Header row for labels -->
-                                                <div
-                                                    class="flex justify-between text-base font-medium text-gray-700 px-1"
-                                                >
-                                                    <span>Test Type</span>
-                                                    <span>Price</span>
+                                                <div class="mb-3">
+                                                    <button
+                                                        type="button"
+                                                        @click="toggleSelectAll"
+                                                        class="text-sm text-green-600 hover:text-green-800 font-medium"
+                                                    >
+                                                        {{ allSelectedInCategory ? 'Deselect all' : 'Select all' }}
+                                                    </button>
                                                 </div>
 
                                                 <div class="space-y-2 mt-2">
@@ -337,7 +371,7 @@
                                                         v-for="type in filteredTestTypes"
                                                         :key="type.id"
                                                         :value="Number(type.id)"
-                                                        class="flex justify-between items-center"
+                                                        class="flex items-center"
                                                     >
                                                         <label class="inline-flex items-center">
                                                             <input
@@ -354,15 +388,11 @@
                                                                 {{ type.name }}
                                                             </span>
                                                         </label>
-                                                        <span class="text-sm text-gray-700">
-                                                            {{ type.price }}
-                                                        </span>
                                                     </div>
                                                 </div>
-                                                <div
-                                                    class="mt-4 text-right text-sm font-semibold text-gray-900"
-                                                >
-                                                    Total Price: {{ totalPrice }}
+                                                <div class="mt-4 text-right text-sm font-semibold text-gray-900 flex items-center justify-end gap-2 flex-wrap">
+                                                    <span>Total Price: ₱{{ totalPrice }}</span>
+                                                    <span v-if="isDiscounted && form.selected_test_types.length" class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">20% Discount Applied</span>
                                                 </div>
                                             </div>
                                         </div>

@@ -255,7 +255,6 @@ class MedicalSupplyController extends Controller
             'critical_stock' => 'nullable|integer|min:0',
         ]);
 
-        //  Update the quantity in medical_supplies
         $supply->quantity += $validated['quantity'];
         $supply->save();
 

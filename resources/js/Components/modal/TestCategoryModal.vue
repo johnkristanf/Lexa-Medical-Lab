@@ -20,13 +20,10 @@
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-
-
-
-    // INERTIA FORM INIATILIZATION
+    // INERTIA FORM INITIALIZATION
     const form = useForm({
         name: '',
-
+        price: '',   // Add price to form data
     })
 
     // FORM SUBMISSION
@@ -43,8 +40,6 @@
             },
         }) // replace with your actual route
     }
-
-
 </script>
 
 <template>
@@ -80,11 +75,11 @@
                                 as="h1"
                                 class="text-2xl font-medium leading-6 text-gray-900"
                             >
-                                Add Test Category Name
+                                Test Category
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                 Test Category Name
+                                Enter the test category details below
                             </DialogDescription>
 
                             <div class="isolate px-6 lg:px-8 mt-10">
@@ -92,13 +87,13 @@
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
                                         <div class="sm:col-span-2">
                                             <label
-                                                for="contact_number"
+                                                for="name"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Test Category Name
+                                                Name
                                             </label>
                                             <input
-                                                id="email"
+                                                id="name"
                                                 v-model="form.name"
                                                 type="text"
                                                 class="form-input"
@@ -108,6 +103,29 @@
                                                 class="text-sm text-red-500 mt-1"
                                             >
                                                 {{ form.errors.name }}
+                                            </p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="price"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Price
+                                            </label>
+                                            <input
+                                                id="price"
+                                                v-model="form.price"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                class="form-input"
+                                            />
+                                            <p
+                                                v-if="form.errors.price"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.price }}
                                             </p>
                                         </div>
                                     </div>
@@ -121,7 +139,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Add Category
+                                            Submit
                                         </button>
 
                                         <button
@@ -148,5 +166,3 @@
     <!-- TOAST FOR RESPONSE ALERT -->
     <Toast />
 </template>
-
-

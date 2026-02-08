@@ -124,21 +124,58 @@ class MedicalStaffController extends Controller
         ]);
     }
 
-    public function patientDetailsStore(Request $request)
-    {
-        $validated = $request->validate([
-            'patient_id' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'gender' => 'required|string|max:10',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:15',
-            'email' => 'required|email|max:255|unique:patients,email',
-        ]);
+   public function patientDetailsStore(Request $request)
+{
+    $validated = $request->validate([
+        'first_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'gender' => 'required|string|max:10',
+        'date_of_birth' => 'required|date',
+        'address' => 'required|string|max:255',
+        'contact_number' => 'required|string|max:11',
+        'email' => 'required|email|max:255|unique:patients,email',
+        'priority_type.id' => 'required|exists:priority_types,id',
+    ]);
 
-        Patient::create($validated);
+    DB::transaction(function () use ($validated) {
+
+        $year = now()->year;
+
+        $driver = DB::getDriverName();
+
+        if ($driver === 'pgsql') {
+            // In PostgreSQL, use ::INTEGER for casting
+            $orderExpr = "SUBSTRING(patient_id FROM 6)::INTEGER";
+        } else {
+            // In MySQL/MariaDB, use CAST AS UNSIGNED
+            $orderExpr = "CAST(SUBSTRING(patient_id, 6) AS UNSIGNED)";
+        }
+
+        $lastPatient = Patient::where('patient_id', 'like', $year . '-%')
+            ->lockForUpdate()
+            ->orderByRaw("$orderExpr DESC")
+            ->first();
+
+        $nextNumber = $lastPatient
+            ? ((int) substr($lastPatient->patient_id, 5)) + 1
+            : 1;
+
+        $patientId = $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+        Patient::create([
+            'patient_id' => $patientId,
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'],
+            'gender' => $validated['gender'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'address' => $validated['address'],
+            'contact_number' => $validated['contact_number'],
+            'email' => $validated['email'],
+            'priority_id' => $validated['priority_type']['id'],
+        ]);
+    });
 
         return redirect()->back()->with('success', 'Patient details added successfully.');
     }
@@ -185,6 +222,7 @@ class MedicalStaffController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'price' => 'required|integer',
         ]);
 
         TestCategory::create($validated);
@@ -202,13 +240,44 @@ class MedicalStaffController extends Controller
 
     public function testTypeStore(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'reference_range' => 'required|string|max:255',
-            'unit' => 'nullable|string|max:255',
-            'price' => 'required|integer',
-            'test_category_id' => 'required|exists:test_category,id',
-        ]);
+        // Check if test_types is present (batch insert from modal) or single insert
+        if ($request->has('test_types') && is_array($request->test_types)) {
+            // Batch mode (validate each item in test_types array)
+            $validated = $request->validate([
+                'test_types' => 'required|array|min:1',
+                'test_category_id' => 'required|exists:test_category,id',
+                'test_types.*.name' => 'required|string|max:255',
+                'test_types.*.reference_range' => 'nullable|string|max:255',
+                'test_types.*.unit' => 'nullable|string|max:255',
+            ]);
+
+        Log::info("TEST TYPES: ", [$validated]);
+
+            $testTypes = [];
+            foreach ($request->input('test_types') as $testType) {
+                // Prepare each test type with the test_category_id from request
+                $testTypes[] = [
+                    'name' => $testType['name'],
+                    'reference_range' => $testType['reference_range'],
+                    'unit' => $testType['unit'] ?? null,
+                    'test_category_id' => $request->input('test_category_id'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            TestType::insert($testTypes);
+
+            return redirect()->back()->with('success', count($testTypes).' Test Type(s) created successfully.');
+        } else {
+            // Single test type mode (e.g. manual entry)
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'reference_range' => 'required|string|max:255',
+                'unit' => 'nullable|string|max:255',
+                'price' => 'required|integer',
+                'test_category_id' => 'required|exists:test_category,id',
+            ]);
 
         TestType::create($validated);
 
