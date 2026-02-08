@@ -91,6 +91,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-center border-collapse">
                     <thead>
+                         <!-- dashboard ni -->
                         <tr class="bg-green-600 text-white">
                             <th class="border-b border-white py-2">Patient ID</th>
                             <th class="border-b border-white py-2">Full Name</th>
