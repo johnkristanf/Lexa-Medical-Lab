@@ -89,10 +89,10 @@
 
     // Handle dashboard menu clicks
     const handleDashboardMenuClick = (section) => {
-        console.log("section:" , section);
-        
+        console.log('section:', section)
+
         const currentRoute = route().current()
-        
+
         // Navigate to patient details page with scroll parameter
         if (currentRoute !== 'inventory.dashboard') {
             router.visit(route('inventory.dashboard'), {
@@ -102,10 +102,25 @@
             })
         } else {
             // If already on the page, emit custom event
-            window.dispatchEvent(new CustomEvent('scroll-to-section', { 
-                detail: { section } 
-            }))
+            window.dispatchEvent(
+                new CustomEvent('scroll-to-section', {
+                    detail: { section },
+                }),
+            )
         }
+    }
+
+    const markNotificationsAsRead = () => {
+        router.post(
+            route('notifications.markAsRead'),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    visibleRight.value = false
+                },
+            },
+        )
     }
 
     onMounted(() => {
@@ -147,25 +162,25 @@
                                             class="absolute hidden group-hover:block mt-2 w-48 p-5 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
                                         >
                                             <div class="py-1 flex flex-col gap-2">
-                                                <h1 
+                                                <h1
                                                     class="hover:opacity-75 hover:cursor-pointer"
                                                     @click="handleDashboardMenuClick('lowStock')"
                                                 >
                                                     Nearly Out of Stock
                                                 </h1>
-                                                <h1 
+                                                <h1
                                                     class="hover:opacity-75 hover:cursor-pointer"
                                                     @click="handleDashboardMenuClick('nearlyExpired')"
                                                 >
                                                     Nearly Expired
                                                 </h1>
-                                                <h1 
+                                                <h1
                                                     class="hover:opacity-75 hover:cursor-pointer"
                                                     @click="handleDashboardMenuClick('medicalSupplies')"
                                                 >
                                                     Medical Supplies
                                                 </h1>
-                                                <h1 
+                                                <h1
                                                     class="hover:opacity-75 hover:cursor-pointer"
                                                     @click="handleDashboardMenuClick('averagePatient')"
                                                 >
@@ -192,7 +207,7 @@
                                 <i class="pi pi-bell text-2xl text-black"></i>
                                 <span
                                     v-if="notifications.lowStock > 0 || notifications.nearlyExpired > 0"
-                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full"
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full"
                                 >
                                     {{ notifications.lowStock + notifications.nearlyExpired }}
                                 </span>
@@ -200,17 +215,31 @@
 
                             <!-- Drawer -->
                             <Drawer v-model:visible="visibleRight" header="Notifications" position="right">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm text-gray-600">Your notifications</span>
+
+                                    <button
+                                        v-if="notifications.lowStock > 0 || notifications.nearlyExpired > 0"
+                                        @click="markNotificationsAsRead"
+                                        class="text-xs text-blue-600 hover:underline"
+                                    >
+                                        Mark all as read
+                                    </button>
+                                </div>
+
                                 <div class="space-y-3">
                                     <p v-if="notifications.lowStock > 0" class="text-sm">
                                         ⚠️ {{ notifications.lowStock }} item(s) are
                                         <b>low on stock</b>
                                         .
                                     </p>
+
                                     <p v-if="notifications.nearlyExpired > 0" class="text-sm">
                                         ⏳ {{ notifications.nearlyExpired }} item(s) are
                                         <b>nearly expired</b>
                                         .
                                     </p>
+
                                     <p
                                         v-if="
                                             notifications.lowStock === 0 && notifications.nearlyExpired === 0

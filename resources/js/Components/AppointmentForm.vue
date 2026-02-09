@@ -26,8 +26,8 @@
     })
 
     onMounted(() => {
-        console.log("genders: ", props.genders)
-        console.log("priority_types: ", props.priority_types)
+        console.log('genders: ', props.genders)
+        console.log('priority_types: ', props.priority_types)
     })
 </script>
 
@@ -120,7 +120,7 @@
 
                 <!-- GENDER INPUT FORM -->
                 <div class="col-span-3">
-                    <InputLabel for="gender" value="Gender" />
+                    <InputLabel for="gender" value="SEX" />
 
                     <Listbox v-model="form.gender">
                         <div class="relative mt-1">

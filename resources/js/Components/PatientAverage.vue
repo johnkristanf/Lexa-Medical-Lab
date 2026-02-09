@@ -19,11 +19,9 @@
         PW: 'Pregnant Women',
     }
 
-    // Compute filtered data
     const filteredData = computed(() => {
-        if (filterType.value === 'all') {
-            return props.patient_analytics
-        }
+        if (filterType.value === 'all') return props.patient_analytics
+
         return props.patient_analytics.filter((p) => {
             if (filterType.value === 'regular') return p.code === 'RP'
             if (filterType.value === 'pwd') return p.code === 'PWD'
@@ -33,42 +31,65 @@
         })
     })
 
-    // Compute series and labels
-    const series = computed(() => filteredData.value.map((p) => p.total))
-    const labels = computed(() => filteredData.value.map((p) => codeToLabel[p.code] ?? 'Unknown'))
+    const series = computed(() => filteredData.value.map((p) => Number(p.total)))
 
-    // Chart options with computed labels
+    const labels = computed(() => filteredData.value.map((p) => `${codeToLabel[p.code] ?? 'Unknown'}`))
+
     const chartOptions = computed(() => ({
+        chart: {
+            type: 'pie',
+        },
+
         labels: labels.value,
-        colors: ['#00b4d8', '#36a2eb', '#ff6384', '#ff9f40', '#4bc0c0'],
+
+        legend: {
+            show: true,
+            position: 'left',
+            fontSize: '14px',
+            horizontalAlign: 'left',
+            offsetX: 0,
+            offsetY: 0,
+            markers: {
+                width: 12,
+                height: 12,
+                radius: 12,
+            },
+            itemMargin: {
+                horizontal: 10,
+                vertical: 5,
+            },
+            formatter: (seriesName, opts) => {
+                const value = opts.w.globals.series[opts.seriesIndex]
+                return `${seriesName}: ${value}`
+            },
+        },
+
         dataLabels: {
             enabled: true,
             formatter: (val, opts) => {
-                // Get the raw number from series instead of percentage
-                const rawValue = opts.w.globals.series[opts.seriesIndex]
-                return opts.w.globals.labels[opts.seriesIndex] + ': ' + rawValue
+                const label = opts.w.globals.labels[opts.seriesIndex]
+                const value = opts.w.globals.series[opts.seriesIndex]
+                return `${label}: ${value}`
             },
-            style: { fontSize: '18px', fontWeight: 'bold', colors: ['#fff'] },
-            dropShadow: { enabled: true, top: 1, left: 1, blur: 1, color: '#000', opacity: 0.7 },
+            style: {
+                fontSize: '14px',
+                fontWeight: 'bold',
+                colors: ['#fff'],
+            },
         },
-        plotOptions: {
-            pie: { dataLabels: { offset: -25, minAngleToShowLabel: 15 } },
-        },
-        // Show legends in the chart
-        legend: {
-            show: true,
-            position: 'right',
-            labels: { colors: '#000' },
-            formatter: (seriesName, opts) => {
-                const index = opts.seriesIndex
-                const rawValue = opts.w.globals.series[index]
-                const dataItem = filteredData.value[index]
-                const code = dataItem?.code ?? ''
-                const label = opts.w.globals.labels?.[index] ?? seriesName
 
-                return `${code} - ${label}: ${rawValue}`
+        colors: ['#00b4d8', '#36a2eb', '#ff6384', '#ff9f40'],
+
+        responsive: [
+            {
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                },
             },
-        },
+        ],
     }))
 </script>
 
@@ -100,6 +121,8 @@
             </button>
         </div>
 
-        <ApexChart type="pie" height="350" :options="chartOptions" :series="series" />
+        <div class="px-4">
+            <ApexChart type="pie" height="350" :options="chartOptions" :series="series" />
+        </div>
     </div>
 </template>
