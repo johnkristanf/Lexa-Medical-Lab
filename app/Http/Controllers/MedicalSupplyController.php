@@ -78,10 +78,19 @@ class MedicalSupplyController extends Controller
         ->take(5)
         ->get(['id', 'patient_id', 'first_name', 'last_name', 'created_at']);
 
+        $data = Patient::select(
+            'priority_types.code as code',
+            DB::raw('COUNT(patients.id) as total')
+        )
+        ->join('priority_types', 'patients.priority_id', '=', 'priority_types.id')
+        ->groupBy('priority_types.code', 'priority_types.priority_level')
+        ->get();
+
         return Inertia::render('Admin/ItemDashboard', [
             'supplies' => $lowStockSupplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
+            'patient_analytics' => $data,
             'latestPatients' => $fiveLatestPatients
         ]);
     }
@@ -112,7 +121,7 @@ class MedicalSupplyController extends Controller
             DB::raw('COUNT(patients.id) as total')
         )
         ->join('priority_types', 'patients.priority_id', '=', 'priority_types.id')
-        ->groupBy('priority_types.code', 'priority_types.priority_level') // add priority_level
+        ->groupBy('priority_types.code', 'priority_types.priority_level')
         ->get();
 
 
@@ -140,7 +149,7 @@ class MedicalSupplyController extends Controller
     )
         ->join('medical_supplies', 'inventory_logs.supply_id', '=', 'medical_supplies.id')
         ->join('categories', 'medical_supplies.category_id', '=', 'categories.id')
-        ->where('inventory_logs.operation_type', 'DEDUCTED')
+        ->where('inventory_logs.operation_type', Logs::DEDUCTED->value)
         ->groupBy('categories.name')
         ->orderByDesc('total_quantity');
 
@@ -265,25 +274,10 @@ class MedicalSupplyController extends Controller
 
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
-            'critical_stock' => 'nullable|integer|min:0',
         ]);
 
         $supply->quantity += $validated['quantity'];
         $supply->save();
-
-        //  Get the latest or current stock record
-        $stock = $supply->stocks()->latest()->first();
-
-        if ($stock) {
-            //  Update critical_stock only (don't create new one)
-            $stock->critical_stock = $validated['critical_stock'] ?? $stock->critical_stock;
-            $stock->save();
-        } else {
-            $supply->stocks()->create([
-                'batch_id' => $supply->batches->first()->id ?? null,
-                'critical_stock' => $validated['critical_stock'] ?? 10,
-            ]);
-        }
 
         //  Log the inventory addition
         InventoryLogs::create([
@@ -294,7 +288,32 @@ class MedicalSupplyController extends Controller
         ]);
 
         return redirect()->back()->with([
-            'success' => 'Quantity and critical stock updated successfully.',
+            'success' => 'Quantity updated successfully.',
+        ]);
+    }
+
+    public function updateCriticalStock(Request $request, $id)
+    {
+        $supply = MedicalSupplies::findOrFail($id);
+
+        $validated = $request->validate([
+            'critical_stock' => 'required|integer|min:0',
+        ]);
+
+        $stock = $supply->stocks()->latest()->first();
+
+        if ($stock) {
+            $stock->critical_stock = $validated['critical_stock'];
+            $stock->save();
+        } else {
+            $supply->stocks()->create([
+                'batch_id' => $supply->batches->first()->id ?? null,
+                'critical_stock' => $validated['critical_stock'],
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'success' => 'Critical stock updated successfully.',
         ]);
     }
 

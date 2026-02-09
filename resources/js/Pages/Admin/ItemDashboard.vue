@@ -23,6 +23,7 @@
         supplies: Array,
         inventory_logs: Array,
         nearlyExpired: Array,
+        patient_analytics: Array,
         latestPatients: Array,
     })
 

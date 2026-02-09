@@ -125,6 +125,15 @@
         )
     }
 
+    const confirmLogout = () => {
+        showLogoutDialog.value = true
+    }
+
+    const handleLogout = () => {
+        showLogoutDialog.value = false
+        router.post(route('logout'))
+    }
+
     onMounted(() => {
         console.log('User Data: ', page.props.auth?.user)
         console.log('Notifications: ', page.props.notifications)
