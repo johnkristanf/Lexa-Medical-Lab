@@ -86,7 +86,7 @@
                                     <fwb-table-cell>{{ test.referer_fullname }}</fwb-table-cell>
 
                                     <!-- Doctor License -->
-                                    <fwb-table-cell>{{ test.doctor_license_no }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ test.doctor_license_no ? test.doctor_license_no : 'N/A' }}</fwb-table-cell>
 
                                     <!-- Test Schedule -->
                                     <fwb-table-cell>
@@ -105,7 +105,16 @@
 
                                     <!-- Total Price -->
                                     <fwb-table-cell>{{ test.total_price }}</fwb-table-cell>
-                                    <fwb-table-cell>{{ test.status.toUpperCase() }}</fwb-table-cell>
+                                    <fwb-table-cell>
+                                        <span
+                                            :class="{
+                                                'bg-yellow-200 text-yellow-800 font-semibold px-2 py-1 rounded': test.status === 'pending',
+                                                'bg-green-200 text-green-800 font-semibold px-2 py-1 rounded': test.status === 'completed',
+                                            }"
+                                        >
+                                            {{ test.status.toUpperCase() }}
+                                        </span>
+                                    </fwb-table-cell>
 
                                     <!-- Actions -->
                                     <fwb-table-cell class="!text-left">

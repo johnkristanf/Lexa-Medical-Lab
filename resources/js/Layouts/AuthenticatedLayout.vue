@@ -8,9 +8,11 @@
     import { Link, usePage, router } from '@inertiajs/vue3'
     import Drawer from 'primevue/drawer'
     import Toast from 'primevue/toast'
+    import Dialog from 'primevue/dialog'
 
     const showingNavigationDropdown = ref(false)
     const visibleRight = ref(false)
+    const showLogoutDialog = ref(false)
 
     const page = usePage()
     const user = computed(() => page.props.auth?.user ?? {})
@@ -279,9 +281,12 @@
 
                                     <template #content>
                                         <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
+                                        <button
+                                            @click="confirmLogout"
+                                            class="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
+                                        >
                                             Log Out
-                                        </DropdownLink>
+                                        </button>
                                     </template>
                                 </Dropdown>
                             </div>
@@ -348,9 +353,12 @@
                         </div>
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                            <button
+                                @click="confirmLogout"
+                                class="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
+                            >
                                 Log Out
-                            </ResponsiveNavLink>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -369,5 +377,34 @@
                 <Toast />
             </main>
         </div>
+
+        <!-- Logout Confirmation Dialog -->
+        <Dialog
+            v-model:visible="showLogoutDialog"
+            modal
+            header="Confirm Logout"
+            :style="{ width: '25rem' }"
+        >
+            <div class="flex items-center gap-4 mb-4">
+                <i class="pi pi-exclamation-triangle text-3xl text-yellow-500"></i>
+                <p class="text-gray-700">
+                    Are you sure you want to logout?
+                </p>
+            </div>
+            <template #footer>
+                <button
+                    @click="showLogoutDialog = false"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                    Cancel
+                </button>
+                <button
+                    @click="handleLogout"
+                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                    Logout
+                </button>
+            </template>
+        </Dialog>
     </div>
 </template>

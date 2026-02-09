@@ -199,7 +199,7 @@
     <GuestLayout>
         <Head title="Queue Create" />
 
-        <form @submit.prevent="onSubmit" class="flex flex-col  gap-3 h-64 pt-5">
+        <form @submit.prevent="onSubmit" class="flex flex-col gap-3 h-72 pt-5">
             <!-- PATIENT NAME INPUT -->
             <!-- <div>
                 <InputLabel for="patient_name" value="Patient Name" />
@@ -256,7 +256,7 @@
                                 leave-to-class="opacity-0"
                             >
                                 <ListboxOptions
-                                    class="absolute mt-1 max-h-60 z-50 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+                                    class="absolute mt-1 max-h-32 z-50 w-full overflow-y-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
                                 >
                                     <ListboxOption
                                         v-slot="{ active, selected }"

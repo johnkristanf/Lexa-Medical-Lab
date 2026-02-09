@@ -55,8 +55,6 @@ class MedicalSupplyController extends Controller
 
     public function renderAdminDashboard(Request $request)
     {
-
-
         $lowStockSupplies = MedicalSupplies::with(['stocks', 'batches'])
             ->get()
             ->filter(function ($supply) {
@@ -76,17 +74,20 @@ class MedicalSupplyController extends Controller
             ->whereDate('expiration_date', '>=', Carbon::today())
             ->get();
 
+        $fiveLatestPatients = Patient::latest()
+        ->take(5)
+        ->get(['id', 'patient_id', 'first_name', 'last_name', 'created_at']);
+
         return Inertia::render('Admin/ItemDashboard', [
             'supplies' => $lowStockSupplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
+            'latestPatients' => $fiveLatestPatients
         ]);
     }
 
     public function dashboardSupplyCreate(Request $request)
     {
-
-
         $inventoryLogs = InventoryLogs::with('medical_supplies')->get();
 
         $supplies = MedicalSupplies::with(['stocks', 'batches'])
@@ -115,16 +116,16 @@ class MedicalSupplyController extends Controller
         ->get();
 
 
-        Log::info("PATIENT NI: ", [$data]);
+        $fiveLatestPatients = Patient::latest()
+        ->take(5)
+        ->get(['id', 'patient_id', 'first_name', 'last_name', 'created_at']);
 
         return Inertia::render('Inventory/Dashboard', [
             'supplies' => $supplies,
             'inventory_logs' => $inventoryLogs,
             'nearlyExpired' => $nearlyExpired,
             'patient_analytics' => $data,
-            'latestPatients' => Patient::latest()
-            ->take(5)
-            ->get(['id', 'patient_id', 'first_name', 'last_name', 'created_at']),
+            'latestPatients' => $fiveLatestPatients,
     ]);
 
     }
@@ -336,7 +337,6 @@ class MedicalSupplyController extends Controller
             'quantity' => 'required|integer|min:0',
             'manufacture_date' => 'required|date',
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
-            'sku' => 'nullable|string|max:255',
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
             'crtical_stock' => 'nullable|integer|min:0',
@@ -351,7 +351,6 @@ class MedicalSupplyController extends Controller
             'quantity' => $validated['quantity'],
             'manufacture_date' => $validated['manufacture_date'],
             'expiration_date' => $validated['expiration_date'],
-            'sku' =>  $validated['sku'],
             'lot_number' => $validated['lot_number'],
             'batch_number' => $validated['batch_number'],
             'category_id' => $validated['category_id'],

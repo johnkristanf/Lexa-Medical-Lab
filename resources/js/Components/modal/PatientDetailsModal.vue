@@ -155,14 +155,13 @@
                                                 for="middle_name"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Middle Name
+                                                Middle Name (optional)
                                             </label>
                                             <input
                                                 id="middle_name"
                                                 v-model="form.middle_name"
                                                 type="text"
                                                 class="form-input"
-                                                required
                                             />
                                             <p
                                                 v-if="form.errors.middle_name"

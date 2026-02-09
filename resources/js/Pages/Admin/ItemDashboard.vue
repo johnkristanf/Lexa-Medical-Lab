@@ -23,11 +23,7 @@
         supplies: Array,
         inventory_logs: Array,
         nearlyExpired: Array,
-    })
-
-    const toggles = reactive({
-        showAddSupplyModal: false,
-        showInventoryDrawer: false,
+        latestPatients: Array,
     })
 
     const toast = useToast()
@@ -78,6 +74,38 @@
     <AdminLayout>
         <div class="flex justify-between items-center mb-3">
             <h1 class="text-2xl text-gray-600">Dashboard</h1>
+        </div>
+
+        <div ref="latestPatients" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
+            <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">Latest Patients</h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse">
+                    <thead>
+                        <tr class="bg-green-600 text-white">
+                            <th class="border-b border-white py-2">Patient ID</th>
+                            <th class="border-b border-white py-2">Full Name</th>
+                            <th class="border-b border-white py-2">Date Added</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="patient in props.latestPatients" :key="patient.id">
+                            <td class="py-2 px-4 font-semibold">
+                                {{ patient.patient_id }}
+                            </td>
+                            <td class="py-2 px-4">{{ patient.first_name }} {{ patient.last_name }}</td>
+                            <td class="py-2 px-4">
+                                {{ formatDate(patient.created_at) }}
+                            </td>
+                        </tr>
+
+                        <tr v-if="props.latestPatients.length === 0">
+                            <td colspan="3" class="py-2 text-center text-gray-600">No recent patients</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-6 w-[90%] mx-auto mt-[3%]">

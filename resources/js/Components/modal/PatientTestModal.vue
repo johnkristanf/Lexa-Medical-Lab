@@ -206,7 +206,7 @@
 
                                                 <!-- Reference Range -->
                                                 <fwb-table-cell class="!text-left">
-                                                    {{ test.reference_range }}
+                                                    {{ test.reference_range ? test.reference_range : 'N/A' }}
                                                 </fwb-table-cell>
 
                                                 <fwb-table-cell class="!text-left">

@@ -77,7 +77,6 @@
         'Supplies Left',
         'Manufacturing Date',
         'Expiration Date',
-        'sku',
         'Lot #',
     ]
 </script>
@@ -133,8 +132,7 @@
                                 <fwb-table-cell>{{ supply.quantity }}</fwb-table-cell>
                                 <fwb-table-cell>{{ supply.manufacture_date }}</fwb-table-cell>
                                 <fwb-table-cell>{{ supply.expiration_date }}</fwb-table-cell>
-                                <fwb-table-cell>{{ supply.sku }}</fwb-table-cell>
-                                <fwb-table-cell class="!text-left">{{ supply.lot_number }}</fwb-table-cell>
+                                <fwb-table-cell class="!text-left">{{ supply.lot_number ? supply.lot_number : 'N/A' }}</fwb-table-cell>
                             </fwb-table-row>
                         </fwb-table-body>
                     </fwb-table>

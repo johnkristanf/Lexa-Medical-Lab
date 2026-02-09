@@ -122,7 +122,7 @@
             <!-- ✅ Low/Critical Stock -->
             <div ref="lowStock" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
-                    Nearly Out of Stock Medical Supplies
+                    Nearly <span class="text-red-600">Out of Stock</span> Medical Supplies
                 </h2>
 
                 <div class="overflow-x-auto">
@@ -150,11 +150,12 @@
                                         }"
                                         class="px-2 py-1 rounded text-xs"
                                     >
-                                        {{
-                                            supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10)
-                                                ? 'Critical'
-                                                : 'Low'
-                                        }}
+                                        <template v-if="supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10)">
+                                            <span class="text-red-600">Out of Stock</span>
+                                        </template>
+                                        <template v-else>
+                                            Low
+                                        </template>
                                     </span>
                                 </td>
                             </tr>
@@ -170,7 +171,7 @@
             <!-- ✅ Nearly Expired Items -->
             <div ref="nearlyExpired" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
-                    Nearly Expired Medical Supplies
+                    Nearly <span class="text-red-600">Expired</span> Medical Supplies
                 </h2>
 
                 <div class="overflow-x-auto">
