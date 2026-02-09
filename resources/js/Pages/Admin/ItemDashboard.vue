@@ -17,7 +17,7 @@
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import ItemData from '@/Components/MostUsedSupplies.vue'
     import { useToast } from 'primevue/usetoast'
-    import PatientAverage from '@/Components/MostUsedSupplies.vue'
+    import PatientAverage from '@/Components/PatientAverage.vue'
 
     const props = defineProps({
         supplies: Array,

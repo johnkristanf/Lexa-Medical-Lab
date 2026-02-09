@@ -74,7 +74,7 @@
         'Item',
         'Brand Name',
         'Unit',
-        'Supplies Left',
+        'In-stock',
         'Manufacturing Date',
         'Expiration Date',
         'Lot #',

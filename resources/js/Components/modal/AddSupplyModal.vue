@@ -164,7 +164,7 @@
                                                 for="quantity"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Supplies Left
+                                                In-stock
                                             </label>
                                             <input
                                                 id="quantity"
@@ -251,8 +251,6 @@
                                                 {{ form.errors.category_id }}
                                             </p>
                                         </div>
-
-                                       
 
                                         <div class="sm:col-span-2">
                                             <label

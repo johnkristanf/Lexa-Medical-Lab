@@ -91,7 +91,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-center border-collapse">
                     <thead>
-                         <!-- dashboard ni -->
+                        <!-- dashboard ni -->
                         <tr class="bg-green-600 text-white">
                             <th class="border-b border-white py-2">Patient ID</th>
                             <th class="border-b border-white py-2">Full Name</th>
@@ -122,7 +122,9 @@
             <!-- ✅ Low/Critical Stock -->
             <div ref="lowStock" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
-                    Nearly <span class="text-red-600">Out of Stock</span> Medical Supplies
+                    Nearly
+                    <span class="text-red-600">Out of Stock</span>
+                    Medical Supplies
                 </h2>
 
                 <div class="overflow-x-auto">
@@ -143,19 +145,21 @@
                                 <td class="py-2 px-4">
                                     <span
                                         :class="{
-                                            'bg-[#d90429] text-white':
+                                            'bg-[#d90429] text-black':
                                                 supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10),
                                             'bg-[#ffba08] text-black':
                                                 supply.quantity > (supply.stocks?.[0]?.critical_stock ?? 10),
                                         }"
                                         class="px-2 py-1 rounded text-xs"
                                     >
-                                        <template v-if="supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10)">
-                                            <span class="text-red-600">Out of Stock</span>
+                                        <template
+                                            v-if="
+                                                supply.quantity <= (supply.stocks?.[0]?.critical_stock ?? 10)
+                                            "
+                                        >
+                                            <span class="text-white">Out of Stock</span>
                                         </template>
-                                        <template v-else>
-                                            Low
-                                        </template>
+                                        <template v-else>Low</template>
                                     </span>
                                 </td>
                             </tr>
@@ -171,7 +175,9 @@
             <!-- ✅ Nearly Expired Items -->
             <div ref="nearlyExpired" class="flex-1 text-black p-6 rounded-lg shadow-2xl">
                 <h2 class="text-gray-600 text-center mb-4 text-xl font-bold">
-                    Nearly <span class="text-red-600">Expired</span> Medical Supplies
+                    Nearly
+                    <span class="text-red-600">Expired</span>
+                    Medical Supplies
                 </h2>
 
                 <div class="overflow-x-auto">
