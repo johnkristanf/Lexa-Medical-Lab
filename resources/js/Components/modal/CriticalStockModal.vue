@@ -8,7 +8,7 @@
         DialogDescription,
     } from '@headlessui/vue'
 
-    import { useForm, router } from '@inertiajs/vue3'
+    import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
 
@@ -17,7 +17,7 @@
 
     // Props
     const props = defineProps({
-        addStock: Object,
+        supply: Object,
     })
 
     // Emits
@@ -26,16 +26,16 @@
 
     // Form setup
     const form = useForm({
-        quantity: '',
+        critical_stock: props.supply?.stocks?.[0]?.critical_stock ?? '',
     })
 
     // Submit handler
     function submitForm() {
-        form.post(route('supply.add.stock', props.addStock.id), {
+        form.put(route('supply.update.critical.stock', props.supply.id), {
             onSuccess: () => {
                 toast.add({
                     severity: 'success',
-                    summary: 'Stock added successfully',
+                    summary: 'Critical stock updated successfully',
                     life: 3000,
                 })
                 closeModal()
@@ -43,7 +43,7 @@
             onError: () => {
                 toast.add({
                     severity: 'error',
-                    summary: 'There was an error while adding stock.',
+                    summary: 'There was an error while updating critical stock.',
                     life: 3000,
                 })
             },
@@ -81,31 +81,34 @@
                             class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col"
                         >
                             <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900">
-                                Add Stock to Supply
+                                Update Critical Stock
                             </DialogTitle>
 
                             <DialogDescription class="text-sm font-medium leading-6 text-gray-400">
-                                Add quantity to an existing supply batch
+                                Set the critical stock level for this supply
                             </DialogDescription>
 
-                            <div class="mt-8">
+                            <div class="mt-8 flex-1">
                                 <form @submit.prevent="submitForm" class="w-full">
                                     <div class="w-full">
                                         <label
-                                            for="quantity"
+                                            for="critical_stock"
                                             class="block text-sm font-semibold text-gray-900"
                                         >
-                                            Add Quantity
+                                            Critical Stock
                                         </label>
                                         <input
-                                            id="quantity"
-                                            v-model="form.quantity"
+                                            id="critical_stock"
+                                            v-model="form.critical_stock"
                                             type="number"
-                                            min="1"
+                                            min="0"
                                             class="form-input mt-1 w-full block"
                                         />
-                                        <p v-if="form.errors.quantity" class="text-sm text-red-500 mt-1">
-                                            {{ form.errors.quantity }}
+                                        <p
+                                            v-if="form.errors.critical_stock"
+                                            class="text-sm text-red-500 mt-1"
+                                        >
+                                            {{ form.errors.critical_stock }}
                                         </p>
                                     </div>
 
@@ -121,7 +124,7 @@
                                             ]"
                                             :disabled="form.processing"
                                         >
-                                            Submit
+                                        Submit
                                         </button>
 
                                         <button

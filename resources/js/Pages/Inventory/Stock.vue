@@ -8,8 +8,8 @@
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
-    import StockModal from '@/Components/modal/StockModal.vue'
     import AddStockModal from '@/Components/modal/AddStockModal.vue'
+    import CriticalStockModal from '@/Components/modal/CriticalStockModal.vue'
     import {
         FwbTable,
         FwbTableHead,
@@ -35,23 +35,22 @@
 
     const search = ref('')
 
-    const showStockModal = ref(false)
-    const addStock = ref(null)
-
     const showAddstockModal = ref(false)
     const addquantity = ref(null)
 
-    const openAddStockModal = (quantity) => {
-        console.log('Opening StockModal with:', quantity)
-        addquantity.value = quantity
+    const showCriticalStockModal = ref(false)
+    const criticalStockSupply = ref(null)
+
+    const openAddStockModal = (supply) => {
+        addquantity.value = supply
         showAddstockModal.value = true
     }
 
-    const openStockModal = (stock) => {
-        console.log('Opening StockModal with:', stock)
-        addStock.value = stock
-        showStockModal.value = true
+    const openCriticalStockModal = (supply) => {
+        criticalStockSupply.value = supply
+        showCriticalStockModal.value = true
     }
+
     const filteredSupplies = computed(() => {
         if (!search.value) {
             return props.supplies
@@ -149,19 +148,19 @@
                                     <!-- Action -->
                                     <template v-else-if="header.key === 'action'">
                                         <button
-                                            @click="openStockModal(supply)"
-                                            title="Update Supply"
-                                            class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
-                                        >
-                                            <i class="pi pi-th-large text-white text-lg"></i>
-                                        </button>
-
-                                        <button
                                             @click="openAddStockModal(supply)"
-                                            title="Update Supply"
+                                            title="Add Quantity"
                                             class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
                                         >
                                             <i class="pi pi-plus-circle text-white text-lg"></i>
+                                        </button>
+
+                                        <button
+                                            @click="openCriticalStockModal(supply)"
+                                            title="Update Critical Stock"
+                                            class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
+                                        >
+                                            <i class="pi pi-exclamation-triangle text-white text-lg"></i>
                                         </button>
                                     </template>
                                 </FwbTableCell>
@@ -172,12 +171,16 @@
             </div>
         </div>
 
-        <StockModal v-if="showStockModal" :addStock="addStock" @close="showStockModal = false" />
-
         <AddStockModal
-            v-if="ShowAddstockModal"
-            :addquantity="addquantity"
-            @close="ShowAddstockModal = false"
+            v-if="showAddstockModal"
+            :addStock="addquantity"
+            @close="showAddstockModal = false"
+        />
+
+        <CriticalStockModal
+            v-if="showCriticalStockModal && criticalStockSupply"
+            :supply="criticalStockSupply"
+            @close="showCriticalStockModal = false"
         />
 
         <!-- ADD SUPLY MODAL -->

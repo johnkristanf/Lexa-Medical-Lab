@@ -79,6 +79,9 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::post('/add/stock/{id}', [MedicalSupplyController::class, 'addStockSupply'])
         ->name('supply.add.stock');
 
+    Route::put('/supply/critical-stock/{id}', [MedicalSupplyController::class, 'updateCriticalStock'])
+        ->name('supply.update.critical.stock');
+
     Route::get('/inventory/print', [MedicalSupplyController::class, 'printPDFReport'])
         ->name('inventory.print');
 
