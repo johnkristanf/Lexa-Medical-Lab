@@ -209,7 +209,7 @@
                                 <i class="pi pi-bell text-2xl text-black"></i>
                                 <span
                                     v-if="notifications.lowStock > 0 || notifications.nearlyExpired > 0"
-                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-[6px] font-bold px-1.5 py-0.5 rounded-full"
                                 >
                                     {{ notifications.lowStock + notifications.nearlyExpired }}
                                 </span>
@@ -379,17 +379,10 @@
         </div>
 
         <!-- Logout Confirmation Dialog -->
-        <Dialog
-            v-model:visible="showLogoutDialog"
-            modal
-            header="Confirm Logout"
-            :style="{ width: '25rem' }"
-        >
+        <Dialog v-model:visible="showLogoutDialog" modal header="Confirm Logout" :style="{ width: '25rem' }">
             <div class="flex items-center gap-4 mb-4">
                 <i class="pi pi-exclamation-triangle text-3xl text-yellow-500"></i>
-                <p class="text-gray-700">
-                    Are you sure you want to logout?
-                </p>
+                <p class="text-gray-700">Are you sure you want to logout?</p>
             </div>
             <template #footer>
                 <button

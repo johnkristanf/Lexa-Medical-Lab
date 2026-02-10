@@ -72,6 +72,12 @@
             font-size: 8.5pt;
         }
 
+        .remarks {
+            margin-top: 65px;
+            margin-left: 35px;
+            font-size: 15px
+        }
+
         tbody tr:nth-child(even) {
             background-color: #f0fdf4;
         }
@@ -166,6 +172,9 @@
     <div class="footer">
         <p>This is a computer-generated report. Page {{ $loop->iteration ?? '1' }} | Confidential Patient Information
         </p>
+    </div>
+    <div class="remarks">
+        <strong>Prepared By:</strong> {{ $testDetail->remarks ?? '_______________________' }}
     </div>
 </body>
 

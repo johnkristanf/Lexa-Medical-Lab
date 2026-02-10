@@ -63,6 +63,7 @@
     }
 
     const headers = [
+        { key: 'image', label: 'Image' },
         { key: 'name', label: 'Category Name' },
         { key: 'description', label: 'Description' },
         { key: 'action', label: 'Action' },
@@ -82,14 +83,6 @@
                 <div class="card p-8">
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-8 mb-4">
-                        <!-- <fwb-button
-                            class="bg-gray-900 hover:bg-gray-500"
-                            @click="toggles.showInventoryDrawer = true"
-
-                        >
-                            View Logs
-                        </fwb-button> -->
-
                         <AddButton color="green" @click="toggles.showCategoryModal = true">
                             Add Category
                         </AddButton>
@@ -113,16 +106,17 @@
                         <FwbTableBody>
                             <FwbTableRow v-for="category in props.categories" :key="category.id">
                                 <FwbTableCell v-for="header in headers" :key="header.key" class="!text-left">
+                                    <!-- ACTION BUTTONS -->
                                     <template v-if="header.key === 'action'">
                                         <div class="flex gap-2">
                                             <button
-                                                class="px-4 py-2 text-xs font-medium text-green-200 bg-green-600 rounded hover:opacity-75"
+                                                class="px-4 py-2 text-xs font-medium text-white bg-green-600 rounded hover:opacity-75"
                                                 @click="openCategoryUpdate(category)"
                                             >
                                                 Edit
                                             </button>
                                             <button
-                                                class="px-2 py-1 text-xs font-medium text-green-200 bg-red-600 rounded hover:opacity-75"
+                                                class="px-2 py-1 text-xs font-medium text-white bg-red-600 rounded hover:opacity-75"
                                                 @click="DeletedCategory(category.id)"
                                             >
                                                 Delete
@@ -130,7 +124,37 @@
                                         </div>
                                     </template>
 
-                                    <!-- Normal cells -->
+                                    <!-- IMAGE DISPLAY -->
+                                    <template v-else-if="header.key === 'image'">
+                                        <div class="flex">
+                                            <img
+                                                v-if="category.image"
+                                                :src="`/storage/${category.image}`"
+                                                :alt="category.name"
+                                                class="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                            />
+                                            <div
+                                                v-else
+                                                class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center"
+                                            >
+                                                <svg
+                                                    class="w-8 h-8 text-gray-400"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                    />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Normal cells (name, description, etc.) -->
                                     <template v-else>
                                         {{ category[header.key] }}
                                     </template>
