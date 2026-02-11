@@ -13,8 +13,14 @@
         priority_types: Array,
     })
 
+    // Placeholder for the gender select
+    const genderPlaceholder = { name: 'Select Sex', code: null }
+
+    // Used for display and options: includes the placeholder as the first option
+    const gendersWithPlaceholder = computed(() => [genderPlaceholder, ...props.genders])
+
     const filteredPriorityTypes = computed(() => {
-        if (!props.form.gender) return props.priority_types
+        if (!props.form.gender || !props.form.gender.code) return props.priority_types
 
         // If gender is male → remove pregnant options
         if (props.form.gender.name.toLowerCase() === 'male') {
@@ -127,7 +133,9 @@
                             <ListboxButton
                                 class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                             >
-                                <span class="block truncate">{{ form.gender.name }}</span>
+                                <span class="block truncate">
+                                    {{ form.gender && form.gender.code ? form.gender.name : 'Select Sex' }}
+                                </span>
                                 <span
                                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                                 >
@@ -145,14 +153,17 @@
                                 >
                                     <ListboxOption
                                         v-slot="{ active, selected }"
-                                        v-for="gender in props.genders"
-                                        :key="gender.name"
+                                        v-for="gender in gendersWithPlaceholder"
+                                        :key="gender.code !== null ? gender.code : 'placeholder'"
                                         :value="gender"
+                                        :disabled="gender.code === null"
                                         as="template"
                                     >
                                         <li
                                             :class="[
-                                                active ? 'bg-green-100 text-green-900' : 'text-gray-900',
+                                                gender.code === null 
+                                                    ? 'text-gray-400 cursor-not-allowed'
+                                                    : (active ? 'bg-green-100 text-green-900' : 'text-gray-900'),
                                                 'relative cursor-default select-none py-2 pl-10 pr-4',
                                             ]"
                                         >
@@ -165,7 +176,7 @@
                                                 {{ gender.name }}
                                             </span>
                                             <span
-                                                v-if="selected"
+                                                v-if="selected && gender.code !== null"
                                                 class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-600"
                                             >
                                                 <CheckIcon class="h-5 w-5" aria-hidden="true" />

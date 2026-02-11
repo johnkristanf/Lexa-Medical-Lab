@@ -1,6 +1,6 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-    import { Head } from '@inertiajs/vue3'
+    import { Head, usePage } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
     import { reactive, ref, computed } from 'vue'
@@ -8,6 +8,9 @@
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import { router } from '@inertiajs/vue3'
+
+    // Utilities
+    const page = usePage()
 
     const props = defineProps({
         supplies: Array,
@@ -20,9 +23,12 @@
         showInventoryDrawer: false,
     })
 
-    console.log('supplies: ', props.supplies)
-    console.log('inventory_logs: ', props.inventory_logs)
+    // --- Breadcrumb logic: isArchiveBatchRoute? ---
+    // We'll match the route starts with "/medical/supply/batches" for flexible dynamic param highlighting
+    const currentRouteName = computed(() => page.url)
+    const isInBatchesArchiveRoute = computed(() => currentRouteName.value.startsWith('/medical/supply/batches'))
 
+    // --- rest of original logic ---
     const filteredSupplies = computed(() => {
         if (!search.value) {
             return props.supplies
@@ -43,8 +49,6 @@
         })
     })
 
-    const sampleOperationType = 'added'
-
     function archive(id) {
         if (confirm('Are you sure you want to archive this supply?')) {
             router.post(`/archive/supplies/${id}/store`, {
@@ -59,25 +63,47 @@
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">Supply Batch</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Medical Supply Batch</h2>
         </template>
 
         <div>
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="card p-8">
+
+                    <!-- Breadcrumb Navigation -->
+                    <nav class="flex mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a 
+                                    :class="[
+                                        'inline-flex items-center font-medium px-2 py-1 rounded',
+                                        !isInBatchesArchiveRoute ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:text-green-700 hover:bg-gray-100'
+                                    ]"
+                                    href="/supplies/create/data"
+                                >
+                                    Supplies
+                                </a>
+                            </li>
+                            <li>
+                                <span class="mx-2 text-gray-400 font-semibold">/</span>
+                            </li>
+                            <li>
+                                <a
+                                    href="/medical/supply/batches"
+                                    :class="[
+                                        'inline-flex items-center font-medium px-2 py-1 rounded',
+                                        isInBatchesArchiveRoute ? 'text-green-700 bg-green-100' : 'text-gray-600 hover:text-green-600'
+                                    ]"
+                                >
+                                    Archive
+                                </a>
+                            </li>
+                        </ol>
+                    </nav>
+                    <!-- End Breadcrumb -->
+                    
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
-                        <!-- <fwb-button
-                            class="bg-gray-900 hover:bg-gray-500"
-                            @click="toggles.showInventoryDrawer = true"
-                        >
-                            View Logs
-                        </fwb-button> -->
-
-                        <!-- <fwb-button color="green" @click="toggles.showAddSupplyModal = true">
-                            Add Supply
-                        </fwb-button> -->
-
                         <!-- SEARCH INPUT -->
                         <SearchInput v-model="search" />
                     </div>

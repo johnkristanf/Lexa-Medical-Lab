@@ -1,6 +1,6 @@
 <script setup>
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-    import { Head } from '@inertiajs/vue3'
+    import { Head, usePage } from '@inertiajs/vue3'
     import { Column, DataTable, Drawer } from 'primevue'
     import { FwbButton } from 'flowbite-vue'
     import { reactive, ref, computed } from 'vue'
@@ -16,6 +16,9 @@
         FwbTableRow,
         FwbTableCell,
     } from 'flowbite-vue'
+
+    // Utilities
+    const page = usePage()
 
     const props = defineProps({
         supplies: Array,
@@ -66,6 +69,10 @@
         { key: 'quantity', label: 'Supplies Left' },
         { key: 'action', label: 'Action', custom: true },
     ]
+
+    // Detect if the current route is /supplies/create/data
+    const currentRouteName = computed(() => page.url)
+    const isInCreateDataRoute = computed(() => currentRouteName.value.startsWith('/supplies/create/data'))
 </script>
 
 <template>
@@ -79,6 +86,36 @@
         <div>
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="card p-8">
+
+                    <!-- Breadcrumb Navigation -->
+                    <nav class="flex mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a 
+                                    :class="[
+                                        'inline-flex items-center font-medium px-2 py-1 rounded',
+                                        isInCreateDataRoute ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:text-green-700 hover:bg-gray-100'
+                                    ]"
+                                    href="/supplies/create/data"
+                                >
+                                    Supplies
+                                </a>
+                            </li>
+                            <li>
+                                <span class="mx-2 text-gray-400 font-semibold">/</span>
+                            </li>
+                            <li>
+                                <a
+                                    href="/medical/supply/batches"
+                                    class="inline-flex items-center text-gray-600 hover:text-green-600 font-medium px-2 py-1 rounded"
+                                >
+                                    Archive
+                                </a>
+                            </li>
+                        </ol>
+                    </nav>
+                    <!-- End Breadcrumb -->
+
                     <!-- TABLE FUNCTIONS -->
                     <div class="w-full flex justify-end gap-3 mb-4">
                         <!-- ✅ Custom Searchable Dropdown -->
@@ -131,6 +168,7 @@
                         <SearchInput route="supplies.create.page" placeholder="Search Supplies" />
                     </div>
 
+                    
                     <FwbTable class="w-full min-w-[50rem]">
                         <!-- Table Head -->
                         <FwbTableHead>
@@ -138,6 +176,7 @@
                                 v-for="(header, index) in tableHeaders"
                                 :key="index"
                                 class="bg-green-600 text-white"
+                                :class="{ 'text-left': header.key === 'action' }"
                             >
                                 {{ header.label }}
                             </FwbTableHeadCell>
@@ -146,7 +185,11 @@
                         <!-- Table Body -->
                         <FwbTableBody>
                             <FwbTableRow v-for="supply in filteredSupplies" :key="supply.id">
-                                <FwbTableCell v-for="(header, index) in tableHeaders" :key="index">
+                                <FwbTableCell
+                                    v-for="(header, index) in tableHeaders"
+                                    :key="index"
+                                    :class="{ 'text-left': header.key === 'action' }"
+                                >
                                     <!-- Default fields -->
                                     <template v-if="!header.custom">
                                         {{ supply[header.key] || 'N/A' }}
@@ -154,21 +197,23 @@
 
                                     <!-- Action column -->
                                     <template v-else-if="header.key === 'action'">
-                                        <a
-                                            :href="route('inventory.supply.batches', { id: supply.id })"
-                                            title="View Batch"
-                                            class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75"
-                                        >
-                                            View
-                                        </a>
+                                        <div class="flex items-center justify-start gap-2">
+                                            <a
+                                                :href="route('inventory.supply.batches', { id: supply.id })"
+                                                title="View Batch"
+                                                class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75"
+                                            >
+                                                View
+                                            </a>
 
-                                        <button
-                                            @click="openUpdateSupply(supply)"
-                                            title="Update Supply"
-                                            class="bg-green-600 px-3 h-[28px] ml-[8px] rounded text-white hover:opacity-75"
-                                        >
-                                            Deduct
-                                        </button>
+                                            <button
+                                                @click="openUpdateSupply(supply)"
+                                                title="Update Supply"
+                                                class="bg-green-600 px-3 h-[28px] ml-[0px] rounded text-white hover:opacity-75"
+                                            >
+                                                Deduct
+                                            </button>
+                                        </div>
                                     </template>
                                 </FwbTableCell>
                             </FwbTableRow>

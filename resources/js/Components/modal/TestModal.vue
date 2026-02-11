@@ -266,6 +266,7 @@ import {
                                                 type="date"
                                                 class="form-input text-center"
                                                 required
+                                                :min="(new Date()).toISOString().split('T')[0]"
                                             />
                                             <p
                                                 v-if="form.errors.test_schedule"
