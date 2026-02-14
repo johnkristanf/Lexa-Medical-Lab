@@ -45,14 +45,14 @@
         address: '',
         contact_number: '',
         email: '',
-        priority_type: props.priority_types[2],
+        priority_type: null,
     })
 
     // Computed available priority types based on gender
     const filteredPriorityTypes = computed(() => {
         if (form.gender === 'MALE') {
             // Filter out 'Pregnant Women' (code: PW)
-            return props.priority_types.filter(pt => pt.code !== 'PW')
+            return props.priority_types.filter((pt) => pt.code !== 'PW')
         }
         return props.priority_types
     })
@@ -62,21 +62,13 @@
         () => form.gender,
         (newGender) => {
             if (newGender === 'MALE' && form.priority_type && form.priority_type.code === 'PW') {
-                // Set to first available type if currently set to Pregnant Women (PW)
-                form.priority_type = filteredPriorityTypes.value[0] || null
+                // Set to null if currently set to Pregnant Women (PW)
+                form.priority_type = null
             }
-        }
+        },
     )
 
-    // Also: in case the initial selection is invalid for gender male
-    watch(
-        () => filteredPriorityTypes.value,
-        (types) => {
-            if (!types.find(pt => pt === form.priority_type)) {
-                form.priority_type = types[0] || null
-            }
-        }
-    )
+    // Remove the second watch as it might auto-select a value
 
     // FORM SUBMISSION
     function submitForm() {
@@ -214,9 +206,7 @@
                                                 v-model="form.gender"
                                                 class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-black"
                                             >
-                                                <option value="" disabled class="text-black">
-                                                    Select sex type
-                                                </option>
+                                                <option value="" disabled class="text-black">-----</option>
                                                 <option value="MALE" class="text-black">MALE</option>
                                                 <option value="FEMALE" class="text-black">FEMALE</option>
                                             </select>
@@ -238,7 +228,6 @@
                                                 v-model="form.last_name"
                                                 type="text"
                                                 class="form-input"
-                                                required
                                             />
                                             <p v-if="form.errors.last_name" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.last_name }}
@@ -338,7 +327,11 @@
                                                         class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                                                     >
                                                         <span class="block truncate">
-                                                            {{ form.priority_type?.name }}
+                                                            {{
+                                                                form.priority_type
+                                                                    ? form.priority_type.name
+                                                                    : '-----'
+                                                            }}
                                                         </span>
                                                         <span
                                                             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"

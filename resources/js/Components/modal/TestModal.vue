@@ -1,6 +1,6 @@
 <script setup>
     import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
-import {
+    import {
         TransitionRoot,
         TransitionChild,
         Dialog,
@@ -12,16 +12,15 @@ import {
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import {  computed } from 'vue'
+    import { computed } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
-    const discountedCode = loadPatientCodeWithDiscount();
+    const discountedCode = loadPatientCodeWithDiscount()
 
     // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
-
 
     const props = defineProps({
         testTypesPurpose: Array,
@@ -59,7 +58,8 @@ import {
 
     // Total price: base price from selected category (once when at least one test type selected), with 20% discount if eligible
     const totalPrice = computed(() => {
-        const discountEligible = props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)
+        const discountEligible =
+            props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)
         const category = selectedCategory.value
         const hasSelection = form.selected_test_types.length > 0
         if (!category || !hasSelection) return '0.00'
@@ -70,8 +70,8 @@ import {
         return price.toFixed(2)
     })
 
-    const isDiscounted = computed(() =>
-        props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code),
+    const isDiscounted = computed(
+        () => props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code),
     )
 
     const allSelectedInCategory = computed(() => {
@@ -93,20 +93,45 @@ import {
     }
 
     function submitForm() {
+        form.clearErrors()
+        let hasError = false
+
+        if (!form.referer_fullname) {
+            form.setError('referer_fullname', 'Referer Full Name is required.')
+            hasError = true
+        }
+
+        if (!form.test_schedule) {
+            form.setError('test_schedule', 'Test Schedule is required.')
+            hasError = true
+        }
+
+        if (!form.purpose_id) {
+            form.setError('purpose_id', 'Test Purpose is required.')
+            hasError = true
+        }
+
+        if (!form.category_id) {
+            form.setError('category_id', 'Test Category is required.')
+            hasError = true
+        }
+
         if (form.selected_test_types.length === 0) {
             toast.add({
                 severity: 'warn',
                 summary: 'Please select at least one test type.',
                 life: 3000,
             })
-            closeModal()
-            return // <- Don't proceed if no test types selected
+            hasError = true
+        }
+
+        if (hasError) {
+            return
         }
 
         form.selected_test_types = form.selected_test_types.map(Number)
-        form.total_price =totalPrice.value
+        form.total_price = totalPrice.value
 
-        console.log('Submitting form data:', form.data())
         form.post(route('test.submit'), {
             onSuccess: () => {
                 toast.add({
@@ -117,7 +142,7 @@ import {
 
                 setTimeout(() => {
                     closeModal()
-                }, [1500])
+                }, 1500)
             },
             onError: (errors) => {
                 toast.add({
@@ -183,7 +208,6 @@ import {
                                                 id="referer_full_name"
                                                 v-model="form.referer_fullname"
                                                 class="form-input w-full"
-                                                required
                                             >
                                                 <option value="" disabled class="text-black">
                                                     Select Referer
@@ -265,8 +289,7 @@ import {
                                                 v-model="form.test_schedule"
                                                 type="date"
                                                 class="form-input text-center"
-                                                required
-                                                :min="(new Date()).toISOString().split('T')[0]"
+                                                :min="new Date().toISOString().split('T')[0]"
                                             />
                                             <p
                                                 v-if="form.errors.test_schedule"
@@ -346,7 +369,12 @@ import {
                                                 </label>
                                                 <p v-if="selectedCategory" class="text-sm text-gray-600">
                                                     Category price: ₱{{ selectedCategory.price }}
-                                                    <span v-if="isDiscounted" class="ml-1 text-green-600 font-medium">(20% discount applied at total)</span>
+                                                    <span
+                                                        v-if="isDiscounted"
+                                                        class="ml-1 text-green-600 font-medium"
+                                                    >
+                                                        (20% discount applied at total)
+                                                    </span>
                                                 </p>
 
                                                 <div class="mb-3">
@@ -355,7 +383,11 @@ import {
                                                         @click="toggleSelectAll"
                                                         class="text-sm text-green-600 hover:text-green-800 font-medium"
                                                     >
-                                                        {{ allSelectedInCategory ? 'Deselect all' : 'Select all' }}
+                                                        {{
+                                                            allSelectedInCategory
+                                                                ? 'Deselect all'
+                                                                : 'Select all'
+                                                        }}
                                                     </button>
                                                 </div>
 
@@ -379,9 +411,16 @@ import {
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div class="mt-4 text-right text-sm font-semibold text-gray-900 flex items-center justify-end gap-2 flex-wrap">
+                                                <div
+                                                    class="mt-4 text-right text-sm font-semibold text-gray-900 flex items-center justify-end gap-2 flex-wrap"
+                                                >
                                                     <span>Total Price: ₱{{ totalPrice }}</span>
-                                                    <span v-if="isDiscounted && form.selected_test_types.length" class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">20% Discount Applied</span>
+                                                    <span
+                                                        v-if="isDiscounted && form.selected_test_types.length"
+                                                        class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs"
+                                                    >
+                                                        20% Discount Applied
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

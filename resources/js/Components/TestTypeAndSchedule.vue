@@ -21,14 +21,13 @@
 
     import { ref, computed, watch, onMounted } from 'vue'
     import { formatDate } from '@/helpers/formatter'
-import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
+    import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
 
     const props = defineProps({
         test_categories: Array,
         appointment_schedules: Array,
         form: Object,
     })
-
 
     onMounted(() => {
         console.log('test_categories 123: ', props.test_categories)
@@ -70,16 +69,14 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
     }
 
     // Total price: each category has one price; include it once if user selects any test type in that category
-    const discountedCode = loadPatientCodeWithDiscount();
+    const discountedCode = loadPatientCodeWithDiscount()
 
     const totalPrice = computed(() => {
         const priorityTypeCode = props.form?.priority_type?.code
         const hasDiscount = discountedCode.includes(priorityTypeCode)
         const selectedIds = new Set(selectedTypeIds.value)
         const total = props.test_categories.reduce((sum, category) => {
-            const hasSelectedTypeInCategory = (category.test_types || []).some((t) =>
-                selectedIds.has(t.id),
-            )
+            const hasSelectedTypeInCategory = (category.test_types || []).some((t) => selectedIds.has(t.id))
             if (!hasSelectedTypeInCategory) return sum
             let price = Number(category.price)
             if (hasDiscount) {
@@ -95,6 +92,35 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
         const priorityTypeCode = props.form?.priority_type?.code
         return priorityTypeCode && discountedCode.includes(priorityTypeCode)
     })
+
+    // Validation error state
+    const validationErrors = ref({
+        schedule: '',
+        testTypes: '',
+    })
+
+    // Validate schedule and test type selection
+    const validateSchedule = () => {
+        let isValid = true
+        validationErrors.value = { schedule: '', testTypes: '' }
+
+        // Validate schedule selection
+        if (!selectedSchedule.value || !selectedTimeSlot.value) {
+            validationErrors.value.schedule = 'Please select a schedule and time slot'
+            isValid = false
+        }
+
+        // Validate test type selection
+        if (selectedTypeIds.value.length === 0) {
+            validationErrors.value.testTypes = 'Please select at least one test type'
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    // Expose validation function to parent
+    defineExpose({ validateSchedule })
 
     // Format time for display
     function formatTime(timeString) {
@@ -124,8 +150,8 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
 
     // Select a time slot
     function selectTimeSlot(schedule, slot) {
-        console.log("schedule: ", schedule);
-        console.log("slot: ", slot);
+        console.log('schedule: ', schedule)
+        console.log('slot: ', slot)
 
         selectedSchedule.value = schedule
         selectedTimeSlot.value = slot
@@ -149,9 +175,6 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
     watch(selectedTypeIds, (newVal) => {
         props.form.selected_type_ids = newVal
     })
-
-   
-
 </script>
 
 <template>
@@ -165,13 +188,14 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
             <div class="w-1/3">
                 <label class="block text-sm text-gray-900 mb-2">Pick a Schedule & Time</label>
 
-                <fwb-button
-                    @click="openScheduleModal"
-                    color="alternative"
-                    class="w-full"
-                >
+                <fwb-button @click="openScheduleModal" color="alternative" class="w-full">
                     <span class="truncate">{{ selectedScheduleText }}</span>
                 </fwb-button>
+
+                <!-- Validation Error -->
+                <p v-if="validationErrors.schedule" class="text-sm text-red-500 mt-1">
+                    {{ validationErrors.schedule }}
+                </p>
 
                 <!-- Selected Schedule Info -->
                 <div
@@ -179,12 +203,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                     class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md"
                 >
                     <div class="flex items-center text-sm text-green-800">
-                        <svg
-                            class="w-4 h-4 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -199,9 +218,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
         </div>
 
         <fwb-accordion-panel v-for="category in test_categories" :key="category.id">
-            <fwb-accordion-header>
-                {{ category.name }} (₱{{ category.price }})
-            </fwb-accordion-header>
+            <fwb-accordion-header>{{ category.name }} (₱{{ category.price }})</fwb-accordion-header>
             <fwb-accordion-content>
                 <div v-if="category.test_types && category.test_types.length">
                     <div class="mb-3">
@@ -213,11 +230,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                             {{ allSelectedInCategory(category) ? 'Deselect all' : 'Select all' }}
                         </button>
                     </div>
-                    <div
-                        v-for="type in category.test_types"
-                        :key="type.id"
-                        class="flex items-center mb-2"
-                    >
+                    <div v-for="type in category.test_types" :key="type.id" class="flex items-center mb-2">
                         <input
                             type="checkbox"
                             :id="'type-' + type.id"
@@ -235,12 +248,19 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
         </fwb-accordion-panel>
 
         <!-- Total Price Display -->
-        <div class="mt-4 text-right font-semibold text-lg text-green-700 flex items-center justify-end gap-2 flex-wrap">
+        <div
+            class="mt-4 text-right font-semibold text-lg text-green-700 flex items-center justify-end gap-2 flex-wrap"
+        >
             <span>Total Price: ₱{{ totalPrice }}</span>
             <fwb-badge v-if="isDiscounted && selectedTypeIds.length" type="green" class="shrink-0">
                 20% Discount Applied
             </fwb-badge>
         </div>
+
+        <!-- Test Type Validation Error -->
+        <p v-if="validationErrors.testTypes" class="text-sm text-red-500 mt-2 text-right">
+            {{ validationErrors.testTypes }}
+        </p>
     </fwb-accordion>
 
     <!-- SCHEDULE SELECTION MODAL -->
@@ -272,16 +292,11 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                         <DialogPanel
                             class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
                         >
-                            <DialogTitle
-                                as="h1"
-                                class="text-2xl font-medium leading-6 text-gray-900 mb-2"
-                            >
+                            <DialogTitle as="h1" class="text-2xl font-medium leading-6 text-gray-900 mb-2">
                                 Select Appointment Schedule
                             </DialogTitle>
 
-                            <DialogDescription
-                                class="text-sm font-medium leading-6 text-gray-400 mb-6"
-                            >
+                            <DialogDescription class="text-sm font-medium leading-6 text-gray-400 mb-6">
                                 Choose your preferred date and available time slot
                             </DialogDescription>
 
@@ -301,23 +316,17 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                                                 </h3>
                                                 <div class="flex items-center space-x-2 mt-1">
                                                     <span class="text-sm text-gray-500">
-                                                        {{
-                                                            getAvailableSlots(schedule).length
-                                                        }}
+                                                        {{ getAvailableSlots(schedule).length }}
                                                         available slots
                                                     </span>
                                                     <span
-                                                        v-if="
-                                                            getAvailableSlots(schedule).length > 0
-                                                        "
+                                                        v-if="getAvailableSlots(schedule).length > 0"
                                                         class="text-xs text-gray-300"
                                                     >
                                                         •
                                                     </span>
                                                     <span
-                                                        v-if="
-                                                            getAvailableSlots(schedule).length > 0
-                                                        "
+                                                        v-if="getAvailableSlots(schedule).length > 0"
                                                         class="text-sm text-green-600"
                                                     >
                                                         Ready to book
@@ -363,9 +372,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                                                         {{ formatTime(slot.time_slot) }}
                                                     </span>
                                                 </div>
-                                                <span class="text-xs text-green-600 mt-1">
-                                                    Available
-                                                </span>
+                                                <span class="text-xs text-green-600 mt-1">Available</span>
                                             </button>
                                         </div>
 
@@ -384,9 +391,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                                 ></path>
                                             </svg>
-                                            <p class="text-sm">
-                                                No available time slots for this date.
-                                            </p>
+                                            <p class="text-sm">No available time slots for this date.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -419,8 +424,7 @@ import { loadPatientCodeWithDiscount } from '@/helpers/random_num'
                                                 No schedules available
                                             </h3>
                                             <p class="text-gray-500">
-                                                Please check back later for available appointment
-                                                slots.
+                                                Please check back later for available appointment slots.
                                             </p>
                                         </div>
                                     </div>

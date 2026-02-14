@@ -6,6 +6,8 @@
     import PrimaryButton from '@/Components/PrimaryButton.vue'
     import TextInput from '@/Components/TextInput.vue'
     import { Head, Link, useForm } from '@inertiajs/vue3'
+    import { ref } from 'vue'
+    import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 
     defineProps({
         canResetPassword: {
@@ -21,6 +23,12 @@
         password: '',
         remember: false,
     })
+
+    const showPassword = ref(false)
+
+    const togglePasswordVisibility = () => {
+        showPassword.value = !showPassword.value
+    }
 
     const submit = () => {
         form.post(route('login'), {
@@ -57,34 +65,29 @@
             <div class="mt-4">
                 <InputLabel for="password" value="Password" />
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
+                <div class="relative">
+                    <TextInput
+                        id="password"
+                        :type="showPassword ? 'text' : 'password'"
+                        class="mt-1 block w-full pr-10"
+                        v-model="form.password"
+                        required
+                        autocomplete="current-password"
+                    />
+                    <button
+                        type="button"
+                        @click="togglePasswordVisibility"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                    >
+                        <EyeIcon v-if="!showPassword" class="h-5 w-5" />
+                        <EyeSlashIcon v-else class="h-5 w-5" />
+                    </button>
+                </div>
 
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <!-- <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div> -->
-
             <div class="mt-4 flex items-center justify-end">
-                <!-- <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-green-600 hover:underline  focus:outline-none "
-                >
-                    Forgot your password?
-                </Link> -->
-
                 <PrimaryButton
                     class="ms-4"
                     :class="{ 'opacity-25': form.processing }"

@@ -79,11 +79,11 @@
         'Patient ID',
         'Patient Type',
         'Full Name',
-        'Gender',
-        'Birth Date',
         'Address',
         'Contact Number',
         'Email',
+        'Sex',
+        'Birth Date',
         'Actions',
     ]
 </script>
@@ -142,14 +142,14 @@
                                         {{ patient.first_name }} {{ patient.middle_name }}
                                         {{ patient.last_name }}
                                     </fwb-table-cell>
+
+                                    <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>
+                                    <fwb-table-cell>{{ patient.email }}</fwb-table-cell>
                                     <fwb-table-cell>{{ patient.gender }}</fwb-table-cell>
                                     <fwb-table-cell>
                                         {{ formatDate(patient.date_of_birth, false) }}
                                     </fwb-table-cell>
-                                    <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
-                                    <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>
-                                    <fwb-table-cell>{{ patient.email }}</fwb-table-cell>
-
                                     <!-- Actions -->
                                     <fwb-table-cell class="flex items-center gap-3">
                                         <button
