@@ -1,9 +1,19 @@
 # Stage 1: PHP build stage
-FROM php:8.2-fpm AS php_builder
+FROM php:8.3-fpm AS php_builder
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y unzip libzip-dev zip curl
-RUN docker-php-ext-install pdo pdo_mysql zip
+RUN apt-get update && apt-get install -y \
+    unzip libpng-dev libonig-dev libxml2-dev zip curl \
+    libpq-dev \
+    && docker-php-ext-install \
+        pdo_mysql \
+        pdo_pgsql \
+        pgsql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
@@ -42,19 +52,6 @@ RUN npm run build
 # Stage 3: Runtime
 FROM php:8.3-fpm AS php_runtime
 WORKDIR /var/www
-
-RUN apt-get update && apt-get install -y \
-    unzip libpng-dev libonig-dev libxml2-dev zip curl \
-    libpq-dev \
-    && docker-php-ext-install \
-        pdo_mysql \
-        pdo_pgsql \
-        pgsql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd
 
 COPY --from=php_builder /app /var/www
 COPY --from=node_builder /app/public/build /var/www/public/build
