@@ -38,7 +38,7 @@ COPY --from=php_builder /app/vendor/tightenco/ziggy ./vendor/tightenco/ziggy
 
 RUN npm run build
 
-
+ 
 # Stage 3: Runtime
 FROM php:8.3-fpm AS php_runtime
 WORKDIR /var/www
