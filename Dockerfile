@@ -1,5 +1,5 @@
 # Stage 1: PHP build stage
-FROM php:8.3-fpm AS php_builder
+FROM php:8.4-fpm AS php_builder
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
@@ -54,7 +54,7 @@ RUN npm run build
 
  
 # Stage 3: Runtime
-FROM php:8.3-fpm AS php_runtime
+FROM php:8.4-fpm AS php_runtime
 WORKDIR /var/www
 
 COPY --from=php_builder /app /var/www
