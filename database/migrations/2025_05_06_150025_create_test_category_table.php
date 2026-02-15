@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('test_category', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('price');
+            $table->decimal('price', 10, 2); // Recommended for currency
             $table->timestamps();
         });
     }

@@ -49,8 +49,8 @@
 
     // FORM SUBMISSION
     function submitForm() {
-        console.log('Form Data:', form)
-
+        form.clearErrors()
+        let hasError = false
         // Optional: do basic validation check
         if (form.test_results.length === 0) {
             toast.add({
@@ -59,6 +59,17 @@
                 detail: 'Please add at least one result before submitting.',
                 life: 3000,
             })
+            return
+        }
+
+        form.test_results.forEach((test, index) => {
+            if (!test.result || (typeof test.result === 'string' && test.result.trim() === '')) {
+                form.setError(`test_results.${index}.result`, 'Result is required')
+                hasError = true
+            }
+        })
+
+        if (hasError) {
             return
         }
 
@@ -72,7 +83,7 @@
 
                 setTimeout(() => {
                     closeModal()
-                }, [1500])
+                }, 1500)
             },
         })
     }
@@ -81,7 +92,6 @@
 
     function fetchTestById(patientID, testID) {
         axios.get(route('test.details', [patientID, testID])).then((response) => {
-            console.log('response.data: ', response.data)
             testDetail.value = response.data
 
             // POPULATE DATA

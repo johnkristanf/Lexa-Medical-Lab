@@ -337,7 +337,9 @@ class MedicalStaffController extends Controller
         $searchQuery = $request->query('search');
         $testDetails = Test::when($searchQuery, function ($query, $search) {
             $query->where('referer_fullname', 'like', "%{$search}%");
-        })->get();
+        })
+        ->latest()
+        ->get();
 
         return Inertia::render('Test/TestDetails', [
             'testDetails' => $testDetails,

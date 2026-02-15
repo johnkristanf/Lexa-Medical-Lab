@@ -169,6 +169,11 @@
         Total Number of Patients: {{ count($patients) }}
     </div>
 
+    <div style="margin-top: 50px; page-break-inside: avoid;">
+        <p style="font-weight: bold;">Prepared by:</p>
+        <div style="margin-top: 30px; border-bottom: 1px solid #333; width: 200px;"></div>
+    </div>
+
     <div class="footer">
         <p>This is a computer-generated report. Page {{ $loop->iteration ?? '1' }} | Confidential Patient Information
         </p>

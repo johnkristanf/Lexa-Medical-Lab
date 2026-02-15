@@ -20,11 +20,11 @@
     const patientTableHeaders = [
         'Patient ID',
         'Full Name',
-        'Sex',
-        'Birth Date',
         'Address',
         'Contact No.',
         'Email',
+        'Sex',
+        'Birth Date',
     ]
 </script>
 
@@ -66,11 +66,12 @@
                             {{ patient.last_name }}, {{ patient.first_name }}
                             <span v-if="patient.middle_name">{{ patient.middle_name }}</span>
                         </fwb-table-cell>
-                        <fwb-table-cell>{{ patient.gender.toUpperCase() }}</fwb-table-cell>
-                        <fwb-table-cell>{{ formatDate(patient.date_of_birth) }}</fwb-table-cell>
+
                         <fwb-table-cell>{{ patient.address }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.contact_number }}</fwb-table-cell>
                         <fwb-table-cell>{{ patient.email ?? 'N/A' }}</fwb-table-cell>
+                        <fwb-table-cell>{{ patient.gender.toUpperCase() }}</fwb-table-cell>
+                        <fwb-table-cell>{{ formatDate(patient.date_of_birth) }}</fwb-table-cell>
                     </fwb-table-row>
                 </template>
 
