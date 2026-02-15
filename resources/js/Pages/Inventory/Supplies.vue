@@ -86,15 +86,16 @@
         <div>
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="card p-8">
-
                     <!-- Breadcrumb Navigation -->
                     <nav class="flex mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
                         <ol class="inline-flex items-center space-x-1 md:space-x-3">
                             <li class="inline-flex items-center">
-                                <a 
+                                <a
                                     :class="[
                                         'inline-flex items-center font-medium px-2 py-1 rounded',
-                                        isInCreateDataRoute ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:text-green-700 hover:bg-gray-100'
+                                        isInCreateDataRoute
+                                            ? 'text-green-700 bg-green-100'
+                                            : 'text-gray-700 hover:text-green-700 hover:bg-gray-100',
                                     ]"
                                     href="/supplies/create/data"
                                 >
@@ -168,7 +169,6 @@
                         <SearchInput route="supplies.create.page" placeholder="Search Supplies" />
                     </div>
 
-                    
                     <FwbTable class="w-full min-w-[50rem]">
                         <!-- Table Head -->
                         <FwbTableHead>
@@ -188,7 +188,7 @@
                                 <FwbTableCell
                                     v-for="(header, index) in tableHeaders"
                                     :key="index"
-                                    :class="{ 'text-left': header.key === 'action' }"
+                                    :sclass="{ 'text-left': header.key === 'action' }"
                                 >
                                     <!-- Default fields -->
                                     <template v-if="!header.custom">

@@ -147,21 +147,23 @@
 
                                     <!-- Action -->
                                     <template v-else-if="header.key === 'action'">
-                                        <button
-                                            @click="openAddStockModal(supply)"
-                                            title="Add Quantity"
-                                            class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
-                                        >
-                                            <i class="pi pi-plus-circle text-white text-lg"></i>
-                                        </button>
+                                        <div class="flex items-center justify-start gap-2">
+                                            <button
+                                                @click="openAddStockModal(supply)"
+                                                title="Add Quantity"
+                                                class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
+                                            >
+                                                <i class="pi pi-plus-circle text-white text-lg"></i>
+                                            </button>
 
-                                        <button
-                                            @click="openCriticalStockModal(supply)"
-                                            title="Update Critical Stock"
-                                            class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
-                                        >
-                                            <i class="pi pi-exclamation-triangle text-white text-lg"></i>
-                                        </button>
+                                            <button
+                                                @click="openCriticalStockModal(supply)"
+                                                title="Update Critical Stock"
+                                                class="bg-[#70e000] px-3 h-[28px] ml-[8px] rounded text-white hover:bg-[#1b4332]"
+                                            >
+                                                <i class="pi pi-exclamation-triangle text-white text-lg"></i>
+                                            </button>
+                                        </div>
                                     </template>
                                 </FwbTableCell>
                             </FwbTableRow>
@@ -171,11 +173,7 @@
             </div>
         </div>
 
-        <AddStockModal
-            v-if="showAddstockModal"
-            :addStock="addquantity"
-            @close="showAddstockModal = false"
-        />
+        <AddStockModal v-if="showAddstockModal" :addStock="addquantity" @close="showAddstockModal = false" />
 
         <CriticalStockModal
             v-if="showCriticalStockModal && criticalStockSupply"

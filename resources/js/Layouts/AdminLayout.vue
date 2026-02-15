@@ -21,9 +21,7 @@
     const user = computed(() => page.props.auth?.user ?? {})
 
     // Notifications
-    const notifications = computed(
-        () => page.props.notifications ?? { lowStock: 0, nearlyExpired: 0 },
-    )
+    const notifications = computed(() => page.props.notifications ?? { lowStock: 0, nearlyExpired: 0 })
 
     const confirmLogout = () => {
         showLogoutDialog.value = true
@@ -42,7 +40,7 @@
 <template>
     <div>
         <div class="min-h-screen bg-white">
-            <nav class="sticky top-0 z-50 border-b border-gray-100 bg-white">
+            <nav class="sticky top-0 z-[10px] border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -50,9 +48,7 @@
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('admin.dashboard')">
-                                    <BusinessLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
+                                    <BusinessLogo class="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
                             </div>
                         </div>
@@ -63,17 +59,20 @@
                                 <i class="pi pi-bell text-7xl text-black"></i>
                                 <span
                                     v-if="
-                                        notifications.lowStock > 0 ||
-                                        notifications.nearlyExpired > 0
+                                        notifications.lowStock?.length > 0 ||
+                                        notifications.nearlyExpired?.length > 0
                                     "
-                                    class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-xs font-bold px-1 py-0.1 rounded-full"
+                                    class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-bold px-1 py-0.1 rounded-full"
                                 >
-                                    {{ notifications.lowStock + notifications.nearlyExpired }}
+                                    {{
+                                        (notifications.lowStock?.length || 0) +
+                                        (notifications.nearlyExpired?.length || 0)
+                                    }}
                                 </span>
                             </button>
 
                             <!-- Settings Dropdown -->
-                            <div class="relative ms-3 ">
+                            <div class="relative ms-3">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
@@ -119,12 +118,7 @@
                                 @click="showingNavigationDropdown = !showingNavigationDropdown"
                                 class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
                             >
-                                <svg
-                                    class="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
+                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path
                                         :class="{
                                             hidden: showingNavigationDropdown,
@@ -171,9 +165,7 @@
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('admin.profile.edit')">
-                                Profile
-                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('admin.profile.edit')">Profile</ResponsiveNavLink>
                             <button
                                 @click="confirmLogout"
                                 class="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
@@ -187,22 +179,67 @@
 
             <!-- Drawer for Notifications -->
             <Drawer v-model:visible="visibleRight" header="Notifications" position="right">
-                <div class="space-y-3">
-                    <p v-if="notifications.lowStock > 0" class="text-sm">
-                        ⚠️ {{ notifications.lowStock }} item(s) are
-                        <b>low on stock</b>
-                        .
-                    </p>
-                    <p v-if="notifications.nearlyExpired > 0" class="text-sm">
-                        ⏳ {{ notifications.nearlyExpired }} item(s) are
-                        <b>nearly expired</b>
-                        .
-                    </p>
+                <div class="space-y-4">
+                    <!-- Low Stock Items -->
+                    <div v-if="notifications.lowStock?.length > 0" class="space-y-2">
+                        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <i class="pi pi-exclamation-triangle text-orange-500"></i>
+                            Low Stock Items
+                        </h3>
+                        <div
+                            v-for="item in notifications.lowStock"
+                            :key="item.id"
+                            class="p-3 bg-orange-50 border-l-4 border-orange-400 rounded"
+                        >
+                            <p class="text-sm font-medium text-gray-800">{{ item.brand_name }}</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                Current:
+                                <span class="font-semibold text-orange-600">
+                                    {{ item.quantity }} {{ item.unit }}
+                                </span>
+                                / Critical:
+                                <span class="font-semibold">{{ item.critical_stock }} {{ item.unit }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Nearly Expired Items -->
+                    <div v-if="notifications.nearlyExpired?.length > 0" class="space-y-2">
+                        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <i class="pi pi-clock text-yellow-500"></i>
+                            Nearly Expired Batches
+                        </h3>
+                        <div
+                            v-for="batch in notifications.nearlyExpired"
+                            :key="batch.id"
+                            class="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded"
+                        >
+                            <p class="text-sm font-medium text-gray-800">{{ batch.supply_name }}</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                Batch:
+                                <span class="font-semibold">{{ batch.batch_number }}</span>
+                            </p>
+                            <p class="text-xs text-gray-600">
+                                Expires:
+                                <span class="font-semibold text-yellow-600">{{ batch.expiration_date }}</span>
+                            </p>
+                            <p class="text-xs text-gray-600">
+                                Quantity:
+                                <span class="font-semibold">{{ batch.quantity }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
                     <p
-                        v-if="notifications.lowStock === 0 && notifications.nearlyExpired === 0"
-                        class="text-gray-500 text-sm"
+                        v-if="
+                            (!notifications.lowStock || notifications.lowStock.length === 0) &&
+                            (!notifications.nearlyExpired || notifications.nearlyExpired.length === 0)
+                        "
+                        class="text-gray-500 text-sm flex items-center gap-2"
                     >
-                        ✅ No notifications
+                        <i class="pi pi-check-circle text-green-500"></i>
+                        No notifications
                     </p>
                 </div>
             </Drawer>
@@ -223,17 +260,10 @@
         </div>
 
         <!-- Logout Confirmation Dialog -->
-        <Dialog
-            v-model:visible="showLogoutDialog"
-            modal
-            header="Confirm Logout"
-            :style="{ width: '25rem' }"
-        >
+        <Dialog v-model:visible="showLogoutDialog" modal header="Confirm Logout" :style="{ width: '25rem' }">
             <div class="flex items-center gap-4 mb-4">
                 <i class="pi pi-exclamation-triangle text-3xl text-yellow-500"></i>
-                <p class="text-gray-700">
-                    Are you sure you want to logout?
-                </p>
+                <p class="text-gray-700">Are you sure you want to logout?</p>
             </div>
             <template #footer>
                 <button

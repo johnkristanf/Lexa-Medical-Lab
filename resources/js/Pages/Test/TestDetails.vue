@@ -26,11 +26,13 @@
     const showTestDetailsDialog = ref(false)
     const selectedPatientID = ref(null)
     const selectedTestID = ref(null)
+    const selectedTestStatus = ref(null)
 
-    const openTestDialog = (patientID, testID) => {
+    const openTestDialog = (patientID, testID, status) => {
         showTestDetailsDialog.value = true
         selectedPatientID.value = patientID
         selectedTestID.value = testID
+        selectedTestStatus.value = status
     }
 
     const closeTestDialog = () => {
@@ -86,7 +88,9 @@
                                     <fwb-table-cell>{{ test.referer_fullname }}</fwb-table-cell>
 
                                     <!-- Doctor License -->
-                                    <fwb-table-cell>{{ test.doctor_license_no ? test.doctor_license_no : 'N/A' }}</fwb-table-cell>
+                                    <fwb-table-cell>
+                                        {{ test.doctor_license_no ? test.doctor_license_no : 'N/A' }}
+                                    </fwb-table-cell>
 
                                     <!-- Test Schedule -->
                                     <fwb-table-cell>
@@ -108,8 +112,10 @@
                                     <fwb-table-cell>
                                         <span
                                             :class="{
-                                                'bg-yellow-200 text-yellow-800 font-semibold px-2 py-1 rounded': test.status === 'pending',
-                                                'bg-green-200 text-green-800 font-semibold px-2 py-1 rounded': test.status === 'completed',
+                                                'bg-yellow-200 text-yellow-800 font-semibold px-2 py-1 rounded':
+                                                    test.status === 'pending',
+                                                'bg-green-200 text-green-800 font-semibold px-2 py-1 rounded':
+                                                    test.status === 'completed',
                                             }"
                                         >
                                             {{ test.status.toUpperCase() }}
@@ -120,9 +126,9 @@
                                     <fwb-table-cell class="!text-left">
                                         <AddButton
                                             class="bg-green-600 rounded-md px-3 py-1 text-white hover:bg-green-700"
-                                            @click="openTestDialog(test.patient_id, test.id)"
+                                            @click="openTestDialog(test.patient_id, test.id, test.status)"
                                         >
-                                            Result
+                                            {{ test.status === 'completed' ? 'View Result' : 'Result' }}
                                         </AddButton>
                                     </fwb-table-cell>
                                 </fwb-table-row>
@@ -147,6 +153,7 @@
             v-if="showTestDetailsDialog && selectedPatientID && selectedTestID"
             :patientID="selectedPatientID"
             :testID="selectedTestID"
+            :testStatus="selectedTestStatus"
             @close="closeTestDialog"
         />
     </AuthenticatedLayout>

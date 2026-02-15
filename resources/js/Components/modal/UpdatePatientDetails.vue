@@ -179,7 +179,6 @@
                                             v-model="form.middle_name"
                                             type="text"
                                             class="form-input"
-                                            required
                                         />
                                         <p
                                             v-if="form.errors.middle_name"

@@ -72,6 +72,12 @@
             font-size: 8.5pt;
         }
 
+        .remarks {
+            margin-top: 65px;
+            margin-left: 35px;
+            font-size: 15px
+        }
+
         tbody tr:nth-child(even) {
             background-color: #f0fdf4;
         }

@@ -13,30 +13,48 @@
     import { useToast } from 'primevue/usetoast'
     import { generateBatchNumber } from '@/helpers/batch_random_num'
 
-    // TOAST INITIALIZATION
     const toast = useToast()
 
-    // EMITS FOR MODAL HANDLING
     const emit = defineEmits(['close'])
     const closeModal = () => emit('close')
 
-    // INERTIA FORM INIATILIZATION
     const form = useForm({
         name: '',
         description: '',
+        image: null,
     })
+
+    const handleImage = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            form.image = file
+            console.log('Image selected:', file)
+            console.log('File type:', file.type)
+            console.log('File size:', file.size)
+        }
+    }
 
     // FORM SUBMISSION
     function submitForm() {
+        console.log('Form data before submit:', {
+            name: form.name,
+            description: form.description,
+            image: form.image,
+        })
+
         form.post(route('categories.store.data'), {
+            forceFormData: true,
+            preserveState: true,
             onSuccess: () => {
                 toast.add({
                     severity: 'success',
-                    summary: 'Medical Supply Addition Successful',
+                    summary: 'Category Created Successfully',
                     life: 3000,
                 })
-
                 closeModal()
+            },
+            onError: (errors) => {
+                console.log('Validation errors:', errors)
             },
         })
     }
@@ -90,7 +108,7 @@
                                                 Category Name
                                             </label>
                                             <input
-                                                id="lot_number"
+                                                id="names"
                                                 v-model="form.name"
                                                 type="text"
                                                 class="form-input"
@@ -102,13 +120,13 @@
 
                                         <div class="sm:col-span-2">
                                             <label
-                                                for="lot_number"
+                                                for="batch_number"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
                                                 Description
                                             </label>
                                             <input
-                                                id="batch_number"
+                                                id="description"
                                                 v-model="form.description"
                                                 type="text"
                                                 class="form-input"
@@ -118,6 +136,63 @@
                                                 class="text-sm text-red-500 mt-1"
                                             >
                                                 {{ form.errors.description }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Image Upload Section -->
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="image"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Category Image
+                                            </label>
+                                            <div class="mt-2 flex items-center gap-4">
+                                                <div class="flex-1">
+                                                    <label
+                                                        for="image-upload"
+                                                        class="flex justify-center w-full px-4 py-6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-gray-400 transition-colors"
+                                                    >
+                                                        <div class="space-y-1 text-center">
+                                                            <svg
+                                                                class="mx-auto h-12 w-12 text-gray-400"
+                                                                stroke="currentColor"
+                                                                fill="none"
+                                                                viewBox="0 0 48 48"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <path
+                                                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                                                    stroke-width="2"
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                />
+                                                            </svg>
+                                                            <div class="text-sm text-gray-600">
+                                                                <span
+                                                                    class="font-semibold text-green-600 hover:text-green-500"
+                                                                >
+                                                                    Upload a file
+                                                                </span>
+                                                                or drag and drop
+                                                            </div>
+                                                            <p class="text-xs text-gray-500">
+                                                                PNG, JPG, GIF up to 10MB
+                                                            </p>
+                                                        </div>
+                                                        <input
+                                                            ref="fileInput"
+                                                            id="image-upload"
+                                                            type="file"
+                                                            class="sr-only"
+                                                            accept="image/*"
+                                                            @change="handleImage"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <p v-if="form.errors.image" class="text-sm text-red-500 mt-1">
+                                                {{ form.errors.image }}
                                             </p>
                                         </div>
                                     </div>

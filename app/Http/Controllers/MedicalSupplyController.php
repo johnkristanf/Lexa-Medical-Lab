@@ -545,20 +545,28 @@ class MedicalSupplyController extends Controller
         ]);
     }
 
-    public function categoriesStoreData(Request $request)
-    {
+ public function categoriesStoreData(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string|max:500',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:500',
-        ]);
-        Categories::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-        ]);
-
-        return redirect()->back()->with('success', 'Category created successfully.');
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('categories', 'public');
     }
+
+    Categories::create([
+        'name' => $validated['name'],
+        'description' => $validated['description'] ?? null,
+        'image' => $imagePath,
+    ]);
+
+    return redirect()->back()->with('success', 'Category created successfully.');
+}
+
 
     public function archiveSuppliescreate(Request $request)
     {
