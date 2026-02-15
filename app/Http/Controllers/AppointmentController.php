@@ -102,6 +102,7 @@ class AppointmentController extends Controller
                 'date_of_birth' => $validated['birthdate'],
                 'status' => 'pending',
                 'schedule_id' => $validated['selected_schedule_id'],
+                'time_slot_id' => $validated['selected_time_slot_id'],
 
                 'appointment_number' => $this->generateAppointmentNumber(),
             ]);
@@ -126,7 +127,7 @@ class AppointmentController extends Controller
     public function renderAdminAppointments(Request $request)
     {
         $searchQuery = $request->query('search');
-        $appointments = Appointments::with(['schedule', 'test_types.test_category'])
+        $appointments = Appointments::with(['schedule', 'time_slot', 'test_types.test_category'])
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->whereRaw(
                     "LOWER(CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name)) LIKE ?",

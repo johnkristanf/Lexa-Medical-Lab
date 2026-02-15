@@ -69,7 +69,7 @@ class MedicalStaffController extends Controller
     {
         $searchQuery = $request->query('search');
         Log::info('searchQuery medical: ', [$searchQuery]);
-        $appointments = Appointments::with(['schedule', 'test_types.test_category'])
+        $appointments = Appointments::with(['schedule', 'time_slot', 'test_types.test_category'])
             ->when($searchQuery, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('appointment_number', 'like', "%{$search}%")
@@ -297,6 +297,7 @@ class MedicalStaffController extends Controller
             'referer_fullname' => 'required|string|max:255',
             'doctor_license_no' => 'nullable|string|max:255',
             'test_schedule' => 'required|date',
+            'test_schedule_time' => 'nullable|date_format:H:i',
             'total_price' => 'required|string',
             'purpose_id' => 'required|integer',
             'patient_id' => 'required|integer',
@@ -314,6 +315,7 @@ class MedicalStaffController extends Controller
             'referer_fullname' => $validated['referer_fullname'],
             'doctor_license_no' => $validated['doctor_license_no'],
             'test_schedule' => $validated['test_schedule'],
+            'test_schedule_time' => $validated['test_schedule_time'] ?? null,
             'total_price' => $totalPriceFloat,
             'or_number' => $orNumber,
             'purpose_id' => $validated['purpose_id'],

@@ -16,7 +16,7 @@
     import { FwbButton } from 'flowbite-vue'
     import { onMounted, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
-    import { formatDate } from '@/helpers/formatter'
+    import { formatDate, formatTime } from '@/helpers/formatter'
     import { router } from '@inertiajs/vue3'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
     import AppointmentDetails from '@/Components/modal/AppointmentDetails.vue'
@@ -146,11 +146,13 @@
                                         </fwb-badge>
                                     </fwb-table-cell>
                                     <fwb-table-cell>
-                                        {{
-                                            appointment.schedule?.date
-                                                ? formatDate(appointment.schedule.date)
-                                                : 'Not scheduled'
-                                        }}
+                                        <template v-if="appointment.schedule?.date">
+                                            {{ formatDate(appointment.schedule.date, false) }}
+                                            <span v-if="appointment.time_slot?.time_slot">
+                                                {{ formatTime(appointment.time_slot.time_slot) }}
+                                            </span>
+                                        </template>
+                                        <template v-else>Not scheduled</template>
                                     </fwb-table-cell>
                                     <fwb-table-cell class="flex items-center">
                                         <div
@@ -170,8 +172,15 @@
                                                 </fwb-list-group>
                                             </fwb-dropdown>
 
-                                            <template v-if="appointment.is_email_sent === 1 || appointment.is_email_sent === true">
-                                                <span class="text-green-600 text-xs ml-2">Already sent email</span>
+                                            <template
+                                                v-if="
+                                                    appointment.is_email_sent === 1 ||
+                                                    appointment.is_email_sent === true
+                                                "
+                                            >
+                                                <span class="text-green-600 text-xs ml-2">
+                                                    Already sent email
+                                                </span>
                                             </template>
                                             <template v-else>
                                                 <AddButton

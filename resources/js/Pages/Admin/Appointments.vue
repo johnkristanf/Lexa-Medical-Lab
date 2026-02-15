@@ -15,7 +15,7 @@
     import AdminLayout from '@/Layouts/AdminLayout.vue'
     import { Head, router } from '@inertiajs/vue3'
     import { ref } from 'vue'
-    import { formatDate } from '@/helpers/formatter'
+    import { formatDate, formatTime } from '@/helpers/formatter'
     import SchedulesModal from '@/Components/modal/SchedulesModal.vue'
     import AddScheduleModal from '@/Components/modal/AddScheduleModal.vue'
     import EmailAppointmentDetails from '@/Components/modal/EmailAppointmentDetails.vue'
@@ -121,28 +121,23 @@
                             </fwb-table-cell>
                             <fwb-table-cell>{{ appointment.email ?? 'N/A' }}</fwb-table-cell>
                             <fwb-table-cell>
-                                <fwb-badge
-                                    :type="appointment.status === 'arrived' ? 'green' : 'yellow'"
-                                >
+                                <fwb-badge :type="appointment.status === 'arrived' ? 'green' : 'yellow'">
                                     {{ appointment.status.toUpperCase() }}
                                 </fwb-badge>
                             </fwb-table-cell>
                             <fwb-table-cell>
-                                {{
-                                    appointment.schedule?.date
-                                        ? formatDate(appointment.schedule.date)
-                                        : 'Not scheduled'
-                                }}
+                                <template v-if="appointment.schedule?.date">
+                                    {{ formatDate(appointment.schedule.date, false) }}
+                                    <span v-if="appointment.time_slot?.time_slot">
+                                        {{ formatTime(appointment.time_slot.time_slot) }}
+                                    </span>
+                                </template>
+                                <template v-else>Not scheduled</template>
                             </fwb-table-cell>
                             <fwb-table-cell class="flex items-center">
-                                <div
-                                    v-if="appointment.status == 'pending'"
-                                    class="flex gap-2 items-center"
-                                >
-                                    <fwb-dropdown text="Status" color="green" >
-                                        <fwb-list-group
-                                            class="w-32 text-sm text-gray-700 dark:text-gray-200"
-                                        >
+                                <div v-if="appointment.status == 'pending'" class="flex gap-2 items-center">
+                                    <fwb-dropdown text="Status" color="green">
+                                        <fwb-list-group class="w-32 text-sm text-gray-700 dark:text-gray-200">
                                             <fwb-list-group-item
                                                 class="flex justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                                 @click="updateStatus(appointment.id, 'arrived')"
@@ -167,10 +162,7 @@
                                 </div>
 
                                 <div v-else>
-                                    <AddButton
-                                        color="green"
-                                        @click="openAppointmentDetails(appointment)"
-                                    >
+                                    <AddButton color="green" @click="openAppointmentDetails(appointment)">
                                         View Details
                                     </AddButton>
                                 </div>

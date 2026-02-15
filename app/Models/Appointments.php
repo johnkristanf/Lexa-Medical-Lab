@@ -24,4 +24,9 @@ class Appointments extends Model
     {
         return $this->belongsTo(AppointmentSchedule::class, 'schedule_id');
     }
+
+    public function time_slot(): BelongsTo
+    {
+        return $this->belongsTo(AppointmentSlots::class, 'time_slot_id');
+    }
 }

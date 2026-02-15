@@ -4,6 +4,7 @@
     import { onMounted, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import PatientTestModal from '@/Components/modal/PatientTestModal.vue'
+    import { formatDate, formatTime } from '@/helpers/formatter'
 
     import {
         FwbTable,
@@ -94,17 +95,10 @@
 
                                     <!-- Test Schedule -->
                                     <fwb-table-cell>
-                                        {{
-                                            new Intl.DateTimeFormat('en-PH', {
-                                                timeZone: 'Asia/Manila',
-                                                year: 'numeric',
-                                                month: '2-digit',
-                                                day: '2-digit',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                                hour12: true,
-                                            }).format(new Date(test.test_schedule))
-                                        }}
+                                        {{ formatDate(test.test_schedule, false) }}
+                                        <span v-if="test.test_schedule_time">
+                                            {{ formatTime(test.test_schedule_time) }}
+                                        </span>
                                     </fwb-table-cell>
 
                                     <!-- Total Price -->

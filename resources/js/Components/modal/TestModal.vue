@@ -36,6 +36,7 @@
         referer_fullname: '',
         doctor_license_no: '',
         test_schedule: '',
+        test_schedule_time: '',
         total_price: '',
         purpose_id: '',
         patient_id: props.patientID,
@@ -296,6 +297,27 @@
                                                 class="text-sm text-red-500 mt-1"
                                             >
                                                 {{ form.errors.test_schedule }}
+                                            </p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="test_schedule_time"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Test Time (Optional)
+                                            </label>
+                                            <input
+                                                id="test_schedule_time"
+                                                v-model="form.test_schedule_time"
+                                                type="time"
+                                                class="form-input text-center"
+                                            />
+                                            <p
+                                                v-if="form.errors.test_schedule_time"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.test_schedule_time }}
                                             </p>
                                         </div>
 

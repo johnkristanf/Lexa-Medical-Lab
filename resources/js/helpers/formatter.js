@@ -35,6 +35,16 @@ export const formatDateWithoutTime = (dateString) => {
     return `${month}/${day}/${year}`
 }
 
+// TIME FORMATTER: 10:47 PM
+export const formatTime = (timeString) => {
+    if (!timeString) return ''
+    const time = new Date(`2000-01-01T${timeString}`)
+    return time.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+    })
+}
 
 // QUEUE STATUS FORMATTER
 export const getStatusClasses = (status) => {

@@ -28,14 +28,13 @@ class StoreAppointmentRequest extends FormRequest
             'email' => 'nullable|email|max:255', // nullable for those who don't want to give it
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
-            'gender' => 'required|string',
             'birthdate' => 'required|date',
             'selected_schedule_id' => 'required|exists:appointment_schedules,id',
             'selected_time_slot_id' => 'required|exists:appointment_slots,id',
 
             'gender' => 'required|array',
             'gender.name' => 'required|string',
-            'gender.tag' => 'required|string',
+            'gender.code' => 'required|string',
 
             'priority_type' => 'required|array',
             'priority_type.id' => 'required|exists:priority_types,id',
