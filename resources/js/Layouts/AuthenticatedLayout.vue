@@ -213,14 +213,24 @@
 
                         <!-- Right Side -->
                         <div class="hidden sm:ms-6 sm:flex sm:items-center space-x-4">
-                            <!-- Notification Bell -->
-                            <button @click="visibleRight = true" class="relative">
+                            <!-- Notification Bell (Hidden for Medical Staff) -->
+                            <button
+                                v-if="permissions?.can_manage_inventory_supplies"
+                                @click="visibleRight = true"
+                                class="relative"
+                            >
                                 <i class="pi pi-bell text-2xl text-black"></i>
                                 <span
-                                    v-if="notifications.lowStock > 0 || notifications.nearlyExpired > 0"
+                                    v-if="
+                                        notifications.lowStock?.length > 0 ||
+                                        notifications.nearlyExpired?.length > 0
+                                    "
                                     class="absolute -top-1 -right-1 bg-red-600 text-white text-[6px] font-bold px-1.5 py-0.5 rounded-full"
                                 >
-                                    {{ notifications.lowStock + notifications.nearlyExpired }}
+                                    {{
+                                        (notifications.lowStock?.length || 0) +
+                                        (notifications.nearlyExpired?.length || 0)
+                                    }}
                                 </span>
                             </button>
 
@@ -230,7 +240,10 @@
                                     <span class="text-sm text-gray-600">Your notifications</span>
 
                                     <button
-                                        v-if="notifications.lowStock > 0 || notifications.nearlyExpired > 0"
+                                        v-if="
+                                            notifications.lowStock?.length > 0 ||
+                                            notifications.nearlyExpired?.length > 0
+                                        "
                                         @click="markNotificationsAsRead"
                                         class="text-xs text-blue-600 hover:underline"
                                     >
@@ -238,26 +251,81 @@
                                     </button>
                                 </div>
 
-                                <div class="space-y-3">
-                                    <p v-if="notifications.lowStock > 0" class="text-sm">
-                                        ⚠️ {{ notifications.lowStock }} item(s) are
-                                        <b>low on stock</b>
-                                        .
-                                    </p>
+                                <div class="space-y-4">
+                                    <!-- Low Stock Items -->
+                                    <div v-if="notifications.lowStock?.length > 0" class="space-y-2">
+                                        <h3
+                                            class="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                                        >
+                                            <i class="pi pi-exclamation-triangle text-orange-500"></i>
+                                            Low Stock Items
+                                        </h3>
+                                        <div
+                                            v-for="item in notifications.lowStock"
+                                            :key="item.id"
+                                            class="p-3 bg-orange-50 border-l-4 border-orange-400 rounded"
+                                        >
+                                            <p class="text-sm font-medium text-gray-800">
+                                                {{ item.brand_name }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                Current:
+                                                <span class="font-semibold text-orange-600">
+                                                    {{ item.quantity }} {{ item.unit }}
+                                                </span>
+                                                / Critical:
+                                                <span class="font-semibold">
+                                                    {{ item.critical_stock }} {{ item.unit }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
 
-                                    <p v-if="notifications.nearlyExpired > 0" class="text-sm">
-                                        ⏳ {{ notifications.nearlyExpired }} item(s) are
-                                        <b>nearly expired</b>
-                                        .
-                                    </p>
+                                    <!-- Nearly Expired Items -->
+                                    <div v-if="notifications.nearlyExpired?.length > 0" class="space-y-2">
+                                        <h3
+                                            class="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                                        >
+                                            <i class="pi pi-clock text-yellow-500"></i>
+                                            Nearly Expired Batches
+                                        </h3>
+                                        <div
+                                            v-for="batch in notifications.nearlyExpired"
+                                            :key="batch.id"
+                                            class="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded"
+                                        >
+                                            <p class="text-sm font-medium text-gray-800">
+                                                {{ batch.supply_name }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                Batch:
+                                                <span class="font-semibold">{{ batch.batch_number }}</span>
+                                            </p>
+                                            <p class="text-xs text-gray-600">
+                                                Expires:
+                                                <span class="font-semibold text-yellow-600">
+                                                    {{ batch.expiration_date }}
+                                                </span>
+                                            </p>
+                                            <p class="text-xs text-gray-600">
+                                                Quantity:
+                                                <span class="font-semibold">{{ batch.quantity }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
 
+                                    <!-- Empty State -->
                                     <p
                                         v-if="
-                                            notifications.lowStock === 0 && notifications.nearlyExpired === 0
+                                            (!notifications.lowStock ||
+                                                notifications.lowStock.length === 0) &&
+                                            (!notifications.nearlyExpired ||
+                                                notifications.nearlyExpired.length === 0)
                                         "
-                                        class="text-gray-500 text-sm"
+                                        class="text-gray-500 text-sm flex items-center gap-2"
                                     >
-                                        ✅ No notifications
+                                        <i class="pi pi-check-circle text-green-500"></i>
+                                        No notifications
                                     </p>
                                 </div>
                             </Drawer>

@@ -77,7 +77,7 @@
             onSuccess: () => {
                 toast.add({
                     severity: 'success',
-                    summary: 'Medical Supply Addition Successful',
+                    summary: 'Patient Added Successful',
                     life: 3000,
                 })
 
@@ -272,7 +272,6 @@
                                                 {{ form.errors.address }}
                                             </p>
                                         </div>
-
                                         <div class="sm:col-span-2">
                                             <label
                                                 for="contact_number"
@@ -280,12 +279,23 @@
                                             >
                                                 Contact Number
                                             </label>
+
                                             <input
                                                 id="contact_number"
                                                 v-model="form.contact_number"
                                                 type="text"
+                                                inputmode="numeric"
+                                                pattern="[0-9]*"
+                                                maxlength="11"
+                                                placeholder="09XXXXXXXXX"
                                                 class="form-input"
+                                                @input="
+                                                    form.contact_number = form.contact_number
+                                                        .replace(/\D/g, '')
+                                                        .slice(0, 11)
+                                                "
                                             />
+
                                             <p
                                                 v-if="form.errors.contact_number"
                                                 class="text-sm text-red-500 mt-1"

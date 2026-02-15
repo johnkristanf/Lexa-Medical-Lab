@@ -33,6 +33,10 @@
             type: [String, Number],
             required: true,
         },
+        testStatus: {
+            type: String,
+            default: 'pending',
+        },
     })
 
     // TOAST INITIALIZATION
@@ -205,6 +209,11 @@
                                                         v-model="form.test_results[index].result"
                                                         type="text"
                                                         class="form-input w-full"
+                                                        :readonly="props.testStatus === 'completed'"
+                                                        :class="{
+                                                            'bg-gray-100 cursor-not-allowed':
+                                                                props.testStatus === 'completed',
+                                                        }"
                                                     />
                                                     <p
                                                         v-if="form.errors[`test_results.${index}.result`]"
@@ -227,7 +236,10 @@
                                     </fwb-table>
 
                                     <!-- Actions -->
-                                    <div class="flex justify-end items-center gap-3 mt-8">
+                                    <div
+                                        v-if="props.testStatus !== 'completed'"
+                                        class="flex justify-end items-center gap-3 mt-8"
+                                    >
                                         <button
                                             type="button"
                                             class="bg-gray-900 rounded-md px-4 py-2 text-white"

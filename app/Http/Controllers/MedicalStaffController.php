@@ -384,6 +384,13 @@ class MedicalStaffController extends Controller
                 ]);
         }
 
+        // Update test status to completed after saving results
+        $testDetail = Test::findOrFail($testID);
+        if ($testDetail->status !== 'completed') {
+            $testDetail->status = 'completed';
+            $testDetail->save();
+        }
+
         return back()->with('success', 'Test Results Updated.');
     }
 
@@ -397,12 +404,6 @@ class MedicalStaffController extends Controller
 
             $testPatient = $this->testDetailsByID($testDetail->patient_id, $testID);
             $testTypes = $testPatient->test_types ?? collect();
-
-            // Update the test status if not already 'completed'
-            if ($testDetail->status !== 'completed') {
-                $testDetail->status = 'completed';
-                $testDetail->save();
-            }
 
             $dob = new \DateTime($patientDetails->date_of_birth);
             $today = new \DateTime;

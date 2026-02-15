@@ -178,9 +178,6 @@
         <p>This is a computer-generated report. Page {{ $loop->iteration ?? '1' }} | Confidential Patient Information
         </p>
     </div>
-    <div class="remarks">
-        <strong>Prepared By:</strong> {{ $testDetail->remarks ?? '_______________________' }}
-    </div>
 </body>
 
 </html>
