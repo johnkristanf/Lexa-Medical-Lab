@@ -56,9 +56,20 @@ RUN npm run build
 FROM php:8.4-fpm AS php_runtime
 WORKDIR /var/www
 
-# Install postgresql driver for PHP in runtime stage as well
-RUN apt-get update && apt-get install -y libpq-dev \
-    && docker-php-ext-install pdo_pgsql pgsql
+# Install necessary system dependencies and PHP extensions for runtime
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install \
+        pdo_pgsql \
+        pgsql \
+        gd \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath
 
 COPY --from=php_builder /app /var/www
 COPY --from=node_builder /app/public/build /var/www/public/build
