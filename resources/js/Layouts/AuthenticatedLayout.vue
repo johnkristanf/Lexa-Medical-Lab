@@ -65,11 +65,11 @@
             route_name: 'inventory.supply.request',
             permitted: permissions.value?.can_manage_inventory_supplies,
         },
-        {
-            name: 'Stock',
-            route_name: 'medical.stock.create',
-            permitted: permissions.value?.can_manage_inventory_supplies,
-        },
+        // {
+        //     name: 'Stock',
+        //     route_name: 'medical.stock.create',
+        //     permitted: permissions.value?.can_manage_inventory_supplies,
+        // },
         {
             name: 'Category',
             route_name: 'category.supplies.create',

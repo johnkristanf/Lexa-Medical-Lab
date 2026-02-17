@@ -16,6 +16,8 @@
         FwbTableRow,
         FwbTableCell,
     } from 'flowbite-vue'
+    import AddStockModal from '@/Components/modal/AddStockModal.vue'
+    import CriticalStockModal from '@/Components/modal/CriticalStockModal.vue'
 
     // Utilities
     const page = usePage()
@@ -36,9 +38,25 @@
     const showUpdateSupply = ref(false)
     const supplyUpdate = ref(null)
 
+    const showAddstockModal = ref(false)
+    const addquantity = ref(null)
+
+    const showCriticalStockModal = ref(false)
+    const criticalStockSupply = ref(null)
+
     const openUpdateSupply = (supply) => {
         supplyUpdate.value = supply
         showUpdateSupply.value = true
+    }
+
+    const openAddStockModal = (supply) => {
+        addquantity.value = supply
+        showAddstockModal.value = true
+    }
+
+    const openCriticalStockModal = (supply) => {
+        criticalStockSupply.value = supply
+        showCriticalStockModal.value = true
     }
 
     const filteredSupplies = computed(() => {
@@ -66,7 +84,9 @@
     const tableHeaders = [
         { key: 'participants', label: 'Item' },
         { key: 'brand_name', label: 'Brand Name' },
-        { key: 'quantity', label: 'Supplies Left' },
+        { key: 'quantity', label: 'In-stock' },
+        { key: 'critical_stock', label: 'Critical Stock', custom: true },
+        { key: 'batch_number', label: 'Product Batch #', custom: true },
         { key: 'action', label: 'Action', custom: true },
     ]
 
@@ -176,7 +196,6 @@
                                 v-for="(header, index) in tableHeaders"
                                 :key="index"
                                 class="bg-green-600 text-white"
-                                :class="{ 'text-left': header.key === 'action' }"
                             >
                                 {{ header.label }}
                             </FwbTableHeadCell>
@@ -185,34 +204,58 @@
                         <!-- Table Body -->
                         <FwbTableBody>
                             <FwbTableRow v-for="supply in filteredSupplies" :key="supply.id">
-                                <FwbTableCell
-                                    v-for="(header, index) in tableHeaders"
-                                    :key="index"
-                                    :sclass="{ 'text-left': header.key === 'action' }"
-                                >
+                                <FwbTableCell v-for="(header, index) in tableHeaders" :key="index">
                                     <!-- Default fields -->
                                     <template v-if="!header.custom">
                                         {{ supply[header.key] || 'N/A' }}
                                     </template>
 
+                                    <!-- Critical Stock -->
+                                    <template v-else-if="header.key === 'critical_stock'">
+                                        {{ supply.stocks?.[0]?.critical_stock ?? 'N/A' }}
+                                    </template>
+
+                                    <!-- Batch Number -->
+                                    <template v-else-if="header.key === 'batch_number'">
+                                        {{ supply.batches?.[0]?.batch_number ?? 'N/A' }}
+                                    </template>
+
                                     <!-- Action column -->
                                     <template v-else-if="header.key === 'action'">
                                         <div class="flex items-center justify-start gap-2">
+                                            <button
+                                                @click="openAddStockModal(supply)"
+                                                title="Add Quantity"
+                                                class="bg-green-600 px-3 h-[28px] rounded text-white hover:bg-[#1b4332]"
+                                            >
+                                                <i class="pi pi-plus-circle text-white text-lg"></i>
+                                            </button>
+
+                                          
+                                            <button
+                                                @click="openUpdateSupply(supply)"
+                                                title="Deduct Supply"
+                                                class="bg-red-600 px-3 h-[28px] rounded text-white hover:opacity-75"
+                                            >
+                                                <i class="pi pi-minus-circle text-white text-lg"></i>
+                                            </button>
+
+                                              <button
+                                                @click="openCriticalStockModal(supply)"
+                                                title="Update Critical Stock"
+                                                class="bg-green-600 px-3 h-[28px] rounded text-white hover:bg-[#1b4332]"
+                                            >
+                                                <i class="pi pi-exclamation-triangle text-white text-lg"></i>
+                                            </button>
+
+
                                             <a
                                                 :href="route('inventory.supply.batches', { id: supply.id })"
                                                 title="View Batch"
-                                                class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75"
+                                                class="bg-gray-900 px-3 py-1 rounded text-white hover:opacity-75 h-[28px] flex items-center"
                                             >
-                                                View
+                                                View Batch
                                             </a>
-
-                                            <button
-                                                @click="openUpdateSupply(supply)"
-                                                title="Update Supply"
-                                                class="bg-green-600 px-3 h-[28px] ml-[0px] rounded text-white hover:opacity-75"
-                                            >
-                                                Deduct
-                                            </button>
                                         </div>
                                     </template>
                                 </FwbTableCell>
@@ -227,6 +270,14 @@
             v-if="showUpdateSupply"
             :supplyUpdate="supplyUpdate"
             @close="showUpdateSupply = false"
+        />
+
+        <AddStockModal v-if="showAddstockModal" :addStock="addquantity" @close="showAddstockModal = false" />
+
+        <CriticalStockModal
+            v-if="showCriticalStockModal && criticalStockSupply"
+            :supply="criticalStockSupply"
+            @close="showCriticalStockModal = false"
         />
 
         <!-- ADD SUPPLY MODAL -->

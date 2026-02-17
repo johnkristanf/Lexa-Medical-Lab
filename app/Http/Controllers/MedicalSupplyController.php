@@ -244,13 +244,14 @@ class MedicalSupplyController extends Controller
     {
         $searchQuery = $request->query('search');
 
-        $supplies = MedicalSupplies::with(['category'])
+        $supplies = MedicalSupplies::with(['category', 'stocks', 'batches'])
         ->when($searchQuery, function ($query) use ($searchQuery) {
         $query->where(function ($q) use ($searchQuery) {
             $q->where('participants', 'LIKE', "%{$searchQuery}%")
               ->orWhere('brand_name', 'LIKE', "%{$searchQuery}%")
               ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
-                  $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%");
+                  $batchQuery->where('lot_number', 'LIKE', "%{$searchQuery}%")
+                             ->orWhere('batch_number', 'LIKE', "%{$searchQuery}%");
               })
               ->orWhereHas('category', function ($categoryQuery) use ($searchQuery) {
                   $categoryQuery->where('name', 'LIKE', "%{$searchQuery}%");
@@ -358,7 +359,7 @@ class MedicalSupplyController extends Controller
             'expiration_date' => 'required|date|after_or_equal:manufacture_date',
             'lot_number' => 'nullable|string|max:255',
             'batch_number' => 'required|string|max:255',
-            'crtical_stock' => 'nullable|integer|min:0',
+            'critical_stock' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
 
         ]);
@@ -376,11 +377,17 @@ class MedicalSupplyController extends Controller
 
         ]);
 
-        $createdSupply->batches()->create([
+        $batch = $createdSupply->batches()->create([
             'quantity' => $validated['quantity'],
             'batch_number' => $validated['batch_number'],
             'manufacture_date' => $validated['manufacture_date'],
             'expiration_date' => $validated['expiration_date'],
+        ]);
+
+        // Create Stock record with critical stock
+        $createdSupply->stocks()->create([
+            'batch_id' => $batch->id,
+            'critical_stock' => $validated['critical_stock'] ?? 0,
         ]);
 
         // Log the inventory

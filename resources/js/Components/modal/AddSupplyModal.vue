@@ -38,6 +38,7 @@
         lot_number: '',
         batch_number: generateBatchNumber(),
         category_id: '',
+        critical_stock: '',
     })
 
     // FORM SUBMISSION
@@ -96,6 +97,7 @@
                             <div class="isolate px-6 lg:px-8 mt-10">
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+                                        <!-- Row 1: Description, Brand Name -->
                                         <div>
                                             <label
                                                 for="participants"
@@ -140,6 +142,7 @@
                                             </p>
                                         </div>
 
+                                        <!-- Row 2: Unit, In-stock -->
                                         <div>
                                             <label
                                                 for="unit"
@@ -178,6 +181,7 @@
                                             </p>
                                         </div>
 
+                                        <!-- Row 3: Manufacturing Date, Expiration Date -->
                                         <div>
                                             <label
                                                 for="manufacture_date"
@@ -220,6 +224,7 @@
                                             </p>
                                         </div>
 
+                                        <!-- Row 4: Category (full width) -->
                                         <div class="sm:col-span-2">
                                             <label
                                                 for="category_id"
@@ -252,7 +257,30 @@
                                             </p>
                                         </div>
 
-                                        <div class="sm:col-span-2">
+                                        <!-- Row 5: Critical Stock, Lot # -->
+                                        <div>
+                                            <label
+                                                for="critical_stock"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Critical Stock
+                                            </label>
+                                            <input
+                                                id="critical_stock"
+                                                v-model="form.critical_stock"
+                                                type="number"
+                                                class="form-input"
+                                                required
+                                            />
+                                            <p
+                                                v-if="form.errors.critical_stock"
+                                                class="text-sm text-red-500 mt-1"
+                                            >
+                                                {{ form.errors.critical_stock }}
+                                            </p>
+                                        </div>
+
+                                        <div>
                                             <label
                                                 for="lot_number"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -273,9 +301,10 @@
                                             </p>
                                         </div>
 
+                                        <!-- Row 6: Batch Number (full width) -->
                                         <div class="sm:col-span-2">
                                             <label
-                                                for="lot_number"
+                                                for="batch_number"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
                                                 Batch Number

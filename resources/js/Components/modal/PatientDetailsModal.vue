@@ -127,7 +127,7 @@
                             <div class="isolate px-6 lg:px-8 mt-10">
                                 <form @submit.prevent="submitForm" class="max-w-xl">
                                     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
-                                        <div class="sm:col-span-2">
+                                        <div>
                                             <label
                                                 for="first_name"
                                                 class="block text-sm font-semibold text-gray-900"
@@ -135,7 +135,7 @@
                                                 First Name
                                             </label>
                                             <input
-                                                id="address"
+                                                id="first_name"
                                                 v-model="form.first_name"
                                                 type="text"
                                                 class="form-input"
@@ -147,30 +147,6 @@
                                                 {{ form.errors.first_name }}
                                             </p>
                                         </div>
-
-                                        <!-- <div>
-                                            <label
-                                                for="patient_id"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Patient ID
-                                            </label>
-                                            <input
-                                                randomly
-                                                disabled
-                                                id="patient_id"
-                                                v-model="form.patient_id"
-                                                type="text"
-                                                class="form-input"
-                                                required
-                                            />
-                                            <p
-                                                v-if="form.errors.patient_id"
-                                                class="text-sm text-red-500 mt-1"
-                                            >
-                                                {{ form.errors.patient_id }}
-                                            </p>
-                                        </div> -->
 
                                         <div>
                                             <label
@@ -193,7 +169,24 @@
                                             </p>
                                         </div>
 
-                                        <!-- GENDER moved here -->
+                                        <div class="sm:col-span-2">
+                                            <label
+                                                for="last_name"
+                                                class="block text-sm font-semibold text-gray-900"
+                                            >
+                                                Last Name
+                                            </label>
+                                            <input
+                                                id="last_name"
+                                                v-model="form.last_name"
+                                                type="text"
+                                                class="form-input"
+                                            />
+                                            <p v-if="form.errors.last_name" class="text-sm text-red-500 mt-1">
+                                                {{ form.errors.last_name }}
+                                            </p>
+                                        </div>
+
                                         <div>
                                             <label
                                                 for="gender"
@@ -212,25 +205,6 @@
                                             </select>
                                             <p v-if="form.errors.gender" class="text-sm text-red-500 mt-1">
                                                 {{ form.errors.gender }}
-                                            </p>
-                                        </div>
-
-                                        <!-- LAST NAME moved after gender -->
-                                        <div>
-                                            <label
-                                                for="last_name"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Last Name
-                                            </label>
-                                            <input
-                                                id="last_name"
-                                                v-model="form.last_name"
-                                                type="text"
-                                                class="form-input"
-                                            />
-                                            <p v-if="form.errors.last_name" class="text-sm text-red-500 mt-1">
-                                                {{ form.errors.last_name }}
                                             </p>
                                         </div>
 

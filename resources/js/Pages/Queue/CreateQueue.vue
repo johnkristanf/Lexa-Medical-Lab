@@ -38,7 +38,7 @@
     // FORM INITIALIZATION
     const form = useForm({
         patient_name: 'Automatic Name Regular Patient',
-        priority_type: props.priority_types[2], // INITIAL VALUE SET REGULAR PATIENT
+        priority_type: null, // INITIAL VALUE SET TO NULL FOR PLACEHOLDER
         queue_number: '',
     })
 
@@ -51,6 +51,8 @@
     watch(
         () => form.priority_type,
         (newPriorityType) => {
+            if (!newPriorityType) return
+
             console.log('newPriorityType: ', newPriorityType)
 
             router.get(route('queue.create'), newPriorityType, {
@@ -154,6 +156,16 @@
 
     // HANDLE THE QUEUE CREATION SUBMISSION FORM
     const onSubmit = () => {
+        if (!form.priority_type) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Priority Type Required',
+                detail: 'Please select a priority type before getting a ticket.',
+                life: 3000,
+            })
+            return
+        }
+
         // 1. Fetch the latest queue number based on priority_type
         router.get(route('queue.create'), form.priority_type, {
             preserveState: true,
@@ -242,7 +254,9 @@
                             <ListboxButton
                                 class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                             >
-                                <span class="block truncate">{{ form.priority_type.name }}</span>
+                                <span class="block truncate">
+                                    {{ form.priority_type ? form.priority_type.name : '-----' }}
+                                </span>
                                 <span
                                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                                 >
