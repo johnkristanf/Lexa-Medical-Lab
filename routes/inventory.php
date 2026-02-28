@@ -20,6 +20,9 @@ Route::middleware(['auth', 'verified', 'can:manage-inventory-supplies'])->group(
     Route::put('/medical/supply/update/{id}', [MedicalSupplyController::class, 'updateSupply'])
         ->name('supply.update');
 
+    Route::put('/medical/supply/edit/{id}', [MedicalSupplyController::class, 'editMedicalSupply'])
+        ->name('supply.edit');
+
     // RENDER TO STOCK PAGE
     Route::get('/medical/stock/create', [MedicalSupplyController::class, 'stockSupplycreate'])
         ->name('medical.stock.create');

@@ -50,15 +50,21 @@ class MedicalStaffController extends Controller
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'queue_id' => 'required|exists:queues,id',
+            'queue_id' => 'required',
             'status_id' => 'required|exists:queue_statuses,id',
         ]);
 
-        $queue = Queues::findOrFail($request->queue_id);
-        $queue->status_id = $request->status_id;
-        $queue->save();
+        $queueIds = is_array($request->queue_id) ? $request->queue_id : [$request->queue_id];
 
-        broadcast(new QueueUpdate($queue->id));
+        foreach ($queueIds as $id) {
+            $queue = Queues::find($id);
+            if ($queue) {
+                $queue->status_id = $request->status_id;
+                $queue->save();
+
+                broadcast(new QueueUpdate($queue->id));
+            }
+        }
 
         return back();
     }

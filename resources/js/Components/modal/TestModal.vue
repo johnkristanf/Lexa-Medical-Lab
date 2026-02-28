@@ -205,27 +205,13 @@
                                                 Referer Full Name
                                             </label>
 
-                                            <select
+                                            <input
                                                 id="referer_full_name"
                                                 v-model="form.referer_fullname"
-                                                class="form-input w-full"
-                                            >
-                                                <option value="" disabled class="text-black">
-                                                    Select Referer
-                                                </option>
-                                                <option
-                                                    value="Sharmlane Faith Patches,RMT"
-                                                    class="text-black"
-                                                >
-                                                    Sharmlane Faith Patches,RMT
-                                                </option>
-                                                <option value="Jane R. Moldez, RMT" class="text-black">
-                                                    Jane R. Moldez, RMT
-                                                </option>
-                                                <option value="Jill R. Albino, RMT" class="text-black">
-                                                    Jill R. Albino, RMT
-                                                </option>
-                                            </select>
+                                                type="text"
+                                                class="form-input"
+                                                placeholder="Enter Referer Full Name"
+                                            />
 
                                             <p
                                                 v-if="form.errors.referer_fullname"

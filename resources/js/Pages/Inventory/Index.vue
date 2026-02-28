@@ -18,6 +18,7 @@
     import UpdateSupply from '@/Components/modal/UpdateSupply.vue'
     import DangerButton from '@/Components/DangerButton.vue'
     import AddButton from '@/Components/AddButton.vue'
+    import EditMedicalSupplyModal from '@/Components/modal/EditMedicalSupplyModal.vue'
 
     const props = defineProps({
         supplies: Array,
@@ -39,6 +40,14 @@
     const openUpdateSupply = (supply) => {
         supplyUpdate.value = supply
         showUpdateSupply.value = true
+    }
+
+    const showEditSupply = ref(false)
+    const editSupplyData = ref(null)
+
+    const openEditSupply = (supply) => {
+        editSupplyData.value = supply
+        showEditSupply.value = true
     }
 
     const filteredSupplies = computed(() => {
@@ -78,6 +87,7 @@
         'Manufacturing Date',
         'Expiration Date',
         'Lot #',
+        'Action',
     ]
 </script>
 
@@ -132,7 +142,17 @@
                                 <fwb-table-cell>{{ supply.quantity }}</fwb-table-cell>
                                 <fwb-table-cell>{{ supply.manufacture_date }}</fwb-table-cell>
                                 <fwb-table-cell>{{ supply.expiration_date }}</fwb-table-cell>
-                                <fwb-table-cell class="!text-left">{{ supply.lot_number ? supply.lot_number : 'N/A' }}</fwb-table-cell>
+                                <fwb-table-cell class="!text-left">
+                                    {{ supply.lot_number ? supply.lot_number : 'N/A' }}
+                                </fwb-table-cell>
+                                <fwb-table-cell>
+                                    <button
+                                        @click="openEditSupply(supply)"
+                                        class="px-4 py-2 text-xs font-medium text-white bg-green-600 rounded hover:opacity-75"
+                                    >
+                                        Edit
+                                    </button>
+                                </fwb-table-cell>
                             </fwb-table-row>
                         </fwb-table-body>
                     </fwb-table>
@@ -152,6 +172,13 @@
             v-if="toggles.showAddSupplyModal"
             :categories="categories"
             @close="toggles.showAddSupplyModal = false"
+        />
+
+        <EditMedicalSupplyModal
+            v-if="showEditSupply"
+            :supply="editSupplyData"
+            :categories="categories"
+            @close="showEditSupply = false"
         />
 
         <!-- INVENTORY LOGS -->

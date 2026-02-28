@@ -28,7 +28,7 @@ class MedicalSupplyController extends Controller
 {
     public function printPDFReport()
     {
-        $supplies = MedicalSupplies::with('batches')->get();
+        $supplies = MedicalSupplies::with('batches')->latest()->get();
 
         $logobaselexa = $this->getLogolexaInventoryPDF();
 
@@ -183,6 +183,7 @@ class MedicalSupplyController extends Controller
             ->get();
 
         $supplies = MedicalSupplies::with(['batches', 'category'])
+            ->latest()
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
                     $q->where('participants', 'LIKE', "%{$searchQuery}%")
@@ -240,11 +241,31 @@ class MedicalSupplyController extends Controller
         return redirect()->back()->with('success', 'Supply quantity deducted successfully.');
     }
 
+    public function editMedicalSupply(Request $request, $id)
+    {
+        $supply = MedicalSupplies::findOrFail($id);
+
+        $validated = $request->validate([
+            'participants' => 'required|string|max:255',
+            'brand_name' => 'required|string|max:255',
+            'unit' => 'required|string|max:50',
+            'manufacture_date' => 'required|date',
+            'expiration_date' => 'required|date|after_or_equal:manufacture_date',
+            'lot_number' => 'nullable|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $supply->update($validated);
+
+        return redirect()->back()->with('success', 'Medical supply updated successfully.');
+    }
+
     public function suppliescreate(Request $request)
     {
         $searchQuery = $request->query('search');
 
         $supplies = MedicalSupplies::with(['category', 'stocks', 'batches'])
+        ->latest()
         ->when($searchQuery, function ($query) use ($searchQuery) {
         $query->where(function ($q) use ($searchQuery) {
             $q->where('participants', 'LIKE', "%{$searchQuery}%")
@@ -323,6 +344,7 @@ class MedicalSupplyController extends Controller
 
         $searchQuery = $request->query('search');
         $supplies = MedicalSupplies::with(['stocks', 'batches', 'category'])
+         ->latest()
          ->when($searchQuery, function ($query) use ($searchQuery) {
         $query->where('brand_name', 'LIKE', "%{$searchQuery}%")
               ->orWhereHas('batches', function ($batchQuery) use ($searchQuery) {
@@ -338,7 +360,7 @@ class MedicalSupplyController extends Controller
 
     public function batchNumbercreate(Request $request)
     {
-        $supplies = MedicalSupplies::with('batches')->get();
+        $supplies = MedicalSupplies::with('batches')->latest()->get();
 
         return Inertia::render('Inventory/Batches', [
             'supplies' => $supplies,

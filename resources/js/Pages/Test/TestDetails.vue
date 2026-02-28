@@ -122,7 +122,7 @@
                                             class="bg-green-600 rounded-md px-3 py-1 text-white hover:bg-green-700"
                                             @click="openTestDialog(test.patient_id, test.id, test.status)"
                                         >
-                                            {{ test.status === 'completed' ? 'View Result' : 'Result' }}
+                                            {{ test.status === 'completed' ? 'Edit Result' : 'Result' }}
                                         </AddButton>
                                     </fwb-table-cell>
                                 </fwb-table-row>
