@@ -154,12 +154,12 @@
         <table width="100%">
             <tr>
                 <td style="width: 50%; text-align: center; vertical-align: top;">
-                    <p style="text-decoration: underline;"><strong>JANE R. MOLDEZ, RMT</strong></p>
+                    <p style="text-decoration: underline;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p>
                     <p>Lic. No.: 0115085</p>
                     <p>Medical Technologist</p>
                 </td>
                 <td style="width: 50%; text-align: center; vertical-align: top;">
-                    <p style="text-decoration: underline;"><strong>DR. OSCAR P. GRAGEDA, FSCP, APCP</strong></p>
+                    <p style="text-decoration: underline;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p>
                     <p>Lic. No.: 0047205</p>
                     <p>Pathologist</p>
                 </td>

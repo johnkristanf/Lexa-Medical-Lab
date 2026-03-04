@@ -23,6 +23,10 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
     Route::put('/patient/{patient}', [MedicalStaffController::class, 'updatePatientDetails'])
         ->name('patient.update');
 
+    // DELETE PATIENT DETAILS
+    Route::delete('/patient/{patient}', [MedicalStaffController::class, 'deletePatientDetails'])
+        ->name('patient.delete');
+
     // RENDER MEDICAL APPOINTMENTS PAGE
     Route::get('/medical/appointments', [MedicalStaffController::class, 'medicalAppointmentPage'])
         ->name('medical.appointments');

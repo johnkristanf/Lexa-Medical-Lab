@@ -143,8 +143,8 @@ class MedicalStaffController extends Controller
         'gender' => 'required|string|max:10',
         'date_of_birth' => 'required|date',
         'address' => 'required|string|max:255',
-        'contact_number' => 'required|string|max:11',
-        'email' => 'required|email|max:255|unique:patients,email',
+        'contact_number' => 'nullable|string|max:11',
+        'email' => 'nullable|email|max:255|unique:patients,email',
         'priority_type.id' => 'required|exists:priority_types,id',
     ]);
 
@@ -219,13 +219,20 @@ class MedicalStaffController extends Controller
             'gender' => 'required|string|max:10',
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:11',
-            'email' => 'required|email|max:255|unique:patients,email,'.$patient->id,
+            'contact_number' => 'nullable|string|max:11',
+            'email' => 'nullable|email|max:255|unique:patients,email,'.$patient->id,
         ]);
 
         $patient->update($validated);
 
         return redirect()->back()->with('success', 'Patient details updated successfully.');
+    }
+
+    public function deletePatientDetails(Patient $patient)
+    {
+        $patient->delete();
+
+        return redirect()->back()->with('success', 'Patient deleted successfully.');
     }
 
     public function testCategoryStore(Request $request)

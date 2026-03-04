@@ -20,7 +20,8 @@
     import UpdatePatientDetails from '@/Components/modal/UpdatePatientDetails.vue'
     import AddButton from '@/Components/AddButton.vue'
     import { formatDate } from '@/helpers/formatter'
-    import { EnvelopeIcon, InboxArrowDownIcon, PencilSquareIcon } from '@heroicons/vue/20/solid'
+    import { EnvelopeIcon, InboxArrowDownIcon, PencilSquareIcon, TrashIcon } from '@heroicons/vue/20/solid'
+    import { router } from '@inertiajs/vue3'
 
     const props = defineProps({
         patients: Array,
@@ -72,6 +73,17 @@
         patientID.value = patient_id
         togglesTestModal.showTestModal = true
         patientPriotityType.value = priority_type
+    }
+
+    const deletePatient = (id) => {
+        if (confirm('Are you sure you want to delete this patient?')) {
+            router.delete(route('patient.delete', id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Patient deleted successfully')
+                },
+            })
+        }
     }
 
     // TABLE HEADERS
@@ -160,8 +172,15 @@
                                         </button>
 
                                         <button
+                                            :disabled="!patient.email"
                                             @click="openEmailAppointmentDetails(patient.email)"
-                                            class="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
+                                            :class="[
+                                                'text-sm font-medium px-4 py-2 rounded whitespace-nowrap text-white',
+                                                !patient.email
+                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                    : 'bg-green-600 hover:opacity-75',
+                                            ]"
+                                            :title="!patient.email ? 'No email provided' : ''"
                                         >
                                             <EnvelopeIcon class="size-4 text-white" />
                                         </button>
@@ -171,6 +190,13 @@
                                             class="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
                                         >
                                             <PencilSquareIcon class="size-4 text-white" />
+                                        </button>
+
+                                        <button
+                                            @click="deletePatient(patient.id)"
+                                            class="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded whitespace-nowrap hover:opacity-75"
+                                        >
+                                            <TrashIcon class="size-4 text-white" />
                                         </button>
                                     </fwb-table-cell>
                                 </fwb-table-row>

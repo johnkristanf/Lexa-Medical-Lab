@@ -251,7 +251,7 @@
                                                 for="contact_number"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Contact Number
+                                                Contact Number (optional)
                                             </label>
 
                                             <input
@@ -280,10 +280,10 @@
 
                                         <div class="sm:col-span-2">
                                             <label
-                                                for="contact_number"
+                                                for="email"
                                                 class="block text-sm font-semibold text-gray-900"
                                             >
-                                                Email
+                                                Email (optional)
                                             </label>
                                             <input
                                                 id="email"

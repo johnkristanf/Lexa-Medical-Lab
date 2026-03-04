@@ -18,10 +18,7 @@ class DatabaseSeeder extends Seeder
             StaffSeeder::class,
             PriorityTypesSeeder::class,
             QueueStatusSeeder::class,
-            TestRequestSeeder::class,
             TestPurposeSeeder::class,
-            // AppointmentScheduleSeeder::class,
-            // RefererNameSeeder::class
         ]);
     }
 }
