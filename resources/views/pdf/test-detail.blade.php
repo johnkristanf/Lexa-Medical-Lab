@@ -10,7 +10,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .header h2 {
@@ -21,26 +21,24 @@
         .result-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
 
         .info-table td {
-            padding: 4px;
+            padding: 2px;
         }
 
         .result-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
             font-size: 11px;
-            /* Slightly smaller */
         }
 
         .result-table th,
         .result-table td {
             border: 1px solid #000;
-            padding: 4px 5px;
-            /* Slightly compressed */
+            padding: 2px 2px;
             text-align: center;
         }
 
@@ -72,7 +70,7 @@
         .footer {
             display: flex;
             justify-content: space-between;
-            margin-top: 40px;
+            margin-top: 20px;
         }
 
         .footer .sig {
@@ -155,11 +153,12 @@
             <tr>
                 <td style="width: 50%; text-align: center; vertical-align: top;">
                     <p style="text-decoration: underline;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p>
-                    <p>Lic. No.: 0115085</p>
+                    <p></p>
                     <p>Medical Technologist</p>
                 </td>
-                <td style="width: 50%; text-align: center; vertical-align: top;">
-                    <p style="text-decoration: underline;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p>
+                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/signature.png'))) }}" style="display: block; margin: 0 auto -30px auto; height: 50px; position: relative; z-index: 0;" alt="Signature">
+                    <p style="text-decoration: underline; position: relative; z-index: 1;"><strong>Dr. Oscar P. Grageda, FPSP, APCP</strong></p>
                     <p>Lic. No.: 0047205</p>
                     <p>Pathologist</p>
                 </td>
