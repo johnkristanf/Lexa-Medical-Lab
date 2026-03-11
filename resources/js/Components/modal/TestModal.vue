@@ -12,7 +12,7 @@
     import { useForm } from '@inertiajs/vue3'
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import { computed } from 'vue'
+    import { computed, ref } from 'vue'
 
     // TOAST INITIALIZATION
     const toast = useToast()
@@ -40,55 +40,61 @@
         total_price: '',
         purpose_id: '',
         patient_id: props.patientID,
-        category_id: '',
+        category_ids: [],
         selected_test_types: [],
     })
 
-    // filtered by category
-    const filteredTestTypes = computed(() => {
-        const selectedId = form.category_id
-        if (!selectedId) return []
-        const selectedCategory = props.testCategory.find((category) => category.id === selectedId)
-        return selectedCategory ? selectedCategory.test_types : []
+    const selectedCategories = computed(() => {
+        if (!form.category_ids || !form.category_ids.length) return []
+        return props.testCategory.filter((category) => form.category_ids.includes(category.id))
     })
 
-    const selectedCategory = computed(() => {
-        if (!form.category_id) return null
-        return props.testCategory.find((category) => category.id === form.category_id) || null
-    })
-
-    // Total price: base price from selected category (once when at least one test type selected), with 20% discount if eligible
+    // Total price: base price from selected categories (once when at least one test type selected), with 20% discount if eligible
     const totalPrice = computed(() => {
         const discountEligible =
             props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code)
-        const category = selectedCategory.value
-        const hasSelection = form.selected_test_types.length > 0
-        if (!category || !hasSelection) return '0.00'
-        let price = Number(category.price || 0)
+
+        let subtotal = 0
+
+        selectedCategories.value.forEach((category) => {
+            const hasSelection = category.test_types.some((type) =>
+                form.selected_test_types.includes(type.id),
+            )
+            if (hasSelection) {
+                subtotal += Number(category.price || 0)
+            }
+        })
+
+        if (subtotal === 0) return '0.00'
+
         if (discountEligible) {
-            price = price * 0.8 // Apply 20% discount
+            subtotal = subtotal * 0.8 // Apply 20% discount
         }
-        return price.toFixed(2)
+        return subtotal.toFixed(2)
     })
 
     const isDiscounted = computed(
         () => props.patientPriorityType && discountedCode.includes(props.patientPriorityType.code),
     )
 
-    const allSelectedInCategory = computed(() => {
-        const types = filteredTestTypes.value
-        if (!types.length) return false
-        const selected = new Set(form.selected_test_types)
-        return types.every((t) => selected.has(t.id))
-    })
+    function allSelectedInCategory(categoryId) {
+        const category = props.testCategory.find((c) => c.id === categoryId)
+        if (!category || !category.test_types.length) return false
 
-    function toggleSelectAll() {
-        const ids = filteredTestTypes.value.map((t) => t.id)
-        if (!ids.length) return
-        if (allSelectedInCategory.value) {
-            form.selected_test_types = form.selected_test_types.filter((id) => !ids.includes(id))
+        const typeIds = category.test_types.map((t) => t.id)
+        const selected = new Set(form.selected_test_types)
+        return typeIds.every((id) => selected.has(id))
+    }
+
+    function toggleSelectAll(categoryId) {
+        const category = props.testCategory.find((c) => c.id === categoryId)
+        if (!category || !category.test_types.length) return
+
+        const typeIds = category.test_types.map((t) => t.id)
+        if (allSelectedInCategory(categoryId)) {
+            form.selected_test_types = form.selected_test_types.filter((id) => !typeIds.includes(id))
         } else {
-            const combined = new Set([...form.selected_test_types, ...ids])
+            const combined = new Set([...form.selected_test_types, ...typeIds])
             form.selected_test_types = [...combined]
         }
     }
@@ -112,8 +118,8 @@
             hasError = true
         }
 
-        if (!form.category_id) {
-            form.setError('category_id', 'Test Category is required.')
+        if (!form.category_ids || form.category_ids.length === 0) {
+            form.setError('category_ids', 'Test Category is required.')
             hasError = true
         }
 
@@ -339,84 +345,113 @@
                                         </div>
 
                                         <div class="sm:col-span-2">
-                                            <label
-                                                for="test_purpose"
-                                                class="block text-sm font-semibold text-gray-900"
-                                            >
-                                                Test Category
+                                            <label class="block text-sm font-semibold text-gray-900 mb-1">
+                                                Test Categories
                                             </label>
-                                            <select
-                                                id="category_id"
-                                                v-model.number="form.category_id"
-                                                class="form-input w-full"
+
+                                            <!-- Checkbox list instead of select -->
+                                            <div
+                                                class="border border-gray-300 rounded-md bg-white p-2 max-h-40 overflow-y-auto w-full"
                                             >
-                                                <option value="" disabled class="text-center">
-                                                    -- Select Test Category --
-                                                </option>
-                                                <option
+                                                <label
                                                     v-for="type_category in testCategory"
                                                     :key="type_category.id"
-                                                    :value="type_category.id"
+                                                    class="flex items-center space-x-2 py-1.5 cursor-pointer hover:bg-gray-50 px-2 rounded"
                                                 >
-                                                    {{ type_category.name }}
-                                                </option>
-                                            </select>
+                                                    <input
+                                                        type="checkbox"
+                                                        :value="type_category.id"
+                                                        v-model="form.category_ids"
+                                                        class="form-checkbox h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-600"
+                                                    />
+                                                    <span class="text-sm text-gray-800">
+                                                        {{ type_category.name }}
+                                                    </span>
+                                                </label>
+                                            </div>
+
                                             <p
-                                                v-if="form.errors.category_id"
+                                                v-if="form.errors.category_ids"
                                                 class="text-sm text-red-500 mt-1"
                                             >
-                                                {{ form.errors.category_id }}
+                                                {{ form.errors.category_ids }}
                                             </p>
                                         </div>
 
-                                        <!-- checkbox when selecting a category -->
-                                        <div class="sm:col-span-2" v-if="filteredTestTypes.length">
-                                            <div class="space-y-2 mt-2">
+                                        <!-- checklist when selecting categories -->
+                                        <div class="sm:col-span-2" v-if="selectedCategories.length">
+                                            <div class="space-y-4 mt-2">
                                                 <label class="block text-sm font-semibold text-gray-900">
-                                                    Select Test Type
+                                                    Select Test Types
                                                 </label>
-                                                <p v-if="selectedCategory" class="text-sm text-gray-600">
-                                                    Category price: ₱{{ selectedCategory.price }}
-                                                    <span
-                                                        v-if="isDiscounted"
-                                                        class="ml-1 text-green-600 font-medium"
-                                                    >
-                                                        (20% discount applied at total)
-                                                    </span>
+                                                <p
+                                                    v-if="isDiscounted"
+                                                    class="text-sm text-green-600 font-medium pb-2"
+                                                >
+                                                    (20% discount applied at total)
                                                 </p>
 
-                                                <div class="mb-3">
-                                                    <button
-                                                        type="button"
-                                                        @click="toggleSelectAll"
-                                                        class="text-sm text-green-600 hover:text-green-800 font-medium"
-                                                    >
-                                                        {{
-                                                            allSelectedInCategory
-                                                                ? 'Deselect all'
-                                                                : 'Select all'
-                                                        }}
-                                                    </button>
-                                                </div>
-
-                                                <div class="space-y-2 mt-2">
+                                                <div
+                                                    v-for="category in selectedCategories"
+                                                    :key="category.id"
+                                                    class="border border-gray-200 p-4 rounded-md"
+                                                >
                                                     <div
-                                                        v-for="type in filteredTestTypes"
-                                                        :key="type.id"
-                                                        :value="Number(type.id)"
-                                                        class="flex items-center"
+                                                        class="flex justify-between items-center mb-2 pb-2 border-b border-gray-100"
                                                     >
-                                                        <label class="inline-flex items-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                :value="type.id"
-                                                                v-model.number="form.selected_test_types"
-                                                                class="form-checkbox"
-                                                            />
-                                                            <span class="ml-2 text-sm text-gray-700">
-                                                                {{ type.name }}
-                                                            </span>
-                                                        </label>
+                                                        <h3 class="font-bold text-gray-800">
+                                                            {{ category.name }}
+                                                        </h3>
+                                                        <p
+                                                            class="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded"
+                                                        >
+                                                            Price: ₱{{ category.price }}
+                                                        </p>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <button
+                                                            type="button"
+                                                            @click="toggleSelectAll(category.id)"
+                                                            class="text-sm text-green-600 hover:text-green-800 font-bold"
+                                                        >
+                                                            {{
+                                                                allSelectedInCategory(category.id)
+                                                                    ? 'Deselect all'
+                                                                    : 'Select all'
+                                                            }}
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="space-y-2 mt-2">
+                                                        <div
+                                                            v-for="type in category.test_types"
+                                                            :key="type.id"
+                                                            class="flex items-center"
+                                                        >
+                                                            <label
+                                                                class="inline-flex items-center cursor-pointer"
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    :value="type.id"
+                                                                    v-model.number="form.selected_test_types"
+                                                                    class="form-checkbox text-green-600 focus:ring-green-500 h-4 w-4 rounded border-gray-300"
+                                                                />
+                                                                <span class="ml-2 text-sm text-gray-700">
+                                                                    {{ type.name }}
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                        <p
+                                                            v-if="
+                                                                !category.test_types ||
+                                                                category.test_types.length === 0
+                                                            "
+                                                            class="text-xs text-gray-400 italic"
+                                                        >
+                                                            No test types available
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 <div

@@ -94,18 +94,49 @@
 
     const testDetail = ref(null)
 
+    // Form data will still be a flat list of test results for submission
+    // We will create a computed property to group them by category for display
+    const testCategories = ref({})
+
     function fetchTestById(patientID, testID) {
         axios.get(route('test.details', [patientID, testID])).then((response) => {
             testDetail.value = response.data
 
+            // We need to group by category. Let's extract categories first.
+            let categories = {}
+
             // POPULATE DATA
-            form.test_results = response.data.test_types.map((test) => ({
-                test_type_id: test.id,
-                result: test.pivot.results ?? '',
-                name: test.name,
-                reference_range: test.reference_range,
-                unit: test.unit,
-            }))
+            form.test_results = response.data.test_types.map((test, index) => {
+                const categoryId = test.test_category_id || 'unassigned' // Assuming test_category_id is available
+
+                // If we don't have the category name, we'll try to fetch it or default
+                if (!categories[categoryId]) {
+                    categories[categoryId] = {
+                        id: categoryId,
+                        name: test.test_category
+                            ? test.test_category.name
+                            : test.test_category_name || `Category ${categoryId}`,
+                        tests: [],
+                    }
+                }
+
+                // Store the index so we can bind to form.test_results[index]
+                categories[categoryId].tests.push({
+                    ...test,
+                    formIndex: index,
+                })
+
+                return {
+                    test_type_id: test.id,
+                    result: test.pivot.results ?? '',
+                    name: test.name,
+                    reference_range: test.reference_range,
+                    unit: test.unit,
+                    test_category_id: categoryId,
+                }
+            })
+
+            testCategories.value = categories
         })
     }
 
@@ -179,56 +210,74 @@
 
                             <div v-if="testDetail" class="w-full mt-8 isolate">
                                 <form @submit.prevent="submitForm">
-                                    <fwb-table hoverable>
-                                        <!-- Table Head -->
-                                        <fwb-table-head class="bg-green-600 text-white">
-                                            <fwb-table-head-cell
-                                                v-for="(header, index) in testResultsTableHeaders"
-                                                :key="index"
-                                                class="bg-green-600 text-white"
-                                            >
-                                                {{ header }}
-                                            </fwb-table-head-cell>
-                                        </fwb-table-head>
+                                    <div
+                                        v-for="(category, catId) in testCategories"
+                                        :key="catId"
+                                        class="mb-8"
+                                    >
+                                        <h2 class="text-xl font-bold text-gray-800 mb-3 ml-1">
+                                            {{ category.name }}
+                                        </h2>
+                                        <fwb-table hoverable>
+                                            <!-- Table Head -->
+                                            <fwb-table-head class="bg-green-600 text-white">
+                                                <fwb-table-head-cell
+                                                    v-for="(header, index) in testResultsTableHeaders"
+                                                    :key="index"
+                                                    class="bg-green-600 text-white"
+                                                >
+                                                    {{ header }}
+                                                </fwb-table-head-cell>
+                                            </fwb-table-head>
 
-                                        <!-- Table Body -->
-                                        <fwb-table-body>
-                                            <fwb-table-row
-                                                v-for="(test, index) in form.test_results"
-                                                :key="test.test_type_id"
-                                            >
-                                                <!-- Test Name -->
-                                                <fwb-table-cell>
-                                                    {{ test.name }}
-                                                </fwb-table-cell>
+                                            <!-- Table Body -->
+                                            <fwb-table-body>
+                                                <fwb-table-row v-for="test in category.tests" :key="test.id">
+                                                    <!-- Test Name -->
+                                                    <fwb-table-cell>
+                                                        {{ test.name }}
+                                                    </fwb-table-cell>
 
-                                                <!-- Result Input -->
-                                                <fwb-table-cell>
-                                                    <input
-                                                        :id="'result_' + test.test_type_id"
-                                                        v-model="form.test_results[index].result"
-                                                        type="text"
-                                                        class="form-input w-full"
-                                                    />
-                                                    <p
-                                                        v-if="form.errors[`test_results.${index}.result`]"
-                                                        class="text-sm text-red-500 mt-1"
-                                                    >
-                                                        {{ form.errors[`test_results.${index}.result`] }}
-                                                    </p>
-                                                </fwb-table-cell>
+                                                    <!-- Result Input -->
+                                                    <fwb-table-cell>
+                                                        <input
+                                                            :id="'result_' + test.id"
+                                                            v-model="form.test_results[test.formIndex].result"
+                                                            type="text"
+                                                            class="form-input w-full"
+                                                        />
+                                                        <p
+                                                            v-if="
+                                                                form.errors[
+                                                                    `test_results.${test.formIndex}.result`
+                                                                ]
+                                                            "
+                                                            class="text-sm text-red-500 mt-1"
+                                                        >
+                                                            {{
+                                                                form.errors[
+                                                                    `test_results.${test.formIndex}.result`
+                                                                ]
+                                                            }}
+                                                        </p>
+                                                    </fwb-table-cell>
 
-                                                <!-- Reference Range -->
-                                                <fwb-table-cell class="!text-left">
-                                                    {{ test.reference_range ? test.reference_range : 'N/A' }}
-                                                </fwb-table-cell>
+                                                    <!-- Reference Range -->
+                                                    <fwb-table-cell class="!text-left">
+                                                        {{
+                                                            test.reference_range
+                                                                ? test.reference_range
+                                                                : 'N/A'
+                                                        }}
+                                                    </fwb-table-cell>
 
-                                                <fwb-table-cell class="!text-left">
-                                                    {{ test.unit ? test.unit : 'N/A' }}
-                                                </fwb-table-cell>
-                                            </fwb-table-row>
-                                        </fwb-table-body>
-                                    </fwb-table>
+                                                    <fwb-table-cell class="!text-left">
+                                                        {{ test.unit ? test.unit : 'N/A' }}
+                                                    </fwb-table-cell>
+                                                </fwb-table-row>
+                                            </fwb-table-body>
+                                        </fwb-table>
+                                    </div>
 
                                     <!-- Actions -->
                                     <div class="flex justify-end items-center gap-3 mt-8">

@@ -314,7 +314,8 @@ class MedicalStaffController extends Controller
             'total_price' => 'required|string',
             'purpose_id' => 'required|integer',
             'patient_id' => 'required|integer',
-            'category_id' => 'required|integer',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'integer',
             'selected_test_types' => 'required|array',
         ]);
         Log::info("validated: ", [$validated]);
@@ -333,11 +334,23 @@ class MedicalStaffController extends Controller
             'or_number' => $orNumber,
             'purpose_id' => $validated['purpose_id'],
             'patient_id' => $validated['patient_id'],
-            'category_id' => $validated['category_id'],
             'selected_test_types' => json_encode($validated['selected_test_types']),
         ]);
 
         $testID = $test->id;
+
+        if (!empty($validated['category_ids'])) {
+            $categoriesToInsert = [];
+            foreach ($validated['category_ids'] as $categoryId) {
+                $categoriesToInsert[] = [
+                    'test_id' => $testID,
+                    'category_id' => $categoryId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            \App\Models\TestSelectedCategory::insert($categoriesToInsert);
+        }
 
         // INSERT PATIENT TEST TO THE PIVOT TABLE 123123123213123
         $patient = Patient::find($validated['patient_id']);
@@ -368,7 +381,7 @@ class MedicalStaffController extends Controller
                 $query->where('patient_test_type.test_id', $testID);
             })
             ->with(['test_types' => function ($query) use ($testID) {
-                $query->wherePivot('test_id', $testID);
+                $query->wherePivot('test_id', $testID)->with('test_category'); // Load category to group on frontend
             }])
             ->first();
 
@@ -413,12 +426,29 @@ class MedicalStaffController extends Controller
     {
         // Wrap everything in a DB transaction
         return DB::transaction(function () use ($testID) {
-            $testDetail = Test::findOrFail($testID);
+            $testDetail = Test::with('selected_categories.test_category')->findOrFail($testID);
             $patientDetails = Patient::findOrFail($testDetail->patient_id);
-            $testCategory = TestCategory::findOrFail($testDetail->category_id);
 
             $testPatient = $this->testDetailsByID($testDetail->patient_id, $testID);
             $testTypes = $testPatient->test_types ?? collect();
+
+            // Group tests by category for separate pages
+            $categoriesData = [];
+            if ($testDetail->selected_categories->isNotEmpty()) {
+                foreach ($testDetail->selected_categories as $selected) {
+                    $cat = $selected->test_category;
+                    $categoriesData[] = [
+                        'name' => $cat ? $cat->name : 'N/A',
+                        'tests' => $testTypes->where('test_category_id', $selected->category_id)
+                    ];
+                }
+            } else {
+                $legacyCategory = TestCategory::where('id', $testDetail->category_id)->first();
+                $categoriesData[] = [
+                    'name' => $legacyCategory ? $legacyCategory->name : 'N/A',
+                    'tests' => $testTypes
+                ];
+            }
 
             $dob = new \DateTime($patientDetails->date_of_birth);
             $today = new \DateTime;
@@ -428,10 +458,9 @@ class MedicalStaffController extends Controller
 
             return Pdf::loadView('pdf.test-detail', compact(
                 'patientDetails',
-                'testCategory',
+                'categoriesData',
                 'age',
                 'testDetail',
-                'testTypes',
                 'logoBase64'
             ))->setPaper('A4', 'portrait')
                 ->setOptions(['defaultFont' => 'DejaVu Sans'])

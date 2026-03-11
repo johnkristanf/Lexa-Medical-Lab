@@ -96,75 +96,81 @@
 
 <body>
 
-    <div class="header">
-        @if(isset($logoBase64) && $logoBase64)
-            <img src="{{ $logoBase64 }}" alt="Lexa Medical Laboratory Logo">
-        @else
-            <div style="height: 60px; margin-bottom: 10px; font-weight: bold; font-size: 16px; color: #74c69d;">
-                LEXA MEDICAL LABORATORY
-            </div>
+    @foreach ($categoriesData as $index => $data)
+        @if ($index > 0)
+            <div style="page-break-before: always;"></div>
         @endif
-        <p><strong>CLINICAL LABORATORY DEPARTMENT</strong></p>
-        <p><strong>{{ $testCategory->name}}</strong></p>
-    </div>
 
-    <table class="info-table">
-        <tr>
-            <td><strong>Name:</strong> {{ $patientDetails->first_name}}&nbsp;{{ $patientDetails->middle_name}}&nbsp;{{$patientDetails->last_name}}</td>
-            <td><strong>Date:</strong> {{ \Carbon\Carbon::parse($testDetail->test_schedule)->format('m/d/Y') }}</td>
-        </tr>
+        <div class="header">
+            @if(isset($logoBase64) && $logoBase64)
+                <img src="{{ $logoBase64 }}" alt="Lexa Medical Laboratory Logo">
+            @else
+                <div style="height: 60px; margin-bottom: 10px; font-weight: bold; font-size: 16px; color: #74c69d;">
+                    LEXA MEDICAL LABORATORY
+                </div>
+            @endif
+            <p><strong>CLINICAL LABORATORY DEPARTMENT</strong></p>
+            <p><strong>{{ $data['name'] }}</strong></p>
+        </div>
 
-        <tr>
-            <td><strong>Gender:</strong> {{ $patientDetails->gender }}</td>
-            <td><strong>OR Number:</strong> {{ $testDetail->or_number }}</td>
-        </tr>
-    </table>
-
-    <table class="result-table">
-        <thead>
+        <table class="info-table">
             <tr>
-                <th>TEST</th>
-                <th>RESULTS</th>
-                <th>REFERENCE VALUE</th>
-                <th>UNIT</th>
+                <td><strong>Name:</strong> {{ $patientDetails->first_name}}&nbsp;{{ $patientDetails->middle_name}}&nbsp;{{$patientDetails->last_name}}</td>
+                <td><strong>Date:</strong> {{ \Carbon\Carbon::parse($testDetail->test_schedule)->format('m/d/Y') }}</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach ($testTypes as $testType)
+
             <tr>
-                <td>{{ $testType->name ?? 'N/A' }}</td>
-                <td>{{ $testType->pivot->results ?? 'N/A' }}</td>
-                <td>
-                    <pre class="whitespace-pre-wrap font-mono text-sm">{{ $testType->reference_range ?? 'N/A' }}</pre>
-
-                </td>
-                <td>{{ $testType->unit ?? 'N/A' }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div class="remarks">
-        <strong>Remarks:</strong> {{ $testDetail->remarks ?? '_______________________' }}
-    </div>
-
-    <div class="footer">
-        <table width="100%">
-            <tr>
-                <td style="width: 50%; text-align: center; vertical-align: top;">
-                    <p style="text-decoration: underline;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p>
-                    <p></p>
-                    <p>Medical Technologist</p>
-                </td>
-                <td style="width: 50%; text-align: center; vertical-align: bottom;">
-                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/signature.png'))) }}" style="display: block; margin: 0 auto -30px auto; height: 50px; position: relative; z-index: 0;" alt="Signature">
-                    <p style="text-decoration: underline; position: relative; z-index: 1;"><strong>Dr. Oscar P. Grageda, FPSP, APCP</strong></p>
-                    <p>Lic. No.: 0047205</p>
-                    <p>Pathologist</p>
-                </td>
+                <td><strong>Gender:</strong> {{ $patientDetails->gender }}</td>
+                <td><strong>Referrers Name:</strong> {{ $testDetail->or_number }}</td>
             </tr>
         </table>
-    </div>
+
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>TEST</th>
+                    <th>RESULTS</th>
+                    <th>REFERENCE VALUE</th>
+                    <th>UNIT</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($data['tests'] as $testType)
+                <tr>
+                    <td>{{ $testType->name ?? 'N/A' }}</td>
+                    <td>{{ $testType->pivot->results ?? 'N/A' }}</td>
+                    <td>
+                        <pre class="whitespace-pre-wrap font-mono text-sm">{{ $testType->reference_range ?? 'N/A' }}</pre>
+
+                    </td>
+                    <td>{{ $testType->unit ?? 'N/A' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="remarks">
+            <strong>Remarks:</strong> {{ $testDetail->remarks ?? '_______________________' }}
+        </div>
+
+        <div class="footer">
+            <table width="100%">
+                <tr>
+                    <td style="width: 50%; text-align: center; vertical-align: top;">
+                        <p style="text-decoration: underline;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></p>
+                        <p></p>
+                        <p>Medical Technologist</p>
+                    </td>
+                    <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/signature.png'))) }}" style="display: block; margin: 0 auto -30px auto; height: 50px; position: relative; z-index: 0;" alt="Signature">
+                        <p style="text-decoration: underline; position: relative; z-index: 1;"><strong>Dr. Oscar P. Grageda, FPSP, APCP</strong></p>
+                        <p>Lic. No.: 0047205</p>
+                        <p>Pathologist</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    @endforeach
 
 
 </body>
