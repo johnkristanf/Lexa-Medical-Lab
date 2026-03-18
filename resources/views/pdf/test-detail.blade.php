@@ -38,8 +38,25 @@
         .result-table th,
         .result-table td {
             border: 1px solid #000;
-            padding: 2px 2px;
+            padding: 6px 8px;
             text-align: center;
+        }
+
+        .result-table pre {
+            margin: 0;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .result-table tr {
+            page-break-inside: avoid;
+        }
+
+        /* Applied when a category has 6 or more test rows */
+        .compact-table th,
+        .compact-table td {
+            padding: 2px 2px;
+            font-size: 10px;
         }
 
         .result-table th {
@@ -125,7 +142,8 @@
             </tr>
         </table>
 
-        <table class="result-table">
+        @php $isCompact = count($data['tests']) >= 6; @endphp
+        <table class="result-table {{ $isCompact ? 'compact-table' : '' }}">
             <thead>
                 <tr>
                     <th>TEST</th>

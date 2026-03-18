@@ -21,7 +21,7 @@
 
     import Toast from 'primevue/toast'
     import { useToast } from 'primevue/usetoast'
-    import { onMounted, ref } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
 
     // PROPS
     const props = defineProps({
@@ -93,6 +93,12 @@
     }
 
     const testDetail = ref(null)
+    const selectedPaper = ref('a4')
+
+    const printUrl = computed(() => {
+        if (!props.testID) return '#'
+        return route('print.test.details', props.testID) + '?paper=' + selectedPaper.value
+    })
 
     // Form data will still be a flat list of test results for submission
     // We will create a computed property to group them by category for display
@@ -184,13 +190,25 @@
                             >
                                 <h1 class="text-2xl">Test Result</h1>
 
-                                <a
-                                    :href="route('print.test.details', props.testID)"
-                                    target="_blank"
-                                    class="bg-green-600 rounded-md p-2 text-white"
-                                >
-                                    Print Details
-                                </a>
+                                <div class="flex items-center gap-2">
+                                    <select
+                                        v-model="selectedPaper"
+                                        class="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        title="Select paper size"
+                                    >
+                                        <option value="a4">A4</option>
+                                        <option value="letter">Letter</option>
+                                        <option value="legal">Legal</option>
+                                        <option value="a5">A5</option>
+                                    </select>
+                                    <a
+                                        :href="printUrl"
+                                        target="_blank"
+                                        class="bg-green-600 rounded-md px-3 py-1.5 text-white text-sm"
+                                    >
+                                        Print Details
+                                    </a>
+                                </div>
                             </DialogTitle>
 
                             <DialogDescription

@@ -43,8 +43,9 @@
     }
 
     const testDetailsTableHeaders = [
+        'Patient Name',
+        'Test Catalog',
         'Referrer Full Name',
-        'Doctor License No#',
         'Test Schedule',
         'Total Price',
         'Status',
@@ -85,13 +86,35 @@
                         <fwb-table-body>
                             <template v-if="props.testDetails && props.testDetails.length > 0">
                                 <fwb-table-row v-for="(test, index) in props.testDetails" :key="index">
+                                    <!-- Patient Name -->
+                                    <fwb-table-cell>
+                                        {{
+                                            test.patient
+                                                ? `${test.patient.first_name} ${test.patient.last_name}`
+                                                : 'N/A'
+                                        }}
+                                    </fwb-table-cell>
+
+                                    <!-- Test Catalog -->
+                                    <fwb-table-cell>
+                                        <template
+                                            v-if="
+                                                test.selected_categories &&
+                                                test.selected_categories.length > 0
+                                            "
+                                        >
+                                            <div v-for="cat in test.selected_categories" :key="cat.id">
+                                                {{ cat.test_category ? cat.test_category.name : '' }}
+                                            </div>
+                                        </template>
+                                        <template v-else-if="test.test_category">
+                                            <div>{{ test.test_category.name }}</div>
+                                        </template>
+                                        <template v-else>N/A</template>
+                                    </fwb-table-cell>
+
                                     <!-- Referrer -->
                                     <fwb-table-cell>{{ test.referer_fullname }}</fwb-table-cell>
-
-                                    <!-- Doctor License -->
-                                    <fwb-table-cell>
-                                        {{ test.doctor_license_no ? test.doctor_license_no : 'N/A' }}
-                                    </fwb-table-cell>
 
                                     <!-- Test Schedule -->
                                     <fwb-table-cell>
@@ -131,7 +154,7 @@
                             <!-- Empty State -->
                             <template v-else>
                                 <fwb-table-row>
-                                    <fwb-table-cell colspan="3" class="bg-gray-100 text-gray-500">
+                                    <fwb-table-cell colspan="8" class="bg-gray-100 text-gray-500 text-center">
                                         No test records found.
                                     </fwb-table-cell>
                                 </fwb-table-row>

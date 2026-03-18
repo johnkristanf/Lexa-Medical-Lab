@@ -194,7 +194,9 @@ class MedicalStaffController extends Controller
     {
         $searchQuery = $request->query('search');
         Log::info('searchQuery: ', [$searchQuery]);
-        $testCategory = TestCategory::with('testTypes')
+        $testCategory = TestCategory::with(['testTypes' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])
             ->when($searchQuery, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
@@ -239,12 +241,25 @@ class MedicalStaffController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|integer',
+            'price' => 'required|numeric',
         ]);
 
         TestCategory::create($validated);
 
         return redirect()->back()->with('success', 'Test Category created successfully.');
+    }
+
+    public function testCategoryUpdate(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $testCategory = TestCategory::findOrFail($id);
+        $testCategory->update($validated);
+
+        return redirect()->back()->with('success', 'Test Category updated successfully.');
     }
 
     public function testCategoryDelete($id)
@@ -300,6 +315,20 @@ class MedicalStaffController extends Controller
 
             return redirect()->back()->with('success', 'Test Type created successfully.');
         }
+    }
+
+    public function testTypeUpdate(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'reference_range' => 'nullable|string|max:255',
+            'unit' => 'nullable|string|max:255',
+        ]);
+
+        $testType = \App\Models\TestType::findOrFail($id);
+        $testType->update($validated);
+
+        return redirect()->back()->with('success', 'Test Type updated successfully.');
     }
 
 
@@ -363,11 +392,12 @@ class MedicalStaffController extends Controller
     public function testDetailsCreate(Request $request)
     {
         $searchQuery = $request->query('search');
-        $testDetails = Test::when($searchQuery, function ($query, $search) {
-            $query->where('referer_fullname', 'like', "%{$search}%");
-        })
-        ->latest()
-        ->get();
+        $testDetails = Test::with(['patient', 'test_category', 'selected_categories.test_category'])
+            ->when($searchQuery, function ($query, $search) {
+                $query->where('referer_fullname', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
 
         return Inertia::render('Test/TestDetails', [
             'testDetails' => $testDetails,
@@ -422,10 +452,17 @@ class MedicalStaffController extends Controller
         return back()->with('success', 'Test Results Updated.');
     }
 
-    public function print($testID)
+    public function print(Request $request, $testID)
     {
+        // Allowed paper sizes
+        $allowedSizes = ['a4', 'letter', 'legal', 'a5'];
+        $paperSize = strtolower($request->query('paper', 'a4'));
+        if (!in_array($paperSize, $allowedSizes)) {
+            $paperSize = 'a4';
+        }
+
         // Wrap everything in a DB transaction
-        return DB::transaction(function () use ($testID) {
+        return DB::transaction(function () use ($testID, $paperSize) {
             $testDetail = Test::with('selected_categories.test_category')->findOrFail($testID);
             $patientDetails = Patient::findOrFail($testDetail->patient_id);
 
@@ -462,7 +499,7 @@ class MedicalStaffController extends Controller
                 'age',
                 'testDetail',
                 'logoBase64'
-            ))->setPaper('A4', 'portrait')
+            ))->setPaper($paperSize, 'portrait')
                 ->setOptions(['defaultFont' => 'DejaVu Sans'])
                 ->stream('combined-details.pdf');
         });

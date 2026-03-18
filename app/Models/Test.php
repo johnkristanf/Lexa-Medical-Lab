@@ -31,6 +31,11 @@ class Test extends Model
         return $this->belongsTo(Patient::class, 'category_id');
     }
 
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
+    }
+
     public function test_types()
     {
         return $this->belongsToMany(TestType::class, 'patient_test_type')

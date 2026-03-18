@@ -50,11 +50,17 @@ Route::middleware(['auth', 'verified', 'can:manage-medical'])->group(function ()
         Route::post('/store', [MedicalStaffController::class, 'testCategoryStore'])
             ->name('test.category.submit');
 
+        Route::put('/update/{testCategory}', [MedicalStaffController::class, 'testCategoryUpdate'])
+            ->name('test.category.update');
+
         Route::delete('/delete{id}', [MedicalStaffController::class, 'testCategoryDelete'])
             ->name('test.category.delete');
 
         Route::post('/test/types/store', [MedicalStaffController::class, 'testTypeStore'])
             ->name('test.types.submit');
+
+        Route::put('/test/types/{testType}', [MedicalStaffController::class, 'testTypeUpdate'])
+            ->name('test.types.update');
 
         Route::post('/test/store', [MedicalStaffController::class, 'testStore'])
             ->name('test.submit');

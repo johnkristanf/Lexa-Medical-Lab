@@ -2,11 +2,12 @@
     import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
     import { Head, router } from '@inertiajs/vue3'
     import { Drawer } from 'primevue'
-    import { reactive, ref } from 'vue'
+    import { reactive, ref, computed } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
     import TestCategoryModal from '@/Components/modal/TestCategoryModal.vue'
-    import TestTypesModal from '@/Components/modal/TestTypesModal.vue'
+    import CategoryTestTypesModal from '@/Components/modal/CategoryTestTypesModal.vue'
+    import EditTestCategoryModal from '@/Components/modal/EditTestCategoryModal.vue'
     import AddButton from '@/Components/AddButton.vue'
     import DangerButton from '@/Components/DangerButton.vue'
 
@@ -29,12 +30,18 @@
     })
 
     const testTypesToggle = reactive({
-        // showAddTestTypesModal: false,
+        showViewTestTypesModal: false,
         showInventoryDrawer: false,
         category_id: null,
     })
 
-    const category = ref(null)
+    const selectedCategoryId = ref(null)
+    const category = computed(() => {
+        if (!props.test_category) return null
+        return props.test_category.find((c) => c.id === selectedCategoryId.value) || null
+    })
+
+    const editingCategory = ref(null)
 
     function DeletedTestCategory(id) {
         if (confirm('Are you sure you want to delete this category?')) {
@@ -46,9 +53,9 @@
         }
     }
 
-    function test(categoryq) {
-        category.value = categoryq
-        testTypesToggle.showAddTestTypesModal = true
+    function viewTestTypes(categoryq) {
+        selectedCategoryId.value = categoryq.id
+        testTypesToggle.showViewTestTypesModal = true
     }
 
     const categoryTableHeaders = ['Name', 'Price', 'Date created', 'Actions']
@@ -110,7 +117,13 @@
 
                                     <!-- Actions -->
                                     <fwb-table-cell class="flex gap-2">
-                                        <AddButton @click="test(category)">Add Test Type</AddButton>
+                                        <AddButton @click="viewTestTypes(category)">Test Types</AddButton>
+                                        <button
+                                            @click="editingCategory = category"
+                                            class="inline-flex items-center rounded-md border border-transparent bg-gray-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 active:bg-gray-900"
+                                        >
+                                            Edit
+                                        </button>
                                         <DangerButton @click="DeletedTestCategory(category.id)">
                                             Delete
                                         </DangerButton>
@@ -135,10 +148,16 @@
         <!-- ADD SUPLY MODAL -->
         <TestCategoryModal v-if="toggles.showAddSupplyModal" @close="toggles.showAddSupplyModal = false" />
 
-        <TestTypesModal
-            v-if="testTypesToggle.showAddTestTypesModal"
-            @close="testTypesToggle.showAddTestTypesModal = false"
+        <CategoryTestTypesModal
+            v-if="testTypesToggle.showViewTestTypesModal"
+            @close="testTypesToggle.showViewTestTypesModal = false"
             :category="category"
+        />
+
+        <EditTestCategoryModal
+            v-if="editingCategory"
+            :category="editingCategory"
+            @close="editingCategory = null"
         />
 
         <!-- DRAWER FOR INVENTORY LOGS -->
