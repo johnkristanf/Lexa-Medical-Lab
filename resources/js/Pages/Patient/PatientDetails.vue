@@ -14,6 +14,7 @@
     import { onMounted, reactive, ref } from 'vue'
     import SearchInput from '@/Components/SearchInput.vue'
     import { OPERATION_TYPES } from '@/Enums/Inventory'
+    import { TRANSACTION_TYPES } from '@/Enums/Patient'
     import PatientDetailsModal from '@/Components/modal/PatientDetailsModal.vue'
     import TestModal from '@/Components/modal/TestModal.vue'
     import EmailResultReminder from '@/Components/modal/EmailResultReminder.vue'
@@ -89,6 +90,7 @@
     // TABLE HEADERS
     const patientTableHeaders = [
         'Patient ID',
+        'Transaction',
         'Patient Type',
         'Full Name',
         'Address',
@@ -147,6 +149,27 @@
                             <template v-if="patients && patients.length > 0">
                                 <fwb-table-row v-for="(patient, index) in patients" :key="index">
                                     <fwb-table-cell>{{ patient.patient_id }}</fwb-table-cell>
+                                    <fwb-table-cell>
+                                        <span
+                                            v-if="patient.transaction_type === TRANSACTION_TYPES.APPOINTMENT"
+                                            class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-400"
+                                        >
+                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            Appointment
+                                        </span>
+                                        <span
+                                            v-else-if="patient.transaction_type === TRANSACTION_TYPES.WALK_IN"
+                                            class="inline-flex items-center gap-1 bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-purple-400"
+                                        >
+                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                              <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+                                            </svg>
+                                            Walk-in
+                                        </span>
+                                        <span v-else class="text-gray-500">-</span>
+                                    </fwb-table-cell>
                                     <fwb-table-cell>{{ patient.priority_type?.name ?? '' }}</fwb-table-cell>
                                     <fwb-table-cell
                                         class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
@@ -204,7 +227,7 @@
 
                             <template v-else>
                                 <fwb-table-row>
-                                    <fwb-table-cell colspan="5" class="text-center bg-gray-100 text-gray-500">
+                                    <fwb-table-cell colspan="10" class="text-center bg-gray-100 text-gray-500">
                                         No patient records found.
                                     </fwb-table-cell>
                                 </fwb-table-row>
